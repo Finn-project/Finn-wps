@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
+import importlib
 import json
 import numbers
 import os
@@ -67,7 +68,10 @@ def set_config(obj, module_name=None, root=False):
             obj[index] = eval_obj(value)
 
 
+setattr(sys.modules[__name__], 'raven', importlib.import_module('raven'))
 set_config(secrets, __name__, root=True)
+
+AUTH_USER_MODEL = 'members.User'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -76,6 +80,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'raven.contrib.django.raven_compat',
+
+    'members',
 ]
 
 MIDDLEWARE = [

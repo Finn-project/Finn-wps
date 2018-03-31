@@ -7,14 +7,14 @@ RUN             apt-get -y dist-upgrade
 RUN             apt-get -y install build-essential nginx supervisor
 
 # requirements만 복사
-COPY            .requirements/local.txt /srv/requirements.txt
+COPY            .requirements/production.txt /srv/requirements.txt
 
 # pip install
 WORKDIR         /srv
 RUN             pip install -r  /srv/requirements.txt
 RUN             rm -f           /srv/requirements.txt
 
-ENV         BUILD_MODE local
+ENV         BUILD_MODE production
 ENV         DJANGO_SETTINGS_MODULE config.settings.${BUILD_MODE}
 
 # 소스폴더를 통째로 복사
