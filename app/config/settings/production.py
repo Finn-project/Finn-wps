@@ -3,7 +3,7 @@ from .base import *
 secrets = json.loads(open(SECRETS_PRODUCTION, 'rt').read())
 set_config(secrets, module_name=__name__, root=True)
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = [
     '.elasticbeanstalk.com',
     '.himanmen.com'
