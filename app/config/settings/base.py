@@ -13,19 +13,32 @@ import json
 import numbers
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+
 SECRETS_DIR = os.path.join(ROOT_DIR, '.secrets')
 SECRETS_BASE = os.path.join(SECRETS_DIR, 'base.json')
 SECRETS_LOCAL = os.path.join(SECRETS_DIR, 'local.json')
+SECRETS_DEV = os.path.join(SECRETS_DIR, 'dev.json')
+SECRETS_PRODUCTION = os.path.join(SECRETS_DIR, 'production.json')
 
 secrets = json.loads(open(SECRETS_BASE, 'rt').read())
 
-SECRET_KEY = secrets['SECRET_KEY']
+# Static
+MEDIA_ROOT = os.path.join(ROOT_DIR, '.media')
+MEDIA_URL = '/media/'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(ROOT_DIR, '.static')
+
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
 
 
 def set_config(obj, module_name=None, root=False):
@@ -80,7 +93,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            TEMPLATES_DIR,
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,8 +138,3 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
-STATIC_URL = '/static/'
