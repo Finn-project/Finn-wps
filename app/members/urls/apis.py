@@ -1,9 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from ..apis import (
-    SignUpView
+    UserListCreateAPIView,
+    UserRetrieveUpdateDestroyAPIView,
 )
 
 urlpatterns = [
-    path('signup/', SignUpView.as_view(), name='signup')
+    path('', UserListCreateAPIView.as_view()),
+    path('<int:pk>/', UserRetrieveUpdateDestroyAPIView.as_view()),
 ]
