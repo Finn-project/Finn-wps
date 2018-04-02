@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
@@ -20,9 +21,10 @@ class UserLoginAuthTokenAPIView(APIView):
 
 
 class UserLogoutView(APIView):
-    def get(self, request):
-
-        data = {
-
-        }
-        return Response(data)
+    def post(self, request):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token = Token.objects.get(user=user)
+        token.delete()
+        return Response(serializer.data, status=status.HTTP_200_OK)

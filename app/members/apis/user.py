@@ -25,7 +25,6 @@ User = get_user_model()
 5. 유저 수정
 """
 
-
 class UserListCreateAPIView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
