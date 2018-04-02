@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.forms import model_to_dict
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -18,6 +16,14 @@ __all__ = (
 )
 
 User = get_user_model()
+
+"""
+1. 유저만들기 (회원가입)
+2. 유저리스트
+3. 유저정보
+4. 유저 삭제
+5. 유저 수정
+"""
 
 
 class UserListCreateAPIView(APIView):
@@ -38,17 +44,6 @@ class UserListCreateAPIView(APIView):
 
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
-    def post(self, request):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, _ = Token.objects.get_or_create(user=user)
-        data = {
-            'token': token.key,
-            'user': UserSerializer(user).data,
-        }
-        return Response(data)
-
     permission_classes = (
         permissions.IsAuthenticated,
     )

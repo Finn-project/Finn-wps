@@ -13,5 +13,6 @@ COPY            .requirements/production.txt /srv/requirements.txt
 
 # pip install
 WORKDIR         /srv
+RUN             pip install --upgrade pip
 RUN             pip install -r  /srv/requirements.txt
 RUN             rm -f           /srv/requirements.txt
