@@ -37,7 +37,6 @@ class APIFacebookBackend:
             # print('response_dict: ')
             # print(response_dict)
 
-            facebook_id = response_dict['id']
             response_dict = response.json()
             facebook_id = response_dict['id']
             first_name = response_dict['first_name']
@@ -60,37 +59,3 @@ class APIFacebookBackend:
             return User.objects.get(pk=user_id)
         except User.DoesNotExist:
             return None
-
-
-
-
-        # params = {
-        #     'access_token': access_token,
-        #     'fields': ','.join([
-        #         'id',
-        #         'email',
-        #         'first_name',
-        #         'last_name',
-        #         'picture.width(2500)',
-        #     ])
-        # }
-        # response = requests.get('https://graph.facebook.com/v2.12/me', params)
-        # # 요청에 성공했을 때 (정상 응답)만 진행, 아닐경우 None반환
-        #
-        # if response.status_code == status.HTTP_200_OK:
-        #
-        #     response_dict = response.json()
-        #     facebook_id = response_dict['id']
-        #     first_name = response_dict['first_name']
-        #     last_name = response_dict['last_name']
-        #
-        #     # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
-        #     # email = response_dict.get('email')
-        #
-        #     user, _ = User.objects.get_or_create(
-        #         username=facebook_id,
-        #         # email=email,
-        #         first_name=first_name,
-        #         last_name=last_name,
-        #         signup_type=User.SIGNUP_TYPE_FACEBOOK
-        #     )

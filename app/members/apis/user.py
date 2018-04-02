@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -53,15 +53,19 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
             'user': UserSerializer(get_object_or_404(User, pk=pk)).data
         }
         return Response(data)
-    # get method로 pk값을 받는 위 함수의 경우 여러 이슈가 존재
-    # 1. pk값을 클라이언트에서 알아야하는데 현재까지 딱히 pk값을 클라이언트에 전달하고 있지 않다.
-    # 2. 위의 permission_classes때문에 auth-token값 까지 받는데
-    #    auth-token값의 소유 사용자와 관계없이 pk를 넣은 유저정보가 return
-    #    (물론 위 로직을 수정하면 되긴함..)
-    # 3.apis/auth.py UserGetAuthTokenView가 pk 없이 똑같은 기능을 수행.
 
-    def put(self, request):
-        pass
+    def put(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            print('검문소1')
+            serializer.save()
+            return Response(serializer.data)
+        print('검문소2')
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request):
-        pass
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user.delete()
+        return Response('해당 유저가 삭제되었습니다.')
+
