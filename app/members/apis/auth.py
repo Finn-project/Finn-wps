@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
@@ -28,3 +28,13 @@ class UserLogoutView(APIView):
         token = Token.objects.get(user=user)
         token.delete()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserGetAuthTokenView(APIView):
+    permission_classes = (
+        permissions.IsAuthenticated,
+    )
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
