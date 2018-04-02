@@ -11,7 +11,7 @@ class User(AbstractUser):
         (SIGNUP_TYPE_EMAIL, 'email'),
     )
     username = models.EmailField(max_length=255, unique=True)
-    email = models.EmailField(max_length=255, unique=False)
+    email = models.EmailField(max_length=255, unique=False, null=True)
 
     img_profile = models.ImageField(upload_to='user', blank=True)
     signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES)
