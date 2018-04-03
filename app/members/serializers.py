@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
 from rest_framework import serializers, status
+from django.contrib.auth.password_validation import validate_password
 
 from utils.Exception.CustomException import CustomException
 
@@ -28,12 +30,26 @@ class UserCreateSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
 
-    def check_request(self, *args, **kwargs):
-        if User.objects.filter(username=kwargs.get('email')).exists():
+    def validate_email(self, email):
+        if User.objects.filter(username=email).exists():
             raise CustomException(detail='이미 존재 하는 메일 입니다.', status_code=status.HTTP_409_CONFLICT)
 
-        if kwargs.get('password') != kwargs.get('confirm_password'):
+        return email
+
+    def validate_password(self, password):
+        confirm_password = self.initial_data.get('confirm_password')
+        errors = dict()
+
+        if password != confirm_password:
             raise CustomException(detail='비밀번호가 일치하지 않습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            validate_password(password=password)
+        except ValidationError as e:
+            errors['detail'] = list(e.messages)
+            raise CustomException(errors, status_code=status.HTTP_400_BAD_REQUEST)
+
+        return password
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -43,8 +59,6 @@ class UserCreateSerializer(serializers.Serializer):
         last_name = attrs.get('last_name')
 
         if password and confirm_password:
-            self.check_request(email=email, password=password, confirm_password=confirm_password)
-
             user = User.objects.create_user(
                 username=email,
                 email=email,
