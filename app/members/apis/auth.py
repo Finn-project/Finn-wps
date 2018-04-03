@@ -27,7 +27,7 @@ class UserLogoutView(APIView):
         user = serializer.validated_data['user']
         token = Token.objects.get(user=user)
         token.delete()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response('해당 유저가 로그아웃되었습니다.', status=status.HTTP_200_OK)
 
 
 class UserGetAuthTokenView(APIView):

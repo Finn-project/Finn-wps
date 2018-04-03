@@ -41,6 +41,10 @@ class APIFacebookBackend:
             facebook_id = response_dict['id']
             first_name = response_dict['first_name']
             last_name = response_dict['last_name']
+            # img_profile_url = response_dict['picture.width(1024)']
+
+            # Facebook에서
+
 
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
             email = response_dict.get('email', None)
