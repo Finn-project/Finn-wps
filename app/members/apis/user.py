@@ -45,7 +45,7 @@ class UserListCreateAPIView(APIView):
         """
         한페이지 당 25개
         """
-        page_size = 2
+        page_size = 25
         users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
         paginator = Paginator(users, page_size)
 
