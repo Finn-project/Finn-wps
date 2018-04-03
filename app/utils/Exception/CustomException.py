@@ -11,7 +11,7 @@ class CustomException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
 
     def __init__(self, detail=None, status_code=None):
-
+      
         if isinstance(detail, list):
             detail = [detail]
 

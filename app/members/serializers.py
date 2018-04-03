@@ -1,7 +1,9 @@
 from django.contrib.auth import authenticate, get_user_model
+
 from django.core.exceptions import ValidationError
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+
 
 from utils.Exception.CustomException import CustomException
 
@@ -29,6 +31,7 @@ class UserCreateSerializer(serializers.Serializer):
     confirm_password = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+
 
     def validate_email(self, email):
         if User.objects.filter(username=email).exists():
