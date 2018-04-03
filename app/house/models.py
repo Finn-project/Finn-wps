@@ -1,5 +1,5 @@
 from django.db import models
 
 
-class Room(models.Model):
+class House(models.Model):
     pass

@@ -11,7 +11,7 @@ from io import BytesIO
 
 # 4/3
 # magic을 import 하기만 하면 internal error가 발생
-# 원인불명
+# 원인불명 - 검색중..
 
 User = get_user_model()
 
