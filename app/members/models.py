@@ -14,7 +14,8 @@ class User(AbstractUser):
     email = models.EmailField(max_length=255, unique=False, null=True)
 
     img_profile = models.ImageField(upload_to='user', blank=True)
-    signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, blank=True, default='e')
+    signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, default=SIGNUP_TYPE_EMAIL)
+    phone_num = models.CharField(max_length=20, blank=True)
 
     created_date = models.DateField(auto_now_add=True)
     modified_date = models.DateField(auto_now=True)

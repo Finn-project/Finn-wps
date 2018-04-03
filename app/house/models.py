@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Room(models.Model):
+class House(models.Model):
     ROOM_TYPE_APARTMENT = 'AP'
     ROOM_TYPE_HOUSING = 'HO'
     ROOM_TYPE_ONEROOM = 'OR'
