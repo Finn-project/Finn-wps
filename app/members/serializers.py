@@ -16,6 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'signup_type',
+            'img_profile',
         )
 
 
@@ -25,6 +26,7 @@ class UserCreateSerializer(serializers.Serializer):
     confirm_password = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    img_profile = serializers.ImageField()
 
     def check_request(self, *args, **kwargs):
         if User.objects.filter(username=kwargs.get('email')).exists():
@@ -39,6 +41,7 @@ class UserCreateSerializer(serializers.Serializer):
         confirm_password = attrs.get('confirm_password')
         first_name = attrs.get('first_name')
         last_name = attrs.get('last_name')
+        img_profile = attrs.get('img_profile')
 
         if password and confirm_password:
             self.check_request(email=email, password=password, confirm_password=confirm_password)
@@ -49,6 +52,7 @@ class UserCreateSerializer(serializers.Serializer):
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
+                img_profile=img_profile,
                 signup_type=User.SIGNUP_TYPE_EMAIL,
             )
 

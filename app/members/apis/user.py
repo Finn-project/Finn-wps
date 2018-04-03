@@ -40,7 +40,11 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        user_list = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
+        user_list = [UserSerializer(user).data for user in User.objects.filter(
+            Q(is_superuser=False),
+            Q(is_staff=False)
+        )
+        ]
         return Response(user_list)
 
 
