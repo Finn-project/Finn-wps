@@ -68,4 +68,3 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         user.delete()
         return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
-
