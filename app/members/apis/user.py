@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
@@ -39,7 +40,7 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        user_list = [UserSerializer(user).data for user in User.objects.all()]
+        user_list = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
         return Response(user_list)
 
 
@@ -57,7 +58,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
     def put(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             print('검문소1')
             serializer.save()
             return Response(serializer.data)
@@ -67,5 +68,4 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
     def delete(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.delete()
-        return Response('해당 유저가 삭제되었습니다.')
-
+        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
