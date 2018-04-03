@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
@@ -39,7 +40,7 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        user_list = [UserSerializer(user).data for user in User.objects.all()]
+        user_list = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
         return Response(user_list)
 
 
