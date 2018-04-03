@@ -58,7 +58,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
     def put(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             print('검문소1')
             serializer.save()
             return Response(serializer.data)
@@ -68,4 +68,4 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
     def delete(self, request, pk):
         user = get_object_or_404(User, pk=pk)
         user.delete()
-        return Response('해당 유저가 삭제되었습니다.')
+        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
