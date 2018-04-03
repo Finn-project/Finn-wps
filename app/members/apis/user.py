@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -54,8 +54,18 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         }
         return Response(data)
 
-    def put(self, request):
-        pass
+    def put(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            print('검문소1')
+            serializer.save()
+            return Response(serializer.data)
+        print('검문소2')
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request):
-        pass
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user.delete()
+        return Response('해당 유저가 삭제되었습니다.')
+
