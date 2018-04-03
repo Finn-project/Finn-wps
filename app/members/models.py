@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
@@ -10,11 +10,11 @@ class User(AbstractUser):
         (SIGNUP_TYPE_FACEBOOK, 'facebook'),
         (SIGNUP_TYPE_EMAIL, 'email'),
     )
-    username = models.EmailField(max_length=255, unique=True)
+    username = models.CharField(max_length=255, unique=True, blank=True, null=True)
     email = models.EmailField(max_length=255, unique=False, null=True)
 
     img_profile = models.ImageField(upload_to='user', blank=True)
-    signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES)
+    signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, blank=True, default='e')
 
     created_date = models.DateField(auto_now_add=True)
     modified_date = models.DateField(auto_now=True)
