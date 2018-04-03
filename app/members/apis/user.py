@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
@@ -40,11 +41,15 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        user_list = [UserSerializer(user).data for user in User.objects.filter(
-            Q(is_superuser=False),
-            Q(is_staff=False)
-        )
-        ]
+        """
+        한페이지 당 25개
+        """
+        page_size = 2
+        users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
+        paginator = Paginator(users, page_size)
+
+        page = request.GET.get('page')
+        user_list = paginator.get_page(page).object_list
         return Response(user_list)
 
 
@@ -73,4 +78,3 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         user.delete()
         return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
-
