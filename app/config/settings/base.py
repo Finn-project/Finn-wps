@@ -102,6 +102,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
     'members',
+    'rooms',
 ]
 
 MIDDLEWARE = [

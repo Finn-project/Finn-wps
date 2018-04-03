@@ -66,10 +66,7 @@ class APIFacebookBackend:
             )
 
             # Facebook에서 받아온 사진으로 img_profile 저장
-            # 일단은 기존 저장된 사진 지우는 로직으로 구현
-            print('screen1')
             if not user.img_profile:
-                print('screen2')
                 temp_file = requests.get(img_profile_url).content
                 # temp_file = download(img_profile_url)
 
@@ -78,9 +75,9 @@ class APIFacebookBackend:
                 # temp_file.seek(0)
                 # ext = mime_info.split('/')[-1]
 
-                file_name = '{facebook_id}'.format(
+                file_name = '{facebook_id}.{ext}'.format(
                     facebook_id=facebook_id,
-                    # ext=ext,
+                    ext='jpeg',
                 )
                 user.img_profile.save(file_name, ContentFile(temp_file))
 
