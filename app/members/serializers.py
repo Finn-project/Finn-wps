@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework import serializers
+from rest_framework import serializers, status
+
+from utils.Exception.CustomException import CustomException
 
 User = get_user_model()
 
@@ -28,10 +30,10 @@ class UserCreateSerializer(serializers.Serializer):
 
     def check_request(self, *args, **kwargs):
         if User.objects.filter(username=kwargs.get('email')).exists():
-            raise serializers.ValidationError('이미 존재 하는 메일 입니다.')
+            raise CustomException(detail='이미 존재 하는 메일 입니다.', status_code=status.HTTP_409_CONFLICT)
 
         if kwargs.get('password') != kwargs.get('confirm_password'):
-            raise serializers.ValidationError('비밀번호가 일치하지 않습니다.')
+            raise CustomException(detail='비밀번호가 일치하지 않습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
     def validate(self, attrs):
         email = attrs.get('email')
@@ -42,7 +44,7 @@ class UserCreateSerializer(serializers.Serializer):
 
         if password and confirm_password:
             self.check_request(email=email, password=password, confirm_password=confirm_password)
-            
+
             user = User.objects.create_user(
                 username=email,
                 email=email,
@@ -64,9 +66,9 @@ class AccessTokenSerializer(serializers.Serializer):
         if access_token:
             user = authenticate(access_token=access_token)
             if not user:
-                raise serializers.ValidationError('액세스 토큰이 올바르지 않습니다.')
+                raise CustomException(detail='페이스북 액세스 토큰이 올바르지 않습니다.', status_code=status.HTTP_401_UNAUTHORIZED)
         else:
-            raise serializers.ValidationError('액세스 토큰이 필요합니다.')
+            raise CustomException(detail='페이스북 액세스 토큰이 필요합니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         attrs['user'] = user
         return attrs
