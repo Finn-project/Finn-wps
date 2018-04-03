@@ -68,10 +68,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid(raise_exception=True):
-            print('검문소1')
             serializer.save()
             return Response(serializer.data)
-        print('검문소2')
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
