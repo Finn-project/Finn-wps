@@ -21,11 +21,12 @@ class UserLoginAuthTokenAPIView(APIView):
 
 
 class UserLogoutView(APIView):
+    permission_classes = (
+        permissions.IsAuthenticated,
+    )
+
     def post(self, request):
-        serializer = AuthTokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token = Token.objects.get(user=user)
+        token = Token.objects.get(user=request.user)
         token.delete()
         return Response('해당 유저가 로그아웃되었습니다.', status=status.HTTP_200_OK)
 
