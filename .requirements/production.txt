@@ -6,4 +6,5 @@ djangorestframework<3.8
 psycopg2-binary<2.8
 Pillow<6.0.0
 raven<7
+requests<3.0
 uWSGI<2.1

@@ -4,14 +4,16 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
-
 from utils.Exception.CustomException import CustomException
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    signup_type = serializers.CharField(source='get_signup_type_display')
+    signup_type = serializers.CharField(required=False)
+
+    phone_num = serializers.CharField(required=False)
+    img_profile = serializers.ImageField(required=False)
 
     class Meta:
         model = User
