@@ -12,23 +12,23 @@ __all__ = (
 
 
 class House(models.Model):
-    ROOM_TYPE_APARTMENT = 'AP'
-    ROOM_TYPE_HOUSING = 'HO'
-    ROOM_TYPE_ONEROOM = 'OR'
+    HOUSE_TYPE_APARTMENT = 'AP'
+    HOUSE_TYPE_HOUSING = 'HO'
+    HOUSE_TYPE_ONEROOM = 'OR'
 
-    ROOM_TYPE_CHOICES = (
-        (ROOM_TYPE_APARTMENT, '아파트'),
-        (ROOM_TYPE_HOUSING, '주택'),
-        (ROOM_TYPE_ONEROOM, '원룸'),
+    HOUSE_TYPE_CHOICES = (
+        (HOUSE_TYPE_APARTMENT, '아파트'),
+        (HOUSE_TYPE_HOUSING, '주택'),
+        (HOUSE_TYPE_ONEROOM, '원룸'),
     )
 
-    room_type = models.CharField(
+    house_type = models.CharField(
         verbose_name='숙소 타입',
         help_text='숙소를 선택 하세요. (기본값은 주택)',
 
         max_length=2,
-        choices=ROOM_TYPE_CHOICES,
-        default=ROOM_TYPE_HOUSING
+        choices=HOUSE_TYPE_CHOICES,
+        default=HOUSE_TYPE_HOUSING
     )
     name = models.CharField(
         verbose_name='숙소 이름',
@@ -125,12 +125,12 @@ class House(models.Model):
         default=90,
     )
 
-    DEFAULT_FEE_FOR_DAY = 100000
-    fee_for_day = models.PositiveSmallIntegerField(
+    DEFAULT_PRICE_PER_NIGHT = 100000
+    price_per_night = models.PositiveSmallIntegerField(
         verbose_name='하루 요금',
         help_text='하루 요금을 적어 주세요. 기본값(100,000)',
 
-        default=DEFAULT_FEE_FOR_DAY,
+        default=DEFAULT_PRICE_PER_NIGHT,
     )
 
     created_date = models.DateField(
