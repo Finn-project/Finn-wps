@@ -33,10 +33,10 @@ secrets = json.loads(open(SECRETS_BASE, 'rt').read())
 MEDIA_ROOT = os.path.join(ROOT_DIR, '.media')
 MEDIA_URL = '/media/'
 
-STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(ROOT_DIR, '.static')
-
+STATIC_URL = '/static/'
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]

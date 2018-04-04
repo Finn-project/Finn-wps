@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 
 from django.core.exceptions import ValidationError
@@ -35,7 +38,7 @@ class UserCreateSerializer(serializers.Serializer):
     confirm_password = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    phone_num = serializers.CharField(required=False)
+    phone_num = serializers.CharField(required=False, allow_null=True)
     img_profile = serializers.ImageField(required=False)
 
     def validate_email(self, email):
@@ -66,7 +69,9 @@ class UserCreateSerializer(serializers.Serializer):
         first_name = attrs.get('first_name')
         last_name = attrs.get('last_name')
         phone_num = attrs.get('phone_num')
-        img_profile = attrs.get('img_profile')
+        # img_profile = attrs.get('img_profile')
+
+        file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
 
         if password and confirm_password:
             user = User.objects.create_user(
@@ -76,7 +81,7 @@ class UserCreateSerializer(serializers.Serializer):
                 first_name=first_name,
                 last_name=last_name,
                 phone_num=phone_num,
-                img_profile=img_profile,
+                # img_profile=img_profile,
                 signup_type=User.SIGNUP_TYPE_EMAIL,
             )
             attrs['user'] = user
