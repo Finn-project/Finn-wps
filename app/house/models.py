@@ -73,7 +73,6 @@ class House(models.Model):
         help_text='편의 물품의 종류를 선택하세요. (blank/null 가능)',
 
         related_name='houses_with_amenities',
-        on_delete=models.SET_NULL,
         blank=True,
         null=True,
     )
@@ -85,7 +84,6 @@ class House(models.Model):
         help_text='편의 시설을 선택하세요. (blank/null 가능)',
 
         related_name='Nearby_facilities',
-        on_delete=models.SET_NULL,
         blank=True,
         null=True,
     )
