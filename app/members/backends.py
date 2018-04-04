@@ -12,6 +12,7 @@ from io import BytesIO
 # 4/3
 # magic을 import 하기만 하면 libmagic~~ import error가 발생
 # 원인불명 - 검색중..
+from members.models import SIGNUP_TYPE_FACEBOOK
 
 User = get_user_model()
 
@@ -52,7 +53,6 @@ class APIFacebookBackend:
             first_name = response_dict['first_name']
             last_name = response_dict['last_name']
             img_profile_url = response_dict['picture']['data']['url']
-            print(img_profile_url)
 
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
             email = response_dict.get('email')
@@ -62,7 +62,7 @@ class APIFacebookBackend:
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                signup_type=User.SIGNUP_TYPE_FACEBOOK
+                signup_type=SIGNUP_TYPE_FACEBOOK
             )
 
             # Facebook에서 받아온 사진으로 img_profile 저장
