@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -44,7 +45,7 @@ class UserListCreateAPIView(APIView):
         """
         한페이지 당 25개
         """
-        page_size = 2
+        page_size = 25
         users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
         paginator = Paginator(users, page_size)
 
@@ -73,6 +74,9 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
-        user.delete()
+        # user = get_object_or_404(User, pk=pk)
+        serializer = AuthTokenSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.validated_data.get('user')
+            user.delete()
         return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
