@@ -1,7 +1,7 @@
 from io import BytesIO
 
 # 4/3
-# magic을 import 하기만 하면 internal error가 발생
+# magic을 import 하기만 하면 libmagic~~ import error가 발생
 # 원인불명
 
 # import magic

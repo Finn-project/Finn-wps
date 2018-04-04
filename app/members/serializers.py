@@ -77,8 +77,8 @@ class UserCreateSerializer(serializers.Serializer):
                 img_profile=img_profile,
                 signup_type=User.SIGNUP_TYPE_EMAIL,
             )
+            attrs['user'] = user
 
-        attrs['user'] = user
         return attrs
 
 
