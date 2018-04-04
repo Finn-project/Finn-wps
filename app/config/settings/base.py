@@ -79,7 +79,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000',
+    'himanmen.com',
 )
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
