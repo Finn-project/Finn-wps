@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -32,12 +33,6 @@ class House(models.Model):
 
         blank=True,
         null=True,
-    )
-    address = models.CharField(
-        verbose_name='주소지',
-        help_text='주소지를 입력 하세요 (200자)',
-
-        max_length=200,
     )
 
     room = models.PositiveSmallIntegerField(
@@ -74,7 +69,6 @@ class House(models.Model):
 
         related_name='houses_with_amenities',
         blank=True,
-        null=True,
     )
 
     facilities = models.ManyToManyField(
@@ -85,7 +79,6 @@ class House(models.Model):
 
         related_name='Nearby_facilities',
         blank=True,
-        null=True,
     )
 
     minimum_check_in_duration = models.PositiveSmallIntegerField(
@@ -115,23 +108,77 @@ class House(models.Model):
         blank=True,
         null=True,
     )
-    possible_check_in_date_start = models.DateField(
-        verbose_name='체크인이 가능한 시작날',
-        help_text='날짜로 입력 가능 합니다.',
+    maximum_check_in_range = models.PositiveSmallIntegerField(
+        verbose_name='가능한 Day값',
+        help_text='오늘을 기준으로 체크인이 가능한 일 수 적어주세요 (기본값은 90)',
 
-        blank=True,
-        null=True,
+        # 90일
+        default=90,
     )
-    possible_check_in_date_end = models.DateField(
-        verbose_name='체크인이 가능한 마지막날',
-        help_text='날짜로 입력 가능 합니다.',
 
+    DEFAULT_FEE_FOR_DAY = 100000
+    fee_for_day = models.PositiveSmallIntegerField(
+        verbose_name='하루 요금',
+        help_text='하루 요금을 적어 주세요. 기본값(100,000)',
+
+        default=DEFAULT_FEE_FOR_DAY,
+    )
+
+    created_date = models.DateField(
+        verbose_name='등록일',
+        help_text='날짜로 입력 가능 합니다.(기본값은 오늘)',
+
+        auto_now_add=True,
+    )
+    modified_date = models.DateField(
+        verbose_name='수정일',
+        help_text='날짜로 입력 가능 합니다.(기본값은 오늘)',
+
+        auto_now=True
+    )
+
+    host = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+
+        verbose_name='판매자',
+        help_text='숙소를 등록하는 판매자 입니다.',
+
+        related_name='houses_with_host',
+        on_delete=models.CASCADE,
+    )
+
+    guest = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+
+        verbose_name='편의 시설',
+        help_text='편의 시설을 선택하세요. (blank/null 가능)',
+
+        related_name='Nearby_facilities',
         blank=True,
-        null=True,
+    )
+
+
+class HouseLocation(models.Model):
+    address = models.CharField(
+        verbose_name='주소지',
+        help_text='주소지를 입력 하세요 (200자)',
+
+        max_length=200,
+    )
+
+    latitude = models.FloatField(
+
+    )
+    longitude = models.FloatField(
+
     )
 
 
 class HouseImage(models.Model):
+    """
+    HouseImage모델은  House모델을 참조 하며
+    House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
+    """
     image = models.ImageField('숙소 이미지', upload_to='house')
 
     house = models.ForeignKey(
@@ -146,6 +193,9 @@ class HouseImage(models.Model):
 
 
 class Amenities(models.Model):
+    """
+    House와 연결된 편의 물품
+    """
     name = models.CharField(
         verbose_name='편의 물품',
         help_text='100자 까지의 물건의 이름을 저장 합니다.',
@@ -156,6 +206,9 @@ class Amenities(models.Model):
 
 
 class Facilities(models.Model):
+    """
+    House와 연결된 편의 시설
+    """
     name = models.CharField(
         verbose_name='편의 시설',
         help_text='100자 까지의 시설의 이름을 저장 합니다.',
@@ -163,3 +216,32 @@ class Facilities(models.Model):
         max_length=100,
         unique=True,
     )
+
+
+class RelationWithHouseAndGuest(models.Model):
+    """
+    Houst와 User의 관계 테이블
+    혹시 추가적인 데이터 삽입을 고려하여
+    중개 모델로 만듬.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+
+        verbose_name='게스트',
+        help_text='숙소를 예약한 게스트 입니다.',
+
+        on_delete=models.CASCADE,
+    )
+    house = models.ForeignKey(
+        House,
+
+        verbose_name='숙소',
+        help_text='게스트가 예약한 숙소 입니다.',
+
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        unique_together = (
+            ('house', 'user'),
+        )
