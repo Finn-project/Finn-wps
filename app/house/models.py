@@ -143,7 +143,9 @@ class HouseImage(models.Model):
         help_text='이미지와 연결된 숙소를 저장합니다.',
 
         related_name='houses_with_image',
+        on_delete=models.CASCADE,
     )
+
 
 class Amenities(models.Model):
     name = models.CharField(
@@ -154,7 +156,8 @@ class Amenities(models.Model):
         unique=True,
     )
 
-class Facilities(models.Model)
+
+class Facilities(models.Model):
     name = models.CharField(
         verbose_name='편의 시설',
         help_text='100자 까지의 시설의 이름을 저장 합니다.',
