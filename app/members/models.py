@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Manager
 
 
 class User(AbstractUser):
@@ -19,3 +20,36 @@ class User(AbstractUser):
 
     created_date = models.DateField(auto_now_add=True)
     modified_date = models.DateField(auto_now=True)
+
+    is_host = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=False)
+
+
+class HostManager(Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_host=True)
+
+
+class Host(User):
+    objects = HostManager()
+
+    class Meta:
+        proxy = True
+
+    def __str__(self):
+        return f'{self.username} (판매자)'
+
+
+class CustomerManager(Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_customer=True)
+
+
+class Customer(User):
+    objects = CustomerManager()
+
+    class Meta:
+        proxy = True
+
+    def __str__(self):
+        return f'{self.username} (고객)'
