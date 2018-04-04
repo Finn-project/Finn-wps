@@ -1,6 +1,15 @@
 from django.conf import settings
 from django.db import models
 
+__all__ = (
+    'House',
+    'HouseLocation',
+    'HouseImage',
+    'Amenities',
+    'Facilities',
+    'RelationWithHouseAndGuest',
+)
+
 
 class House(models.Model):
     ROOM_TYPE_APARTMENT = 'AP'
@@ -83,13 +92,13 @@ class House(models.Model):
 
     minimum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최소 체크인 기간',
-        help_text='체크인 할 수 있는 최소 기간을 입력 하세요. (기본값은 1)',
+        help_text='체크인 할 수 있는 최소 기간을 입력 하세요. (기본값은 1=1박2일)',
 
         default=1,
     )
     maximum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최대 체크인 기간',
-        help_text='체크인 할 수 있는 최대 기간을 입력 하세요. (기본값은 3)',
+        help_text='체크인 할 수 있는 최대 기간을 입력 하세요. (기본값은 3=3박4일)',
 
         default=3,
     )
@@ -109,7 +118,7 @@ class House(models.Model):
         null=True,
     )
     maximum_check_in_range = models.PositiveSmallIntegerField(
-        verbose_name='가능한 Day값',
+        verbose_name='체크인 가능한 Day값',
         help_text='오늘을 기준으로 체크인이 가능한 일 수 적어주세요 (기본값은 90)',
 
         # 90일
@@ -167,6 +176,12 @@ class House(models.Model):
 
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        verbose_name_plural = '숙소'
+
+    def __str__(self):
+        return self.name
 
 
 class HouseLocation(models.Model):
@@ -229,19 +244,46 @@ class HouseLocation(models.Model):
         max_digits=10
     )
 
+    class Meta:
+        verbose_name_plural = '위치'
+
+    def __str__(self):
+        return '{city} {district} {dong} {address1} {address2}'.format(
+            city=self.city,
+            district=self.district,
+            dong=self.dong,
+            address1=self.address1,
+            address2=self.address2,
+        )
+
 
 class HouseImage(models.Model):
     """
     HouseImage모델은  House모델을 참조 하며
     House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
     """
+    IMAGE_TYPE_INNER = 'IN'
+    IMAGE_TYPE_OUTER = 'OU'
+
+    IMAGE_TYPE_CHOICES = (
+        (IMAGE_TYPE_INNER, 'inner'),
+        (IMAGE_TYPE_OUTER, 'outer'),
+    )
+
     image = models.ImageField(
         verbose_name='숙소 이미지',
         help_text='숙소와 연결된 이미지를 저장합니다.',
 
         upload_to='house'
     )
+    kind = models.CharField(
+        verbose_name='이미지 타입',
+        help_text='숙소 안 이미지 인지 바깥 이미지 인지 저장',
 
+        max_length=2,
+        choices=IMAGE_TYPE_CHOICES,
+        default=IMAGE_TYPE_INNER
+    )
     house = models.ForeignKey(
         House,
 
@@ -252,18 +294,29 @@ class HouseImage(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        verbose_name_plural = '숙소 이미지들'
+
+    def __str__(self):
+        return f'{self.image.name}'
+
 
 class Amenities(models.Model):
     """
     House와 연결된 편의 물품
     """
     name = models.CharField(
-        verbose_name='편의 물품',
         help_text='100자 까지의 물건의 이름을 저장 합니다.',
 
         max_length=100,
         unique=True,
     )
+
+    class Meta:
+        verbose_name_plural = '편의 물품'
+
+    def __str__(self):
+        return self.name
 
 
 class Facilities(models.Model):
@@ -271,12 +324,15 @@ class Facilities(models.Model):
     House와 연결된 편의 시설
     """
     name = models.CharField(
-        verbose_name='편의 시설',
-        help_text='100자 까지의 시설의 이름을 저장 합니다.',
-
         max_length=100,
         unique=True,
     )
+
+    class Meta:
+        verbose_name_plural = '편의 시설'
+
+    def __str__(self):
+        return self.name
 
 
 class RelationWithHouseAndGuest(models.Model):
@@ -284,6 +340,8 @@ class RelationWithHouseAndGuest(models.Model):
     Houst와 User의 관계 테이블
     혹시 추가적인 데이터 삽입을 고려하여
     중개 모델로 만듬.
+    그런데.. 예약 모델에 있어야 할 것 같습니다. 둘이 관계를 정할때
+    예약을 걸고 정하는 형태니..
     """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -301,3 +359,9 @@ class RelationWithHouseAndGuest(models.Model):
 
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        verbose_name_plural = '숙소와 게스트'
+
+    def __str__(self):
+        return f'{self.house.name} 을 예약한 {self.user.username}'
