@@ -77,7 +77,7 @@ class House(models.Model):
         verbose_name='편의 시설',
         help_text='편의 시설을 선택하세요. (blank/null 가능)',
 
-        related_name='Nearby_facilities',
+        related_name='houses_with_facilities',
         blank=True,
     )
 
@@ -150,27 +150,83 @@ class House(models.Model):
     guest = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
 
-        verbose_name='편의 시설',
-        help_text='편의 시설을 선택하세요. (blank/null 가능)',
+        verbose_name='게스트',
+        help_text='숙소를 예약한 게스트',
 
-        related_name='Nearby_facilities',
+        through='RelationWithHouseAndGuest',
+        related_name='reserved_houses',
+
         blank=True,
+    )
+
+    location = models.OneToOneField(
+        'HouseLocation',
+
+        verbose_name='위치',
+        help_text='주소와(서울 특별시 관악구 신림동 790-2 희망빌라2 2차 201호) 위도/경도를 저장 합니다 ',
+
+        on_delete=models.CASCADE,
     )
 
 
 class HouseLocation(models.Model):
-    address = models.CharField(
-        verbose_name='주소지',
-        help_text='주소지를 입력 하세요 (200자)',
+    city = models.CharField(
+        verbose_name='시/도',
+        help_text='특별시/광역시/도 을 입력 하세요 (서울특별시)',
 
-        max_length=200,
+        max_length=100,
+
+        blank=True,
     )
+    district = models.CharField(
+        verbose_name='시/군/구',
+        help_text='시/군/구 를 입력 하세요 (관악구)',
 
-    latitude = models.FloatField(
+        max_length=100,
 
+        blank=True,
     )
-    longitude = models.FloatField(
+    dong = models.CharField(
+        verbose_name='동/읍/면',
+        help_text='상세 주소를 입력 하세요 (신림동)',
 
+        max_length=100,
+
+        blank=True,
+    )
+    address1 = models.CharField(
+        verbose_name='상세 주소1',
+        help_text='상세 주소1을 입력 하세요 (790-2)',
+
+        max_length=100,
+
+        blank=True,
+    )
+    address2 = models.CharField(
+        verbose_name='상세 주소2',
+        help_text='상세 주소2를 입력 하세요 (희망빌라 2차 201호)',
+
+        max_length=100,
+
+        blank=True,
+    )
+    latitude = models.DecimalField(
+        verbose_name='위도',
+        help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
+
+        blank=True,
+
+        decimal_places=7,
+        max_digits=9
+    )
+    longitude = models.DecimalField(
+        verbose_name='경도',
+        help_text='경도를 소수점(7자리) 입력 가능 (xxx.1234567)',
+
+        blank=True,
+
+        decimal_places=7,
+        max_digits=10
     )
 
 
@@ -179,7 +235,12 @@ class HouseImage(models.Model):
     HouseImage모델은  House모델을 참조 하며
     House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
     """
-    image = models.ImageField('숙소 이미지', upload_to='house')
+    image = models.ImageField(
+        verbose_name='숙소 이미지',
+        help_text='숙소와 연결된 이미지를 저장합니다.',
+
+        upload_to='house'
+    )
 
     house = models.ForeignKey(
         House,
@@ -187,7 +248,7 @@ class HouseImage(models.Model):
         verbose_name='숙소',
         help_text='이미지와 연결된 숙소를 저장합니다.',
 
-        related_name='houses_with_image',
+        related_name='house_images',
         on_delete=models.CASCADE,
     )
 
@@ -240,8 +301,3 @@ class RelationWithHouseAndGuest(models.Model):
 
         on_delete=models.CASCADE,
     )
-
-    class Meta:
-        unique_together = (
-            ('house', 'user'),
-        )
