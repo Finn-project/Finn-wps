@@ -33,8 +33,8 @@ class UserCreateSerializer(serializers.Serializer):
     confirm_password = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    phone_num = serializers.CharField()
-    img_profile = serializers.ImageField()
+    phone_num = serializers.CharField(required=False)
+    img_profile = serializers.ImageField(required=False)
 
     def validate_email(self, email):
         if User.objects.filter(username=email).exists():
