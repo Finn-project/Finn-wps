@@ -1,10 +1,6 @@
 from io import BytesIO
 
-# 4/3
-# magic을 import 하기만 하면 libmagic~~ import error가 발생
-# 원인불명
-
-# import magic
+import magic
 import requests
 
 
@@ -18,9 +14,9 @@ def download(url):
     return temp_file
 
 
-# def get_buffer_ext(buffer):
-#     # BytesIO객체로부터 확장자를 알아내 리턴
-#     buffer.seek(0)
-#     mime_info = magic.from_buffer(buffer.read(), mime=True)
-#     buffer.seek(0)
-#     return mime_info.split('/')[-1]
+def get_buffer_ext(buffer):
+    # BytesIO객체로부터 확장자를 알아내 리턴
+    buffer.seek(0)
+    mime_info = magic.from_buffer(buffer.read(), mime=True)
+    buffer.seek(0)
+    return mime_info.split('/')[-1]

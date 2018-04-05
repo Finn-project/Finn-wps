@@ -1,17 +1,11 @@
 import requests
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.files import File
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from rest_framework import status
 
-from io import BytesIO
-# from utils.file import download
-# import magic
 
-# 4/3
-# magic을 import 하기만 하면 libmagic~~ import error가 발생
-# 원인불명 - 검색중..
+from members.models import SIGNUP_TYPE_FACEBOOK
+from utils.file import download, get_buffer_ext
 
 User = get_user_model()
 
@@ -52,7 +46,6 @@ class APIFacebookBackend:
             first_name = response_dict['first_name']
             last_name = response_dict['last_name']
             img_profile_url = response_dict['picture']['data']['url']
-            print(img_profile_url)
 
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
             email = response_dict.get('email')
@@ -62,24 +55,20 @@ class APIFacebookBackend:
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                signup_type=User.SIGNUP_TYPE_FACEBOOK
+                signup_type=SIGNUP_TYPE_FACEBOOK
             )
 
             # Facebook에서 받아온 사진으로 img_profile 저장
-            if not user.img_profile:
-                temp_file = requests.get(img_profile_url).content
-                # temp_file = download(img_profile_url)
-
-                # temp_file.seek(0)
-                # mime_info = magic.from_buffer(temp_file.read(), mime=True)
-                # temp_file.seek(0)
-                # ext = mime_info.split('/')[-1]
-
-                file_name = '{facebook_id}.{ext}'.format(
-                    facebook_id=facebook_id,
-                    ext='jpeg',
-                )
-                user.img_profile.save(file_name, ContentFile(temp_file))
+            # (기존 사진 삭제후 최신 사진으로 업데이트)
+            if user.img_profile:
+                # user.img_profile.delete()
+                pass
+            temp_file = download(img_profile_url)
+            file_name = '{facebook_id}.{ext}'.format(
+                facebook_id=facebook_id,
+                ext=get_buffer_ext(temp_file),
+            )
+            user.img_profile.save(file_name, File(temp_file))
 
             return user
 
