@@ -21,7 +21,7 @@ class Reservation(models.Model):
     created_date = models.DateField(auto_now_add=True)
     modified_date = models.DateField(auto_now=True)
 
-    # 지불방법 목록으로 표시여부에 따라 결정
+    # # 지불방법 목록으로 표시여부에 따라 결정
     # PAYMENT_TYPE_DEPOSIT = 'DE'
     # PAYMENT_TYPE_CREDITCARD = 'CR'
     # PAYMENT_TYPE_PAYPAL = 'PA'
@@ -31,13 +31,13 @@ class Reservation(models.Model):
     #     (PAYMENT_TYPE_CREDITCARD, '신용카드'),
     #     (PAYMENT_TYPE_PAYPAL, '페이팔')
     # )
-    # payment_type = models.CharField(choices=PAYMENT_TYPE_CHOICES, default=)
+    # payment_type = models.CharField(choices=PAYMENT_TYPE_CHOICES, default=PAYMENT_TYPE_DEPOSIT)
 
-    # message 구현여부에 따라 결정
+    # # message 구현여부에 따라 결정
     # message_to_host = models.TextField(max_length=300)
 
     def __str__(self):
-        return '{}님의 예약 ({} ~ {}) | 호스트: {}'.format(
+        return '{}님의 예약 (기간: {} ~ {}) | 호스트: {}'.format(
             self.house.guest,
             self.check_in_date,
             self.check_out_date,
