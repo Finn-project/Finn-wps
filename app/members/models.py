@@ -28,7 +28,6 @@ class User(AbstractUser):
     modified_date = models.DateField(auto_now=True)
 
     is_host = models.BooleanField(default=False)
-    is_customer = models.BooleanField(default=False)
 
 
 class HostManager(Manager):
@@ -48,7 +47,7 @@ class Host(User):
 
 class CustomerManager(Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(is_customer=True)
+        return super().get_queryset().filter(is_host=False)
 
 
 class Customer(User):
