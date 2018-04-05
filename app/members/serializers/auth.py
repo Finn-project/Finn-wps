@@ -1,14 +1,11 @@
-import os
-from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
-from members.models import SIGNUP_TYPE_CHOICES, SIGNUP_TYPE_EMAIL, SIGNUP_TYPE_FACEBOOK
+from members.models import SIGNUP_TYPE_EMAIL, SIGNUP_TYPE_FACEBOOK
 from utils.Exception.CustomException import CustomException
 
 User = get_user_model()
@@ -62,7 +59,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return password
 
     def validate(self, attrs):
-        email = attrs.get('email')
+        email = attrs.get('email', '')
         password = attrs.get('password')
         confirm_password = attrs.get('confirm_password')
         first_name = attrs.get('first_name')

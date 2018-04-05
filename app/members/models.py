@@ -62,13 +62,13 @@ class Host(User):
         return f'{self.username} (판매자)'
 
 
-class CustomerManager(Manager):
+class GuestManager(Manager):
     def get_queryset(self):
         return super().get_queryset().filter(is_customer=True)
 
 
-class Customer(User):
-    objects = CustomerManager()
+class Guest(User):
+    objects = GuestManager()
 
     class Meta:
         proxy = True

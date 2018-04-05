@@ -5,7 +5,7 @@ from rest_framework import status
 
 
 from members.models import SIGNUP_TYPE_FACEBOOK
-from utils.image.file import download, get_buffer_ext
+from utils.image.file import download
 from utils.image.resize import img_resize
 
 User = get_user_model()
