@@ -59,7 +59,7 @@ class Host(User):
         proxy = True
 
     def __str__(self):
-        return f'{self.username} (판매자)'
+        return f'{self.username} (호스트)'
 
 
 class GuestManager(Manager):
@@ -74,4 +74,4 @@ class Guest(User):
         proxy = True
 
     def __str__(self):
-        return f'{self.username} (고객)'
+        return f'{self.username} (게스트)'
