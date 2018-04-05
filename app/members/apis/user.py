@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
@@ -8,6 +7,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from utils.Pagination.CustomPagination import CustomPagination
 from ..serializers import (
     UserCreateSerializer,
     UserSerializer,
@@ -42,16 +42,11 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        """
-        한페이지 당 25개
-        """
-        page_size = 25
         users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
-        paginator = Paginator(users, page_size)
 
-        page = request.GET.get('page')
-        user_list = paginator.get_page(page).object_list
-        return Response(user_list)
+        pagination = CustomPagination(users, request)
+
+        return Response(pagination.object_list)
 
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
