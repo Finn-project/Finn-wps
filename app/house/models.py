@@ -3,7 +3,6 @@ from django.db import models
 
 __all__ = (
     'House',
-    'HouseLocation',
     'HouseImage',
     'Amenities',
     'Facilities',
@@ -169,23 +168,15 @@ class House(models.Model):
         blank=True,
     )
 
-    location = models.OneToOneField(
-        'HouseLocation',
+    country = models.CharField(
+        verbose_name='국가',
+        help_text='특별시/광역시/도 을 입력 하세요 (서울특별시)',
 
-        verbose_name='위치',
-        help_text='주소와(서울 특별시 관악구 신림동 790-2 희망빌라2 2차 201호) 위도/경도를 저장 합니다 ',
+        max_length=100,
 
-        on_delete=models.CASCADE,
+        blank=True,
     )
 
-    class Meta:
-        verbose_name_plural = '숙소'
-
-    def __str__(self):
-        return self.name
-
-
-class HouseLocation(models.Model):
     city = models.CharField(
         verbose_name='시/도',
         help_text='특별시/광역시/도 을 입력 하세요 (서울특별시)',
@@ -246,16 +237,10 @@ class HouseLocation(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = '위치'
+        verbose_name_plural = '숙소'
 
     def __str__(self):
-        return '{city} {district} {dong} {address1} {address2}'.format(
-            city=self.city,
-            district=self.district,
-            dong=self.dong,
-            address1=self.address1,
-            address2=self.address2,
-        )
+        return self.name
 
 
 class HouseImage(models.Model):
