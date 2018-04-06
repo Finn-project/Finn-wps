@@ -1,27 +1,19 @@
 from django.contrib.auth import get_user_model
 
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
-from members.models import SIGNUP_TYPE_EMAIL, SIGNUP_TYPE_FACEBOOK
-from utils.Exception.CustomException import CustomException
+from members.models import SIGNUP_TYPE_EMAIL
+from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    """
-    회원가입 절차에 필요한 인증절차를 가진 Serializer 새로 작성
-    """
-    # email = serializers.EmailField(allow_null=True)
+    username = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
-    # first_name = serializers.CharField()
-    # last_name = serializers.CharField()
-    # phone_num = serializers.CharField(required=False)
-    # img_profile = serializers.ImageField(required=False)
 
     class Meta:
         model = User
@@ -29,19 +21,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'username',
             'password',
             'confirm_password',
-            'email',
             'first_name',
             'last_name',
             'phone_num',
-            'signup_type',
-            'img_profile',
         )
 
-    def validate_email(self, email):
-        if User.objects.filter(username=email).exists():
+    def validate_username(self, username):
+        if User.objects.filter(username=username).exists():
             raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
 
-        return email
+        return username
 
     def validate_password(self, password):
         confirm_password = self.initial_data.get('confirm_password')
@@ -58,48 +47,21 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         return password
 
-    def validate(self, attrs):
-        email = attrs.get('email', '')
-        password = attrs.get('password')
-        confirm_password = attrs.get('confirm_password')
-        first_name = attrs.get('first_name')
-        last_name = attrs.get('last_name')
-        phone_num = attrs.get('phone_num', '')
-
-        if password and confirm_password:
-            user = User.objects.create_user(
-                username=email,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                phone_num=phone_num,
-                signup_type=SIGNUP_TYPE_EMAIL,
-                # img_profile=img_profile,
-            )
-            # default profile_image 생성
-            file = open('../.static/img_profile_default.png', 'rb').read()
-            user.img_profile.save('img_profile.png', ContentFile(file))
-            attrs['user'] = user
-
-        return attrs
+    def create(self, validated_data):
+        return self.Meta.model.objects.create_django_user(**validated_data)
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     """
     회원정보 수정 과정 중 필요한 인증절차를 가진 Serializer 새로 작성
     """
-    # email = serializers.EmailField(allow_null=True)
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
-    # first_name = serializers.CharField()
-    # last_name = serializers.CharField()
-    # phone_num = serializers.CharField(required=False)
-    # img_profile = serializers.ImageField(required=False)
 
     class Meta:
         model = User
         fields = (
+            'username',
             'email',
             'password',
             'confirm_password',
@@ -125,6 +87,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         return password
 
     def update(self, user, attrs):
+        username = attrs.get('username')
         email = attrs.get('email')
         password = attrs.get('password')
         confirm_password = attrs.get('confirm_password')
@@ -135,8 +98,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         print(img_profile)
 
         if password and confirm_password:
-            if not user.signup_type == SIGNUP_TYPE_FACEBOOK:
-                user.username = email
+            user.username = username
             user.email = email
             user.set_password(password)
             user.first_name = first_name

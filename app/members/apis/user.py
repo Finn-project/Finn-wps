@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
@@ -8,6 +7,8 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from utils.pagination.custom_pagination import CustomPagination
+from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers import (
     UserCreateSerializer,
     UserSerializer,
@@ -33,7 +34,7 @@ class UserListCreateAPIView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data.get('user')
+        user = serializer.save()
         token, _ = Token.objects.get_or_create(user=user)
         data = {
             'token': token.key,
@@ -42,21 +43,17 @@ class UserListCreateAPIView(APIView):
         return Response(data)
 
     def get(self, request):
-        """
-        한페이지 당 25개
-        """
-        page_size = 25
         users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
-        paginator = Paginator(users, page_size)
 
-        page = request.GET.get('page')
-        user_list = paginator.get_page(page).object_list
-        return Response(user_list)
+        pagination = CustomPagination(users, request)
+
+        return Response(pagination.object_list)
 
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = (
-        permissions.IsAuthenticated,
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
     )
 
     def get(self, request, pk):

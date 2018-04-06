@@ -3,7 +3,6 @@ from django.db import models
 
 __all__ = (
     'House',
-    'HouseLocation',
     'HouseImage',
     'Amenities',
     'Facilities',
@@ -24,7 +23,7 @@ class House(models.Model):
 
     house_type = models.CharField(
         verbose_name='숙소 타입',
-        help_text='숙소를 선택 하세요. (기본값은 주택)',
+        help_text='숙소를 선택 하세요. 디비에는 AP HO OR 등으로 저장.(기본값은 주택)',
 
         max_length=2,
         choices=HOUSE_TYPE_CHOICES,
@@ -41,7 +40,6 @@ class House(models.Model):
         help_text='숙소를 설명 하세요. (blank/null 가능)',
 
         blank=True,
-        null=True,
     )
 
     room = models.PositiveSmallIntegerField(
@@ -95,12 +93,14 @@ class House(models.Model):
         help_text='체크인 할 수 있는 최소 기간을 입력 하세요. (기본값은 1=1박2일)',
 
         default=1,
+        blank=True
     )
     maximum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최대 체크인 기간',
         help_text='체크인 할 수 있는 최대 기간을 입력 하세요. (기본값은 3=3박4일)',
 
         default=3,
+        blank=True
     )
 
     start_day_for_break = models.DateField(
@@ -168,23 +168,15 @@ class House(models.Model):
         blank=True,
     )
 
-    location = models.OneToOneField(
-        'HouseLocation',
+    country = models.CharField(
+        verbose_name='국가',
+        help_text='특별시/광역시/도 을 입력 하세요 (서울특별시)',
 
-        verbose_name='위치',
-        help_text='주소와(서울 특별시 관악구 신림동 790-2 희망빌라2 2차 201호) 위도/경도를 저장 합니다 ',
+        max_length=100,
 
-        on_delete=models.CASCADE,
+        blank=True,
     )
 
-    class Meta:
-        verbose_name_plural = '숙소'
-
-    def __str__(self):
-        return self.name
-
-
-class HouseLocation(models.Model):
     city = models.CharField(
         verbose_name='시/도',
         help_text='특별시/광역시/도 을 입력 하세요 (서울특별시)',
@@ -245,16 +237,10 @@ class HouseLocation(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = '위치'
+        verbose_name_plural = '숙소'
 
     def __str__(self):
-        return '{city} {district} {dong} {address1} {address2}'.format(
-            city=self.city,
-            district=self.district,
-            dong=self.dong,
-            address1=self.address1,
-            address2=self.address2,
-        )
+        return self.name
 
 
 class HouseImage(models.Model):

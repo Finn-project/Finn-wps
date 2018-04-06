@@ -1,10 +1,13 @@
 import os
 from django.conf import settings
-from django.conf.global_settings import STATIC_ROOT
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Manager
+from rest_framework import status
+
+from utils.exception.custom_exception import CustomException
 
 SIGNUP_TYPE_EMAIL = 'e'
 SIGNUP_TYPE_FACEBOOK = 'f'
@@ -19,11 +22,32 @@ def dynamic_img_profile_path(instance, file_name):
     return f'user/user_{instance.id}/{file_name}'
 
 
+class UserManager(DjangoUserManager):
+    def create_django_user(self, *args, **kwargs):
+        user = User.objects.create_user(
+            username=kwargs.get('username'),
+            email=kwargs.get('username'),
+            password=kwargs.get('password'),
+            first_name=kwargs.get('first_name'),
+            last_name=kwargs.get('last_name'),
+            phone_num=kwargs.get('phone_num', ''),
+            signup_type=SIGNUP_TYPE_EMAIL
+        )
+        # default profile_image 생성
+        file = open('../.static/img_profile_default.png', 'rb').read()
+        user.img_profile.save('img_profile.png', ContentFile(file))
+
+        return user
+
+    def create_facebook_user(self, *args, **kwargs):
+        pass
+
+
 class User(AbstractUser):
     file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
 
-    username = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    email = models.EmailField(max_length=255, unique=False, null=True)
+    username = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True)
 
     # 1) 기본방법 사용
     # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='/static/iu.jpg')
@@ -44,7 +68,8 @@ class User(AbstractUser):
     modified_date = models.DateField(auto_now=True)
 
     is_host = models.BooleanField(default=False)
-    is_customer = models.BooleanField(default=False)
+
+    objects = UserManager()
 
 
 class HostManager(Manager):
@@ -64,7 +89,7 @@ class Host(User):
 
 class GuestManager(Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(is_customer=True)
+        return super().get_queryset().filter(is_host=False)
 
 
 class Guest(User):
@@ -72,6 +97,10 @@ class Guest(User):
 
     class Meta:
         proxy = True
+
+    def change_host(self):
+        self.is_host = True
+        self.save()
 
     def __str__(self):
         return f'{self.username} (게스트)'

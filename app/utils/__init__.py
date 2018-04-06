@@ -1,2 +1,2 @@
-from .Exception import *
+from .exception import *
 from .image import *
