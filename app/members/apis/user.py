@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from utils.pagination.custom_pagination import CustomPagination
+from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers import (
     UserCreateSerializer,
     UserSerializer,
@@ -52,6 +53,7 @@ class UserListCreateAPIView(APIView):
 class UserRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
     )
 
     def get(self, request, pk):
