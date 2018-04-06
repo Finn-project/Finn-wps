@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from ..serializers import (
     UserCreateSerializer,
     UserSerializer,
-)
+    UserUpdateSerializer)
 
 __all__ = (
     'UserListCreateAPIView',
@@ -67,7 +67,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
 
     def put(self, request, pk):
         user = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(user, data=request.data)
+        serializer = UserUpdateSerializer(user, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)

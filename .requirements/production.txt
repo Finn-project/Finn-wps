@@ -8,3 +8,4 @@ Pillow<6.0.0
 raven<7
 requests<3.0
 uWSGI<2.1
+python-magic<0.5
