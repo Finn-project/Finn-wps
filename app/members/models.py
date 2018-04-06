@@ -1,7 +1,8 @@
 import os
 from django.conf import settings
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Manager
 from rest_framework import status
@@ -21,11 +22,32 @@ def dynamic_img_profile_path(instance, file_name):
     return f'user/user_{instance.id}/{file_name}'
 
 
+class UserManager(DjangoUserManager):
+    def create_django_user(self, *args, **kwargs):
+        user = User.objects.create_user(
+            username=kwargs.get('username'),
+            email=kwargs.get('username'),
+            password=kwargs.get('password'),
+            first_name=kwargs.get('first_name'),
+            last_name=kwargs.get('last_name'),
+            phone_num=kwargs.get('phone_num', ''),
+            signup_type=SIGNUP_TYPE_EMAIL
+        )
+        # default profile_image 생성
+        file = open('../.static/img_profile_default.png', 'rb').read()
+        user.img_profile.save('img_profile.png', ContentFile(file))
+
+        return user
+
+    def create_facebook_user(self, *args, **kwargs):
+        pass
+
+
 class User(AbstractUser):
     file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
 
-    username = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    email = models.EmailField(max_length=255, unique=False, null=True)
+    username = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True, blank=True, null=True)
 
     # 1) 기본방법 사용
     # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='/static/iu.jpg')
@@ -47,9 +69,7 @@ class User(AbstractUser):
 
     is_host = models.BooleanField(default=False)
 
-    def clean(self, exclude=None):
-        if User.objects.filter(username=self.email).exists():
-            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
+    objects = UserManager()
 
 
 class HostManager(Manager):
