@@ -1,10 +1,12 @@
 import os
 from django.conf import settings
-from django.conf.global_settings import STATIC_ROOT
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Manager
+from rest_framework import status
+
+from utils.Exception.CustomException import CustomException
 
 SIGNUP_TYPE_EMAIL = 'e'
 SIGNUP_TYPE_FACEBOOK = 'f'
@@ -20,6 +22,10 @@ def dynamic_img_profile_path(instance, file_name):
 
 
 class User(AbstractUser):
+    def clean_fields(self, exclude=None):
+        if User.objects.filter(username=self.email).exists():
+            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
+
     file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
 
     username = models.CharField(max_length=255, unique=True, blank=True, null=True)
@@ -71,6 +77,10 @@ class Guest(User):
 
     class Meta:
         proxy = True
+
+    def change_host(self):
+        self.is_host = True
+        self.save()
 
     def __str__(self):
         return f'{self.username} (게스트)'

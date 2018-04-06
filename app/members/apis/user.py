@@ -33,7 +33,7 @@ class UserListCreateAPIView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data.get('user')
+        user = serializer.save()
         token, _ = Token.objects.get_or_create(user=user)
         data = {
             'token': token.key,

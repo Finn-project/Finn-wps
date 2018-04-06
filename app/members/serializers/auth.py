@@ -38,12 +38,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'img_profile',
         )
 
-    def validate_email(self, email):
-        if User.objects.filter(username=email).exists():
-            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
-
-        return email
-
     def validate_password(self, password):
         confirm_password = self.initial_data.get('confirm_password')
         errors = dict()
@@ -59,20 +53,26 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         return password
 
+    def validate(self, attrs):
+        attrs.pop('confirm_password')
+        user = User(**attrs)
+        user.full_clean()
+        return attrs
+
     def create(self, validated_data):
         user = User.objects.create_user(
+            username=validated_data.get('email'),
             email=validated_data.get('email', ''),
             password=validated_data.get('password'),
-            confirm_password=validated_data.get('confirm_password'),
             first_name=validated_data.get('first_name'),
             last_name=validated_data.get('last_name'),
             phone_num=validated_data.get('phone_num', ''),
-            signup_type=validated_data.get('phone_num', ''),
+            signup_type=SIGNUP_TYPE_EMAIL
         )
 
         # default profile_image 생성
-        # file = open('../.static/img_profile_default.png', 'rb').read()
-        # user.img_profile.save('img_profile.png', ContentFile(file))
+        file = open('../.static/img_profile_default.png', 'rb').read()
+        user.img_profile.save('img_profile.png', ContentFile(file))
 
         return user
 

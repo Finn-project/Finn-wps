@@ -22,4 +22,5 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_num',
             'signup_type',
             'img_profile',
+            'is_host',
         )
