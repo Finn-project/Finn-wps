@@ -1,11 +1,12 @@
 import requests
 from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile, File
+from django.core.files.base import File
 from rest_framework import status
 
 
 from members.models import SIGNUP_TYPE_FACEBOOK
-from utils.file import download, get_buffer_ext
+from utils.image.file import download
+from utils.image.resize import img_resize
 
 User = get_user_model()
 
@@ -61,14 +62,17 @@ class APIFacebookBackend:
             # Facebook에서 받아온 사진으로 img_profile 저장
             # (기존 사진 삭제후 최신 사진으로 업데이트)
             if user.img_profile:
-                # user.img_profile.delete()
-                pass
+                user.img_profile.delete()
             temp_file = download(img_profile_url)
             file_name = '{facebook_id}.{ext}'.format(
-                facebook_id=facebook_id,
-                ext=get_buffer_ext(temp_file),
+                # facebook_id=facebook_id,
+                facebook_id='img_profile',
+                ext='png',
             )
             user.img_profile.save(file_name, File(temp_file))
+            # 사진 리사이징 및 저장
+            # (utils/image/resize.py)
+            img_resize(user, file_name)
 
             return user
 
