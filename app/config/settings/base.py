@@ -105,6 +105,7 @@ INSTALLED_APPS = [
 
     'members',
     'house',
+    'reservation',
 ]
 
 MIDDLEWARE = [

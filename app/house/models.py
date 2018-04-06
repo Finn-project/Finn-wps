@@ -6,7 +6,6 @@ __all__ = (
     'HouseImage',
     'Amenities',
     'Facilities',
-    'RelationWithHouseAndGuest',
 )
 
 
@@ -154,18 +153,6 @@ class House(models.Model):
 
         related_name='houses_with_host',
         on_delete=models.CASCADE,
-    )
-
-    guest = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-
-        verbose_name='게스트',
-        help_text='숙소를 예약한 게스트입니다.',
-
-        through='RelationWithHouseAndGuest',
-        related_name='reserved_houses',
-
-        blank=True,
     )
 
     country = models.CharField(
@@ -319,35 +306,3 @@ class Facilities(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class RelationWithHouseAndGuest(models.Model):
-    """
-    Houst와 User의 관계 테이블
-    혹시 추가적인 데이터 삽입을 고려하여
-    중개 모델로 만듬.
-    그런데.. 예약 모델에 있어야 할 것 같습니다. 둘이 관계를 정할때
-    예약을 걸고 정하는 형태니..
-    """
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-
-        verbose_name='게스트',
-        help_text='숙소를 예약한 게스트 입니다.',
-
-        on_delete=models.CASCADE,
-    )
-    house = models.ForeignKey(
-        House,
-
-        verbose_name='숙소',
-        help_text='게스트가 예약한 숙소 입니다.',
-
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        verbose_name_plural = '숙소와 게스트'
-
-    def __str__(self):
-        return f'{self.house.name} 을 예약한 {self.user.username}'
