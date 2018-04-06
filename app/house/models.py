@@ -151,8 +151,8 @@ class House(models.Model):
     host = models.ForeignKey(
         settings.AUTH_USER_MODEL,
 
-        verbose_name='판매자',
-        help_text='숙소를 등록하는 판매자 입니다.',
+        verbose_name='호스트',
+        help_text='숙소를 등록하는 호스트입니다.',
 
         related_name='houses_with_host',
         on_delete=models.CASCADE,
@@ -162,7 +162,7 @@ class House(models.Model):
         settings.AUTH_USER_MODEL,
 
         verbose_name='게스트',
-        help_text='숙소를 예약한 게스트',
+        help_text='숙소를 예약한 게스트입니다.',
 
         through='RelationWithHouseAndGuest',
         related_name='reserved_houses',
