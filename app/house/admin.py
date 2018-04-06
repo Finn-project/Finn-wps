@@ -5,11 +5,9 @@ from .models import (
     HouseImage,
     Amenities,
     Facilities,
-    RelationWithHouseAndGuest
 )
 
 admin.site.register(House)
 admin.site.register(HouseImage)
 admin.site.register(Amenities)
 admin.site.register(Facilities)
-admin.site.register(RelationWithHouseAndGuest)

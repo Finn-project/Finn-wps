@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.db import models
+
+from house.models import House
 
 __all__ = (
     'Reservation',
@@ -6,7 +9,6 @@ __all__ = (
 
 
 class Reservation(models.Model):
-
     reservation_num = models.IntegerField()
     check_in_date = models.DateField(unique=True)
     check_out_date = models.DateField(unique=True)
@@ -14,8 +16,12 @@ class Reservation(models.Model):
     bank_account = models.CharField(max_length=30)
 
     house = models.ForeignKey(
-        'House',
-        on_delete=models.SET_NULL,
+        House,
+        on_delete=models.CASCADE,
+    )
+    guest = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
     )
 
     created_date = models.DateField(auto_now_add=True)

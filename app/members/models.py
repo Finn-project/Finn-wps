@@ -5,9 +5,6 @@ from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserMa
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Manager
-from rest_framework import status
-
-from utils.exception.custom_exception import CustomException
 
 SIGNUP_TYPE_EMAIL = 'e'
 SIGNUP_TYPE_FACEBOOK = 'f'
