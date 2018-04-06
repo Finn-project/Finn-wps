@@ -43,7 +43,7 @@ class Reservation(models.Model):
     # message_to_host = models.TextField(max_length=300)
 
     def __str__(self):
-        return '{}님의 예약 (기간: {} ~ {}) | 호스트: {}'.format(
+        return '{} 님의 예약 (기간: {} ~ {}) | 호스트: {}'.format(
             self.house.guest,
             self.check_in_date,
             self.check_out_date,

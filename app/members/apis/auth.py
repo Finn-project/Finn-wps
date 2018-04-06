@@ -39,3 +39,14 @@ class UserGetAuthTokenView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+
+class IsUserHostAPIView(APIView):
+    permission_classes = (
+        permissions.IsAuthenticated,
+    )
+
+    def get(self, request):
+        if request.user.is_host:
+            return Response('숙소를 등록한 호스트입니다.', status=status.HTTP_302_FOUND)
+        return Response('숙소를 아직 등록하지 않은 게스트입니다.', status=status.HTTP_404_NOT_FOUND)

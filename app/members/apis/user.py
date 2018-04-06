@@ -70,6 +70,14 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
             return Response(serializer.data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def patch(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def delete(self, request, pk):
         # user = get_object_or_404(User, pk=pk)
         serializer = AuthTokenSerializer(data=request.data)
