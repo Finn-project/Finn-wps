@@ -41,7 +41,6 @@ class House(models.Model):
         help_text='숙소를 설명 하세요. (blank/null 가능)',
 
         blank=True,
-        null=True,
     )
 
     room = models.PositiveSmallIntegerField(

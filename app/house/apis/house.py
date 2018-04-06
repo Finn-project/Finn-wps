@@ -9,7 +9,15 @@ __all__ = (
 
 class HouseListCreateAPIView(APIView):
     def post(self, request):
-        pass
+        serializer = UserCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data.get('user')
+        token, _ = Token.objects.get_or_create(user=user)
+        data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+        }
+        return Response(data)
 
     def get(self, request):
         pass
