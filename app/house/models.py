@@ -24,7 +24,7 @@ class House(models.Model):
 
     house_type = models.CharField(
         verbose_name='숙소 타입',
-        help_text='숙소를 선택 하세요. (기본값은 주택)',
+        help_text='숙소를 선택 하세요. 디비에는 AP HO OR 등으로 저장.(기본값은 주택)',
 
         max_length=2,
         choices=HOUSE_TYPE_CHOICES,
@@ -95,12 +95,14 @@ class House(models.Model):
         help_text='체크인 할 수 있는 최소 기간을 입력 하세요. (기본값은 1=1박2일)',
 
         default=1,
+        blank=True
     )
     maximum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최대 체크인 기간',
         help_text='체크인 할 수 있는 최대 기간을 입력 하세요. (기본값은 3=3박4일)',
 
         default=3,
+        blank=True
     )
 
     start_day_for_break = models.DateField(
