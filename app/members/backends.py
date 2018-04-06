@@ -49,7 +49,7 @@ class APIFacebookBackend:
             img_profile_url = response_dict['picture']['data']['url']
 
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
-            email = response_dict.get('email')
+            email = response_dict.get('email', '')
 
             user, _ = User.objects.get_or_create(
                 username=facebook_id,

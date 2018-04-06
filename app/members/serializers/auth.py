@@ -1,10 +1,10 @@
 from django.contrib.auth import get_user_model
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
-from members.models import SIGNUP_TYPE_EMAIL
 from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
@@ -55,6 +55,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     회원정보 수정 과정 중 필요한 인증절차를 가진 Serializer 새로 작성
     """
+    username = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
@@ -86,29 +87,42 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
-    def update(self, user, attrs):
-        username = attrs.get('username')
-        email = attrs.get('email')
-        password = attrs.get('password')
-        confirm_password = attrs.get('confirm_password')
-        first_name = attrs.get('first_name')
-        last_name = attrs.get('last_name')
-        phone_num = attrs.get('phone_num', '')
-        img_profile = attrs.get('img_profile')
-        print(img_profile)
+    # def update(self, user, attrs):
+    #     username = attrs.get('username', user.username)
+    #     email = attrs.get('email', username)
+    #     password = attrs.get('password', user.password)
+    #     first_name = attrs.get('first_name', user.first_name)
+    #     last_name = attrs.get('last_name', user.last_name)
+    #     phone_num = attrs.get('phone_num', user.phone_num)
+    #     img_profile = attrs.get('img_profile')
+    #
+    #     user.username = username
+    #     user.email = email
+    #     user.set_password(password)
+    #     user.first_name = first_name
+    #     user.last_name = last_name
+    #     user.phone_num = phone_num
+    #     # user.signup_type = SIGNUP_TYPE_EMAIL
+    #
+    #     # 유저가 사진을 삭제했을 경우 default 이미지로 다시 넣어준다.
+    #     if not img_profile:
+    #         file = open('../.static/img_profile_default.png', 'rb').read()
+    #         user.img_profile.save('img_profile.png', ContentFile(file))
+    #     attrs['user'] = user
+    #
+    #     return attrs
 
-        if password and confirm_password:
-            user.username = username
-            user.email = email
-            user.set_password(password)
-            user.first_name = first_name
-            user.last_name = last_name
-            user.phone_num = phone_num
-            user.signup_type = SIGNUP_TYPE_EMAIL
-            if img_profile:
-                print('프로필사진 업데이트한다')
-                user.img_profile.save('img_profile.png', img_profile)
-            user.save()
-            attrs['user'] = user
+    # 위 update 오버라이딩 코드가 'username'에서만 return Response(serializer.data)에서
+    #   키에러가 발생해서 기존의 update 메소드를 사용하는 아래 코드로 변경.
+    #   원인 모름..
+    def update(self, user, attrs):
+        attrs = super().update(user,attrs)
+
+        # 현재 postman 테스트에서는 img_profile을 빈값으로 보내도 img_profile이
+        # 빈값으로 채워지지 않고 기존 사진으로 유지됨 -> postman외 실제 테스트에서도 동일하게
+        # 적용되는지 확인해보고, 만약 동일하면 별도의 프로필 사진 제거 기능 추가 필요.
+        if not user.img_profile:
+            file = open('../.static/img_profile_default.png', 'rb').read()
+            user.img_profile.save('img_profile.png', ContentFile(file))
 
         return attrs
