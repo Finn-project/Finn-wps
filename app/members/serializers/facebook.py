@@ -1,7 +1,7 @@
 from rest_framework import serializers, status
 from rest_framework.compat import authenticate
 
-from utils.Exception.CustomException import CustomException
+from utils.exception.custom_exception import CustomException
 
 
 class AccessTokenSerializer(serializers.Serializer):

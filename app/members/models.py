@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Manager
 from rest_framework import status
 
-from utils.Exception.CustomException import CustomException
+from utils.exception.custom_exception import CustomException
 
 SIGNUP_TYPE_EMAIL = 'e'
 SIGNUP_TYPE_FACEBOOK = 'f'
@@ -22,10 +22,6 @@ def dynamic_img_profile_path(instance, file_name):
 
 
 class User(AbstractUser):
-    def clean_fields(self, exclude=None):
-        if User.objects.filter(username=self.email).exists():
-            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
-
     file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
 
     username = models.CharField(max_length=255, unique=True, blank=True, null=True)
@@ -50,6 +46,10 @@ class User(AbstractUser):
     modified_date = models.DateField(auto_now=True)
 
     is_host = models.BooleanField(default=False)
+
+    def clean(self, exclude=None):
+        if User.objects.filter(username=self.email).exists():
+            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
 
 
 class HostManager(Manager):

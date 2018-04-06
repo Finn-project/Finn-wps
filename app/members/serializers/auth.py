@@ -6,7 +6,7 @@ from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
 from members.models import SIGNUP_TYPE_EMAIL, SIGNUP_TYPE_FACEBOOK
-from utils.Exception.CustomException import CustomException
+from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
 
@@ -56,7 +56,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         attrs.pop('confirm_password')
         user = User(**attrs)
-        user.full_clean()
+        user.clean()
         return attrs
 
     def create(self, validated_data):

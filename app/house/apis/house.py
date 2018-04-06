@@ -1,5 +1,7 @@
 from rest_framework import permissions, generics
 
+from utils.pagination.custom_generic_pagination import DefaultPagination
+from ..serializers.house import HouseSerializer
 from ..models import House
 
 __all__ = (
@@ -11,21 +13,17 @@ __all__ = (
 class HouseListCreateAPIView(generics.ListCreateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
-    pagination_class = LargeResultsSetPagination
+    pagination_class = DefaultPagination
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
     )
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Snippet.objects.all()
-    serializer_class = SnippetSerializer
+    queryset = House.objects.all()
+    serializer_class = HouseSerializer
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
-        IsOwnerOrReadOnly,
     )

@@ -7,7 +7,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from utils.Pagination.CustomPagination import CustomPagination
+from utils.pagination.custom_pagination import CustomPagination
 from ..serializers import (
     UserCreateSerializer,
     UserSerializer,
@@ -51,7 +51,7 @@ class UserListCreateAPIView(APIView):
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = (
-        permissions.IsAuthenticated,
+        permissions.IsAuthenticatedOrReadOnly,
     )
 
     def get(self, request, pk):
