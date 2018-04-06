@@ -18,6 +18,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     # email = serializers.EmailField(allow_null=True)
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+
     # first_name = serializers.CharField()
     # last_name = serializers.CharField()
     # phone_num = serializers.CharField(required=False)
@@ -58,31 +59,22 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         return password
 
-    def validate(self, attrs):
-        email = attrs.get('email', '')
-        password = attrs.get('password')
-        confirm_password = attrs.get('confirm_password')
-        first_name = attrs.get('first_name')
-        last_name = attrs.get('last_name')
-        phone_num = attrs.get('phone_num', '')
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            email=validated_data.get('email', ''),
+            password=validated_data.get('password'),
+            confirm_password=validated_data.get('confirm_password'),
+            first_name=validated_data.get('first_name'),
+            last_name=validated_data.get('last_name'),
+            phone_num=validated_data.get('phone_num', ''),
+            signup_type=validated_data.get('phone_num', ''),
+        )
 
-        if password and confirm_password:
-            user = User.objects.create_user(
-                username=email,
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                phone_num=phone_num,
-                signup_type=SIGNUP_TYPE_EMAIL,
-                # img_profile=img_profile,
-            )
-            # default profile_image 생성
-            file = open('../.static/img_profile_default.png', 'rb').read()
-            user.img_profile.save('img_profile.png', ContentFile(file))
-            attrs['user'] = user
+        # default profile_image 생성
+        # file = open('../.static/img_profile_default.png', 'rb').read()
+        # user.img_profile.save('img_profile.png', ContentFile(file))
 
-        return attrs
+        return user
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -92,6 +84,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # email = serializers.EmailField(allow_null=True)
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+
     # first_name = serializers.CharField()
     # last_name = serializers.CharField()
     # phone_num = serializers.CharField(required=False)
