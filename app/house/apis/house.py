@@ -1,5 +1,6 @@
-from rest_framework import permissions
-from rest_framework.views import APIView
+from rest_framework import permissions, generics
+
+from ..models import House
 
 __all__ = (
     'HouseListCreateAPIView',
@@ -7,32 +8,24 @@ __all__ = (
 )
 
 
-class HouseListCreateAPIView(APIView):
-    def post(self, request):
-        serializer = UserCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data.get('user')
-        token, _ = Token.objects.get_or_create(user=user)
-        data = {
-            'token': token.key,
-            'user': UserSerializer(user).data,
-        }
-        return Response(data)
+class HouseListCreateAPIView(generics.ListCreateAPIView):
+    queryset = House.objects.all()
+    serializer_class = HouseSerializer
+    pagination_class = LargeResultsSetPagination
 
-    def get(self, request):
-        pass
-
-
-class HouseRetrieveUpdateDestroyAPIView(APIView):
     permission_classes = (
-        permissions.IsAuthenticated,
+        permissions.IsAuthenticatedOrReadOnly,
     )
 
-    def get(self, request):
-        pass
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
-    def put(self, request):
-        pass
 
-    def delete(self, request):
-        pass
+class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    )
