@@ -4,7 +4,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from members.apis.custom_auth import AuthTokenSerializerForFacebookUser
+from members.serializers.facebook_auth import AuthTokenSerializerForFacebookUser
 from ..serializers import UserSerializer
 
 

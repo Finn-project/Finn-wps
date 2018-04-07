@@ -99,3 +99,4 @@ class Guest(User):
 
     def __str__(self):
         return f'{self.username} (게스트)'
+

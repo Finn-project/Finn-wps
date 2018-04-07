@@ -117,8 +117,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         last_name = validated_data.get('last_name', user.last_name)
         phone_num = validated_data.get('phone_num', user.phone_num)
         img_profile = validated_data.get('img_profile', '')
-        print(img_profile)
-        print(type(img_profile))
 
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
@@ -132,10 +130,19 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.last_name = last_name
         user.phone_num = phone_num
         user.save()
-        # 유저가 사진을 삭제했을 경우 default 이미지로 다시 넣어준다.
+
+        # 유저가 사진을 선택안한 경우 기존 이미지 또는 default 이미지로 다시 넣어준다.
         if img_profile == '':
-            file = open('../.static/img_profile_default.png', 'rb').read()
-            user.img_profile.save('img_profile.png', ContentFile(file))
+            try:
+                # user.img_profile 파일이 없는 경우를 알기위한 방법으로
+                # 오류를 일으키는 방법 외에는 없어서 try ~ except문으로 감싸게 됨.
+                user.img_profile.read()
+                img_profile = user.img_profile
+                user.img_profile.save('img_profile.png', img_profile)
+            except:
+                # 저장소에 해당 이미지가 없을 경우
+                file = open('../.static/img_profile_default.png', 'rb').read()
+                user.img_profile.save('img_profile.png', ContentFile(file))
         else:
             user.img_profile.save('img_profile.png', img_profile)
 
