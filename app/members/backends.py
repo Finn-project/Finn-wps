@@ -69,6 +69,7 @@ class APIFacebookBackend:
             # (최초 로그인 user의 경우에만!)
             # Facebook에서 받아온 사진으로 img_profile 저장
             if user.is_facebook_user is False:
+                user.is_facebook_user = True
                 temp_file = download(img_profile_url)
                 file_name = '{facebook_id}.{ext}'.format(
                     # facebook_id=facebook_id,
