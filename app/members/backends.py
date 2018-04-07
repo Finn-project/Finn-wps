@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import File
 from rest_framework import status
 
-
-from members.models import SIGNUP_TYPE_FACEBOOK
 from utils.image.file import download
 from utils.image.resize import img_resize
 
@@ -65,7 +63,7 @@ class APIFacebookBackend:
                     'email': None if email is None or User.objects.filter(email=email).exists() else email,
                     'first_name': first_name,
                     'last_name': last_name,
-                    'signup_type': SIGNUP_TYPE_FACEBOOK,
+                    'is_facebook_user': True,
                 }
             )
 

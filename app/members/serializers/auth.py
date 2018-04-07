@@ -66,6 +66,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # (페이스북 유저의 경우 회원정보 수정에서 이메일과 패스워드를 입력하지 않고 다른 회원정보만
     #  수정할 수도 있는데 이 경우 케이스가 하나 더 생기기 때문에 이 경우를 제외 한 것)
     email = serializers.EmailField(required=True)
+    is_email_user = serializers.BooleanField(read_only=True)
+    is_facebook_user = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -78,6 +80,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'last_name',
             'phone_num',
             'img_profile',
+            'is_email_user',
+            'is_facebook_user',
         )
 
     def validate_email(self, email):
@@ -112,8 +116,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         print(img_profile)
         print(type(img_profile))
 
-        # Facebook User의 경우에는 username과 email을 다르게 설정해야함.
-        if user.signup_type != 'f':
+        # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
+        if user.is_facebook_user:
+            # Facebook user도 메일주소를 가졌다는 것을 표시
+            user.is_email_user = True
+        else:
             user.username = email
         user.email = email
         user.set_password(password)

@@ -12,13 +12,13 @@ from django.db.models import Manager
 # -> 1. 아래처럼 class 밖으로 빼서 전역변수로 만듦.
 #    2. 'User' 대신 'MyUser'로 네이밍
 
-SIGNUP_TYPE_EMAIL = 'e'
-SIGNUP_TYPE_FACEBOOK = 'f'
-
-SIGNUP_TYPE_CHOICES = (
-    (SIGNUP_TYPE_FACEBOOK, 'facebook'),
-    (SIGNUP_TYPE_EMAIL, 'email'),
-)
+# SIGNUP_TYPE_EMAIL = 'e'
+# SIGNUP_TYPE_FACEBOOK = 'f'
+#
+# SIGNUP_TYPE_CHOICES = (
+#     (SIGNUP_TYPE_FACEBOOK, 'facebook'),
+#     (SIGNUP_TYPE_EMAIL, 'email'),
+# )
 
 
 def dynamic_img_profile_path(instance, file_name):
@@ -34,7 +34,8 @@ class UserManager(DjangoUserManager):
             first_name=kwargs.get('first_name'),
             last_name=kwargs.get('last_name'),
             phone_num=kwargs.get('phone_num', ''),
-            signup_type=SIGNUP_TYPE_EMAIL
+            # signup_type=SIGNUP_TYPE_EMAIL
+            is_email_user=True,
         )
         # default profile_image 생성
         file = open('../.static/img_profile_default.png', 'rb').read()
@@ -54,7 +55,9 @@ class User(AbstractUser):
 
     img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
     phone_num = models.CharField(max_length=20, blank=True)
-    signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, default=SIGNUP_TYPE_EMAIL)
+    # signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, default=SIGNUP_TYPE_EMAIL)
+    is_facebook_user = models.BooleanField(default=False)
+    is_email_user = models.BooleanField(default=False)
 
     created_date = models.DateField(auto_now_add=True)
     modified_date = models.DateField(auto_now=True)
