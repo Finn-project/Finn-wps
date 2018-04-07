@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth import get_user_model
 
 from django.core.exceptions import ValidationError
@@ -131,19 +132,56 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.phone_num = phone_num
         user.save()
 
+        # user.img_profile.delete(save=False)
+        # 위 코드는 단순 데이터베이스에서 파일을 삭제하는 코드.
+        # 실제 파일을 삭제하는 코드는 아래.
+        # (아래 코드는 실제파일뿐만 아니라 데이터베이스에서 삭제도 한번에 되는것?)
+        # https://stackoverflow.com/questions/16041232/django-delete-filefield/
+
         # 유저가 사진을 선택안한 경우 기존 이미지 또는 default 이미지로 다시 넣어준다.
         if img_profile == '':
+            # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
+            # 에서 img_profile 값이 입력되지 않았을 경우인데,
+            # 이게 Postman 문제인지는 모르겠지만 null값을 보낼때와 빈 값('')을 보낼 때와
+            # validated_data에 똑같이 아무 값도 들어오지 않기 때문에 두 경우를
+            # 구분할 수 없는데 이 부분은 실제 프론트와의 파일 업로드 테스트에서도 동일한지
+            # 확인할 필요가 있다.
+            """
+            user.img_profile 파일이 없는 경우를 알기위한 방법으로
+            "user.img_profile.read()"로 직접 파일을 읽어서
+            오류를 일으키는 방법 외에는 없어서 이 부분을
+            try ~ except문으로 감싸게 됨.
             try:
-                # user.img_profile 파일이 없는 경우를 알기위한 방법으로
-                # 오류를 일으키는 방법 외에는 없어서 try ~ except문으로 감싸게 됨.
-                user.img_profile.read()
-                img_profile = user.img_profile
-                user.img_profile.save('img_profile.png', img_profile)
+              user.img_profile.read()
+              ...
             except:
-                # 저장소에 해당 이미지가 없을 경우
+              ...
+
+            -> os.path.isfile(filepath)로 Refactoring
+            """
+            # print(user.img_profile.path)
+            # print(os.path.isfile(user.img_profile.path))
+
+            if os.path.isfile(user.img_profile.path):
+                pass
+                # 저장소에 기존 이미지가 있을경우 그대로 둔다.
+
+            else:
+                # 저장소에 기존 이미지가 없을 경우 만들어 준다.
+
+                if user.img_profile:
+                    # 1) img_profile이 데이터베이스에 존재하는지 확인(파일경로값)
+                    if os.path.isfile(user.img_profile.path):
+                        # 2) 실제 파일이 해당 경로에 존재하는지 확인
+                        # 실제 파일이 없으면 아래 코드에서 FileNotFoundError 발생
+                        os.remove(user.img_profile.path)
+
                 file = open('../.static/img_profile_default.png', 'rb').read()
                 user.img_profile.save('img_profile.png', ContentFile(file))
         else:
+            if user.img_profile:
+                if os.path.isfile(user.img_profile.path):
+                    os.remove(user.img_profile.path)
             user.img_profile.save('img_profile.png', img_profile)
 
         return user
