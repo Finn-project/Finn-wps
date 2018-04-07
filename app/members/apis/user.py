@@ -40,14 +40,14 @@ class UserListCreateAPIView(APIView):
             'token': token.key,
             'user': UserSerializer(user).data,
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_201_CREATED)
 
     def get(self, request):
         users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
 
         pagination = CustomPagination(users, request)
 
-        return Response(pagination.object_list)
+        return Response(pagination.object_list, status=status.HTTP_200_OK)
 
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
@@ -60,7 +60,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         data = {
             'user': UserSerializer(get_object_or_404(User, pk=pk)).data
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         # user = get_object_or_404(User, pk=pk)
