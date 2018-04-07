@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import File
 from rest_framework import status
 
-
-from members.models import SIGNUP_TYPE_FACEBOOK
 from utils.image.file import download
 from utils.image.resize import img_resize
 
@@ -51,28 +49,36 @@ class APIFacebookBackend:
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
             email = response_dict.get('email')
 
+            # get_or_created -> update_or_created로 변경
+            #                -> 다시 get_or_create로 회귀
+            #              ( update_or_create를 하게되면 우리 서비스에서 입력한 정보,
+            #                예를들면 로그인할 수 있는 메일계정이 담긴 정보가 사라져버림.
+            #               * 중요도: 우리서비스 입력정보 > 페이스북에서 가져온 정보 )
             user, _ = User.objects.get_or_create(
                 username=facebook_id,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                signup_type=SIGNUP_TYPE_FACEBOOK
+                defaults={
+                    # email이 기존 서비스내에 존재하는 지 검사해서 없으면 할당, 존재하면 None 입력
+                    # (사실 아래 조건표현식에서 'email == None'을 빼도 되지만 뒤 조건에서 filter가 달렸기때문에
+                    #  쿼리 최적화를 위해 이 조건을 그대로 남겨 둠)
+                    'email': None if email is None or User.objects.filter(email=email).exists() else email,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                }
             )
 
+            # (최초 로그인 user의 경우에만!)
             # Facebook에서 받아온 사진으로 img_profile 저장
-            # (기존 사진 삭제후 최신 사진으로 업데이트)
-            if user.img_profile:
-                user.img_profile.delete()
-            temp_file = download(img_profile_url)
-            file_name = '{facebook_id}.{ext}'.format(
-                # facebook_id=facebook_id,
-                facebook_id='img_profile',
-                ext='png',
-            )
-            user.img_profile.save(file_name, File(temp_file))
-            # 사진 리사이징 및 저장
-            # (utils/image/resize.py)
-            img_resize(user, file_name)
+            if user.is_facebook_user is False:
+                temp_file = download(img_profile_url)
+                file_name = '{facebook_id}.{ext}'.format(
+                    # facebook_id=facebook_id,
+                    facebook_id='img_profile',
+                    ext='png',
+                )
+                user.img_profile.save(file_name, File(temp_file))
+                # 사진 리사이징 및 저장
+                # (utils/image/resize.py)
+                img_resize(user, file_name)
 
             return user
 
