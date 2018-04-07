@@ -58,16 +58,20 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+
+    username = serializers.EmailField(read_only=True)
     # username이 제대로 설정되었는지 확인하기 위해 read_only 옵션으로 출력만 되도록 설정
     #  Email user : email과 username이 동일하게 변경
     #  Facebook user : 기존의 username은 유지한 채 email만 변경
-    username = serializers.EmailField(read_only=True)
+    email = serializers.EmailField(required=True)
     # Email, password을 무조건 받는 비지니스 로직(PUT Method 활용)을 설정하여 복잡함 제거
     # (페이스북 유저의 경우 회원정보 수정에서 이메일과 패스워드를 입력하지 않고 다른 회원정보만
     #  수정할 수도 있는데 이 경우 케이스가 하나 더 생기기 때문에 이 경우를 제외 한 것)
-    email = serializers.EmailField(required=True)
+
     is_email_user = serializers.BooleanField(read_only=True)
     is_facebook_user = serializers.BooleanField(read_only=True)
+    # facebook user가 회원정보를 수정하게되면 is_email_user=True가 되는데
+    # 이 부분이 바뀌었는지 확인하기 위해서 위에 read_only 옵션을 주고 출력되도록 함.
 
     class Meta:
         model = User
