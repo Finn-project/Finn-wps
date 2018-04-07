@@ -79,9 +79,10 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
-        # user = get_object_or_404(User, pk=pk)
-        serializer = AuthTokenSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.validated_data.get('user')
-            user.delete()
+
+        # serializer = AuthTokenSerializer(data=request.data)
+        # if serializer.is_valid(raise_exception=True):
+        #     user = serializer.validated_data.get('user')
+        #     user.delete()
+        request.user.delete()
         return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
