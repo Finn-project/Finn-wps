@@ -6,20 +6,18 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    signup_type = serializers.CharField(required=False)
-
-    phone_num = serializers.CharField(required=False)
-    img_profile = serializers.ImageField(required=False)
-
     class Meta:
         model = User
         fields = (
-            'id',
+            'pk',
             'username',
             'email',
             'first_name',
             'last_name',
             'phone_num',
-            'signup_type',
             'img_profile',
+            'is_host',
+            # 'signup_type',
+            'is_email_user',
+            'is_facebook_user',
         )

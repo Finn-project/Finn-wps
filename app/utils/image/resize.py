@@ -36,7 +36,5 @@ def img_resize(user, file_name):
     img2.save(profile_dir)
 
     # img3
-    profile_dir = os.path.join(directory, f'img_profile_500.png')
+    profile_dir = os.path.join(directory, 'img_profile_500.png')
     img3.save(profile_dir)
-
-

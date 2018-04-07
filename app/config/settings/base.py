@@ -79,7 +79,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 CORS_ORIGIN_WHITELIST = (
-    'himanmen.com',
+    'localhost:8000',
     'localhost:3000',
     'localhost:4200',
 )
@@ -105,6 +105,7 @@ INSTALLED_APPS = [
 
     'members',
     'house',
+    'reservation',
 ]
 
 MIDDLEWARE = [
@@ -169,6 +170,7 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
 LANGUAGE_CODE = 'ko-kr'
+# LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Seoul'
 
