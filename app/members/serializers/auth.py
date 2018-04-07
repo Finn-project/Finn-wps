@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 
@@ -55,9 +56,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     회원정보 수정 과정 중 필요한 인증절차를 가진 Serializer 새로 작성
     """
-    username = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+    # username이 제대로 설정되었는지 확인하기 위해 read_only 옵션으로 출력만 되도록 설정
+    #  Email user : email과 username이 동일하게 변경
+    #  Facebook user : 기존의 username은 유지한 채 email만 변경
+    username = serializers.EmailField(read_only=True)
+    # Email을 무조건 받는 비지니스 로직을 설정하여 복잡함 제거
+    # (페이스북 유저의 경우 회원정보 수정에서 이메일과 패스워드를 입력하지 않고 다른 회원정보만
+    #  수정할 수도 있는데 이 경우 케이스가 하나 더 생기기 때문에 이 경우를 제외 한 것)
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
@@ -71,6 +79,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'phone_num',
             'img_profile',
         )
+
+    def validate_email(self, email):
+        # 내 이 메일은 중복검사 하면 안되서 ~Q(username=self.instance) 추가
+        if User.objects.filter(~Q(username=self.instance), Q(email=email)).exists():
+            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
+
+        return email
 
     def validate_password(self, password):
         confirm_password = self.initial_data.get('confirm_password')
@@ -87,49 +102,30 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
-    # def update(self, user, attrs):
-    #     username = attrs.get('username', user.username)
-    #     email = attrs.get('email', username)
-    #     password = attrs.get('password', user.password)
-    #     first_name = attrs.get('first_name', user.first_name)
-    #     last_name = attrs.get('last_name', user.last_name)
-    #     phone_num = attrs.get('phone_num', user.phone_num)
-    #     img_profile = attrs.get('img_profile')
-    #
-    #     user.username = username
-    #     user.email = email
-    #     user.set_password(password)
-    #     user.first_name = first_name
-    #     user.last_name = last_name
-    #     user.phone_num = phone_num
-    #     # user.signup_type = SIGNUP_TYPE_EMAIL
-    #     user.save()
-    #     # 유저가 사진을 삭제했을 경우 default 이미지로 다시 넣어준다.
-    #     if not img_profile:
-    #         file = open('../.static/img_profile_default.png', 'rb').read()
-    #         user.img_profile.save('img_profile.png', ContentFile(file))
-    #     attrs['user'] = user
-    #
-    #     return attrs
+    def update(self, user, validated_data):
+        email = validated_data.get('email', user.email)
+        password = validated_data.get('password', user.password)
+        first_name = validated_data.get('first_name', user.first_name)
+        last_name = validated_data.get('last_name', user.last_name)
+        phone_num = validated_data.get('phone_num', user.phone_num)
+        img_profile = validated_data.get('img_profile', '')
+        print(img_profile)
+        print(type(img_profile))
 
-    # 위 update 오버라이딩 코드가 'username'에서만 return Response(serializer.data)에서
-    #   키에러가 발생해서 기존의 update 메소드를 사용하는 아래 코드로 변경.
-    #   원인 모름..
-    def update(self, user, attrs):
-        instance = super().update(user, attrs)
-
-        # 이유는 모르겠으나 ModelSerializer의 기본 update가 setpassword를 안해준다..;;
-        # 그래서 임시방법으로 오버라이딩 했다.
-        # (계속 코드가 지저분해진다.)
-        password = attrs.get('password', user.password)
+        # Facebook User의 경우에는 username과 email을 다르게 설정해야함.
+        if user.signup_type != 'f':
+            user.username = email
+        user.email = email
         user.set_password(password)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.phone_num = phone_num
         user.save()
-
-        # 현재 postman 테스트에서는 img_profile을 빈값으로 보내도 img_profile이
-        # 빈값으로 채워지지 않고 기존 사진으로 유지됨 -> postman외 실제 테스트에서도 동일하게
-        # 적용되는지 확인해보고, 만약 동일하면 별도의 프로필 사진 제거 기능 추가 필요.
-        if not user.img_profile:
+        # 유저가 사진을 삭제했을 경우 default 이미지로 다시 넣어준다.
+        if img_profile == '':
             file = open('../.static/img_profile_default.png', 'rb').read()
             user.img_profile.save('img_profile.png', ContentFile(file))
+        else:
+            user.img_profile.save('img_profile.png', img_profile)
 
-        return instance
+        return user
