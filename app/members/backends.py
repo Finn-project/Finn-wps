@@ -63,24 +63,22 @@ class APIFacebookBackend:
                     'email': None if email is None or User.objects.filter(email=email).exists() else email,
                     'first_name': first_name,
                     'last_name': last_name,
-                    'is_facebook_user': True,
                 }
             )
 
+            # (최초 로그인 user의 경우에만!)
             # Facebook에서 받아온 사진으로 img_profile 저장
-            # (기존 사진 삭제후 최신 사진으로 업데이트)
-            if user.img_profile:
-                user.img_profile.delete()
-            temp_file = download(img_profile_url)
-            file_name = '{facebook_id}.{ext}'.format(
-                # facebook_id=facebook_id,
-                facebook_id='img_profile',
-                ext='png',
-            )
-            user.img_profile.save(file_name, File(temp_file))
-            # 사진 리사이징 및 저장
-            # (utils/image/resize.py)
-            img_resize(user, file_name)
+            if user.is_facebook_user is False:
+                temp_file = download(img_profile_url)
+                file_name = '{facebook_id}.{ext}'.format(
+                    # facebook_id=facebook_id,
+                    facebook_id='img_profile',
+                    ext='png',
+                )
+                user.img_profile.save(file_name, File(temp_file))
+                # 사진 리사이징 및 저장
+                # (utils/image/resize.py)
+                img_resize(user, file_name)
 
             return user
 
