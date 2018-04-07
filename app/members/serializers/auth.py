@@ -103,7 +103,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     #     user.last_name = last_name
     #     user.phone_num = phone_num
     #     # user.signup_type = SIGNUP_TYPE_EMAIL
-    #
+    #     user.save()
     #     # 유저가 사진을 삭제했을 경우 default 이미지로 다시 넣어준다.
     #     if not img_profile:
     #         file = open('../.static/img_profile_default.png', 'rb').read()
@@ -116,7 +116,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     #   키에러가 발생해서 기존의 update 메소드를 사용하는 아래 코드로 변경.
     #   원인 모름..
     def update(self, user, attrs):
-        attrs = super().update(user,attrs)
+        instance = super().update(user, attrs)
+
+        # 이유는 모르겠으나 ModelSerializer의 기본 update가 setpassword를 안해준다..;;
+        # 그래서 임시방법으로 오버라이딩 했다.
+        # (계속 코드가 지저분해진다.)
+        password = attrs.get('password', user.password)
+        user.set_password(password)
+        user.save()
 
         # 현재 postman 테스트에서는 img_profile을 빈값으로 보내도 img_profile이
         # 빈값으로 채워지지 않고 기존 사진으로 유지됨 -> postman외 실제 테스트에서도 동일하게
@@ -125,4 +132,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             file = open('../.static/img_profile_default.png', 'rb').read()
             user.img_profile.save('img_profile.png', ContentFile(file))
 
-        return attrs
+        return instance
