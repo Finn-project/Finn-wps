@@ -101,3 +101,16 @@ class Guest(User):
 
     def __str__(self):
         return f'{self.username} (게스트)'
+
+
+@receiver(post_delete, sender=User)
+def remove_file_from_storage(sender, instance, using, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    print(f'sender: {sender}')
+    print(f'instance: {instance}')
+    print(f'using: {using}')
+    print(f'**kwargs: {kwargs}')
+    instance.img_profile.delete(save=False)

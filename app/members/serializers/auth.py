@@ -124,6 +124,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # Facebook user도 메일주소를 가졌다는 것을 표시
             user.is_email_user = True
         else:
+            # email user의 경우에만 변경한 email과 username을 같도록 설정해준다.
+            # -> signup_type 대신에 is_facebook_user / is_email_user로
+            #    나누어야 하는 이유 발견.
             user.username = email
         user.email = email
         user.set_password(password)
@@ -131,12 +134,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.last_name = last_name
         user.phone_num = phone_num
         user.save()
-
-        # user.img_profile.delete(save=False)
-        # 위 코드는 단순 데이터베이스에서 파일을 삭제하는 코드.
-        # 실제 파일을 삭제하는 코드는 아래.
-        # (아래 코드는 실제파일뿐만 아니라 데이터베이스에서 삭제도 한번에 되는것?)
-        # https://stackoverflow.com/questions/16041232/django-delete-filefield/
 
         # 유저가 사진을 선택안한 경우 기존 이미지 또는 default 이미지로 다시 넣어준다.
         if img_profile == '':
@@ -157,28 +154,51 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             except:
               ...
 
-            -> os.path.isfile(filepath)로 Refactoring
+            -> os.path.isfile(filepath)로 Refactoring 해서
+               위에처럼 지저분한 코드를 제거
             """
+
+            # 코드작성할 때 test한 건데 이 부분은 기억하기 힘들어서 남겨둠
             # print(user.img_profile.path)
             # print(os.path.isfile(user.img_profile.path))
+            # print(user.img_profile.storage)
+
+            '''
+            * 만약 S3 저장소에서 파일이 지워지지 않는다면
+            'os.remove(file_path)' 대신에 
+            'storage.delete(file_path)'도 한번 써보고 다른 방법도 찾아봐야할 것 같다.
+            (storage = user.img_profile.storage)
+            https://stackoverflow.com/questions/16041232/
+            '''
 
             if os.path.isfile(user.img_profile.path):
                 pass
                 # 저장소에 기존 이미지가 있을경우 그대로 둔다.
 
             else:
-                # 저장소에 기존 이미지가 없을 경우 만들어 준다.
+                # 저장소에 기존 이미지가 없을 경우 default 이미지를 넣어준다.
+                # (* static 이미지를 활용하는 방법을 알아낼 경우 아래 코드 Refactoring 예정)
 
+                # 파일 지우기 1
+                # user.img_profile.delete(save=False)
+                # 위 코드는 단순 데이터베이스에서 파일을 삭제하는 코드.
+                # 실제 파일을 삭제하는 코드는 아래.
+                # (아래 코드는 실제파일뿐만 아니라 데이터베이스에서 삭제도 한번에 되는것?)
+                # https://stackoverflow.com/questions/16041232/django-delete-filefield/
+
+                # 파일 지우기 2
                 if user.img_profile:
-                    # 1) img_profile이 데이터베이스에 존재하는지 확인(파일경로값)
+                    # 1) img_profile이 '데이터베이스'에 존재하는지 확인(파일경로값)
                     if os.path.isfile(user.img_profile.path):
-                        # 2) 실제 파일이 해당 경로에 존재하는지 확인
+                        # 2) 실제 파일이 해당 경로의 '저장소'에 존재하는지 확인
                         # 실제 파일이 없으면 아래 코드에서 FileNotFoundError 발생
+                        # 하기 때문에 굳이 위의 두 단계를 거친 것.
                         os.remove(user.img_profile.path)
 
                 file = open('../.static/img_profile_default.png', 'rb').read()
                 user.img_profile.save('img_profile.png', ContentFile(file))
         else:
+            # 이미지가 입력된 경우 별도의 단계 없이 바로 해당 이미지를 저장한다.
             if user.img_profile:
                 if os.path.isfile(user.img_profile.path):
                     os.remove(user.img_profile.path)
