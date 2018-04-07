@@ -20,7 +20,7 @@ class UserLoginAuthTokenAPIView(APIView):
         return Response(data)
 
 
-class UserLogoutView(APIView):
+class UserLogoutAPIView(APIView):
     permission_classes = (
         permissions.IsAuthenticated,
     )
@@ -31,7 +31,7 @@ class UserLogoutView(APIView):
         return Response('해당 유저가 로그아웃되었습니다.', status=status.HTTP_200_OK)
 
 
-class UserGetAuthTokenView(APIView):
+class UserGetAuthTokenAPIView(APIView):
     permission_classes = (
         permissions.IsAuthenticated,
     )
