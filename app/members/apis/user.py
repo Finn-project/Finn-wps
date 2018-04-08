@@ -85,4 +85,4 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
         request.user.delete()
-        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
+        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
