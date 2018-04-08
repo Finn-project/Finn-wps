@@ -30,7 +30,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def validate_username(self, username):
         if User.objects.filter(username=username).exists():
-            raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
+            raise CustomException(detail='이미 존재하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
 
         return username
 

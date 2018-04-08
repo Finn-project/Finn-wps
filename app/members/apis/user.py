@@ -75,7 +75,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
