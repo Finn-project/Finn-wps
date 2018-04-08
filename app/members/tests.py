@@ -2,6 +2,7 @@ import random
 
 from django.contrib.auth import get_user_model, authenticate
 from django.test import TestCase
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
 from .apis import UserRetrieveUpdateDestroyAPIView, UserSerializer
@@ -18,7 +19,7 @@ class UserSignupTest(APITestCase):
         :return:
         """
         test_user_info = {
-            'username': 'test_user_02@gmail.com',
+            'username': 'test_user_01@gmail.com',
             'password': 'asdfqwer',
             'confirm_password': 'asdfqwer',
             'first_name': 'Park',
@@ -66,7 +67,55 @@ class UserSignupTest(APITestCase):
         ))
 
         # user 정보 출력해서 직접 확인
-        print(UserSerializer(user).data)
+        # print(UserSerializer(user).data)
+
+
+class UserLoginTest(APITestCase):
+
+    def test_user_login(self):
+        """
+        Method: POST
+        일반회원이 로그인 테스트
+        :return:
+        """
+
+        # test user 생성
+        test_user_info = {
+            'username': 'test_user_01@gmail.com',
+            'password': 'asdfqwer',
+            'confirm_password': 'asdfqwer',
+            'first_name': 'Park',
+            'last_name': 'Boyoung',
+            'phone_num': '010-1234-5678',
+        }
+        self.client.post('/user/', test_user_info)
+
+        # 생성한 test user로 로그인
+        test_user_info = {
+            'username': 'test_user_01@gmail.com',
+            'password': 'asdfqwer',
+        }
+        response = self.client.post(
+            '/user/login/',
+            test_user_info,
+        )
+        result = response.json()
+
+        # status_code 확인
+        self.assertEqual(response.status_code, 200)
+
+        # Login으로 Token이 제대로 발급되었는지 확인
+        self.assertEqual(result['token'], Token.objects.get(user_id=result['user']['pk']).key)
+
+        # Login으로 user 정보가 제대로 return 되었는지 확인
+        user = User.objects.get(username=test_user_info['username'])
+        self.assertEqual(result['user'], UserSerializer(user).data)
+
+
+class UserLogoutTest(APITestCase):
+
+    def test_user_logout(self):
+        pass
 
 
 class UserListTest(APITestCase):
@@ -83,19 +132,6 @@ class UserListTest(APITestCase):
 
     def test_artist_list_pagination(self):
         pass
-
-
-class UserLoginTest(APITestCase):
-
-    def test_user_login(self):
-        pass
-
-
-class UserLogoutTest(APITestCase):
-
-    def test_user_logout(self):
-        pass
-
 
 class UserDetailTest(APITestCase):
 
