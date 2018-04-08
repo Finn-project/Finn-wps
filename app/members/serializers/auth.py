@@ -135,7 +135,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.phone_num = phone_num
         user.save()
 
-        # 유저가 사진을 선택안한 경우 기존 이미지 또는 default 이미지로 다시 넣어준다.
+        # 유저가 사진을 입력안한 경우( 기존 이미지 또는 default 이미지로 다시 넣어준다.
         if img_profile == '':
             # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
             # 에서 img_profile 값이 입력되지 않았을 경우인데,
@@ -166,9 +166,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             '''
             * 만약 S3 저장소에서 파일이 지워지지 않는다면
             'os.remove(file_path)' 대신에 
+            1)
             'storage.delete(file_path)'도 한번 써보고 다른 방법도 찾아봐야할 것 같다.
             (storage = user.img_profile.storage)
             https://stackoverflow.com/questions/16041232/
+            
+            2)
+            3/27 TDD 수업에서 배운 'storage' 방법도 시
+            > from django.core.files.storage import DefaultStorage
+            > storage = DefaultStorage()
+            > storage.delete(file_path) ??? 
             '''
 
             if os.path.isfile(user.img_profile.path):
