@@ -1,5 +1,6 @@
 import os
 import datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -66,20 +67,66 @@ class HouseCreateTest(APITestCase):
             # 'end_day_for_break': datetime.date(2018, 4, 15),
             'maximum_check_in_range': 3,
             'price_per_night': 100000,
-            'created_date': datetime.datetime.today(),
-            'modified_date': datetime.datetime.today(),
-            # 'host': self.user.pk,
+            'host': self.user.pk,
             'country': '대한민국',
             'city': '사랑시',
             'district': '고백구',
             'dong': '행복동',
             'address1': '777-1',
             'address2': '희망빌라 2동 301호',
-            'latitude': 12.1234567,
-            'longitude': 123.1234567,
+            'latitude': '12.1234567',
+            'longitude': '123.1234567',
         }
 
-        print('test_create_house: ', data['amenities'])
         response = self.client.post(self.URL, data)
-        print(response.data)
+        # print('\nresponse : ', response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data['house_type'], data['house_type'])
+        self.assertEqual(response.data['name'], data['name'])
+        self.assertEqual(response.data['description'], data['description'])
+        self.assertEqual(response.data['room'], data['room'])
+        self.assertEqual(response.data['bathroom'], data['bathroom'])
+        self.assertEqual(response.data['personnel'], data['personnel'])
+        self.assertEqual(response.data['amenities'], data['amenities'])
+        self.assertEqual(response.data['facilities'], data['facilities'])
+        self.assertEqual(response.data['minimum_check_in_duration'], data['minimum_check_in_duration'])
+        self.assertEqual(response.data['maximum_check_in_duration'], data['maximum_check_in_duration'])
+        self.assertEqual(response.data['maximum_check_in_range'], data['maximum_check_in_range'])
+        self.assertEqual(response.data['price_per_night'], data['price_per_night'])
+        self.assertEqual(response.data['created_date'], datetime.date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['modified_date'], datetime.date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['host'], data['host'])
+        self.assertEqual(response.data['country'], data['country'])
+        self.assertEqual(response.data['city'], data['city'])
+        self.assertEqual(response.data['district'], data['district'])
+        self.assertEqual(response.data['dong'], data['dong'])
+        self.assertEqual(response.data['address1'], data['address1'])
+        self.assertEqual(response.data['address2'], data['address2'])
+        self.assertEqual(response.data['latitude'], data['latitude'])
+        self.assertEqual(response.data['longitude'], data['longitude'])
+
+        house = House.objects.get(pk=response.data['pk'])
+        self.assertEqual(house.house_type, data['house_type'])
+        self.assertEqual(house.name, data['name'])
+        self.assertEqual(house.description, data['description'])
+        self.assertEqual(house.room, data['room'])
+        self.assertEqual(house.bathroom, data['bathroom'])
+        self.assertEqual(house.personnel, data['personnel'])
+        self.assertEqual(list(house.amenities.values_list('pk', flat=True)), data['amenities'])
+        self.assertEqual(list(house.facilities.values_list('pk', flat=True)), data['facilities'])
+        self.assertEqual(house.minimum_check_in_duration, data['minimum_check_in_duration'])
+        self.assertEqual(house.maximum_check_in_duration, data['maximum_check_in_duration'])
+        self.assertEqual(house.maximum_check_in_range, data['maximum_check_in_range'])
+        self.assertEqual(house.price_per_night, data['price_per_night'])
+        self.assertEqual(house.created_date, datetime.date.today())
+        self.assertEqual(house.modified_date, datetime.date.today())
+        self.assertEqual(house.host.pk, data['host'])
+        self.assertEqual(house.country, data['country'])
+        self.assertEqual(house.city, data['city'])
+        self.assertEqual(house.district, data['district'])
+        self.assertEqual(house.dong, data['dong'])
+        self.assertEqual(house.address1, data['address1'])
+        self.assertEqual(house.address2, data['address2'])
+        self.assertEqual(house.latitude, Decimal(data['latitude']))
+        self.assertEqual(house.longitude, Decimal(data['longitude']))
