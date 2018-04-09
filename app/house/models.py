@@ -102,26 +102,26 @@ class House(models.Model):
         blank=True
     )
 
-    start_day_for_break = models.DateField(
-        verbose_name='쉬는 시작 날짜',
-        help_text='날짜로 입력 가능 합니다.',
-
-        blank=True,
-        null=True,
-    )
-    end_day_for_break = models.DateField(
-        verbose_name='쉬는 마지막 날짜',
-        help_text='날짜로 입력 가능 합니다.',
-
-        blank=True,
-        null=True,
-    )
+    # start_day_for_break = models.DateField(
+    #     verbose_name='쉬는 시작 날짜',
+    #     help_text='날짜로 입력 가능 합니다.',
+    #
+    #     blank=True,
+    #     null=True,
+    # )
+    # end_day_for_break = models.DateField(
+    #     verbose_name='쉬는 마지막 날짜',
+    #     help_text='날짜로 입력 가능 합니다.',
+    #
+    #     blank=True,
+    #     null=True,
+    # )
     maximum_check_in_range = models.PositiveSmallIntegerField(
-        verbose_name='체크인 가능한 Day값',
-        help_text='오늘을 기준으로 체크인이 가능한 일 수 적어주세요 (기본값은 90)',
+        verbose_name='체크인 가능한 한계 시간',
+        help_text='오늘을 기준으로 체크인이 가능한 달 수 적어주세요 (기본값은 3)',
 
-        # 90일
-        default=90,
+        # 3달
+        # default=3,
     )
 
     DEFAULT_PRICE_PER_NIGHT = 100000
@@ -297,6 +297,8 @@ class Facilities(models.Model):
     House와 연결된 편의 시설
     """
     name = models.CharField(
+        help_text='100자 까지의 물건의 이름을 저장 합니다.',
+
         max_length=100,
         unique=True,
     )
