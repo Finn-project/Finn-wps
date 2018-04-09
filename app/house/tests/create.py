@@ -58,17 +58,17 @@ class HouseCreateTest(APITestCase):
             'room': 1,
             'bathroom': 2,
             'personnel': 3,
-            'amenities': Amenities.objects.all().values_list('pk', flat=True),
-            'facilities': Facilities.objects.all().values_list('pk', flat=True),
+            'amenities': [1, 2, 3, 4, 5],
+            'facilities': [1, 2, 3, 4, 5],
             'minimum_check_in_duration': 1,
             'maximum_check_in_duration': 3,
-            'start_day_for_break': datetime.date(2018, 4, 1),
-            'end_day_for_break': datetime.date(2018, 4, 15),
-            'maximum_check_in_range': 90,
+            # 'start_day_for_break': datetime.date(2018, 4, 1),
+            # 'end_day_for_break': datetime.date(2018, 4, 15),
+            'maximum_check_in_range': 3,
             'price_per_night': 100000,
             'created_date': datetime.datetime.today(),
             'modified_date': datetime.datetime.today(),
-            'host': self.user.pk,
+            # 'host': self.user.pk,
             'country': '대한민국',
             'city': '사랑시',
             'district': '고백구',
@@ -79,7 +79,7 @@ class HouseCreateTest(APITestCase):
             'longitude': 123.1234567,
         }
 
-        print('amenities:', data['amenities'])
+        print('test_create_house: ', data['amenities'])
         response = self.client.post(self.URL, data)
         print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

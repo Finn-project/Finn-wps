@@ -34,17 +34,8 @@ class HouseImageSerializer(serializers.ModelSerializer):
 
 
 class HouseSerializer(serializers.ModelSerializer):
-    # amenities = AmenitiesSerializer(many=True, read_only=True)
-    # facilities = FacilitiesSerializer(many=True, read_only=True)
-
-    facilities = serializers.SerializerMethodField('get_facilities_list', read_only=True)
-    amenities = serializers.SerializerMethodField('get_amenities_list', read_only=True)
-
-    def get_amenities_list(self, instance):
-        return Amenities.objects.filter(houses_with_amenities__pk=instance.pk).values_list('name', flat=True)
-
-    def get_facilities_list(self, instance):
-        return Facilities.objects.filter(houses_with_facilities__pk=instance.pk).values_list('name', flat=True)
+    amenities = AmenitiesSerializer(many=True, read_only=True)
+    facilities = FacilitiesSerializer(many=True, read_only=True)
 
     # house_images = HouseImageSerializer(many=True, read_only=True)
     host = UserSerializer(read_only=True)
@@ -63,8 +54,8 @@ class HouseSerializer(serializers.ModelSerializer):
             'facilities',
             'minimum_check_in_duration',
             'maximum_check_in_duration',
-            'start_day_for_break',
-            'end_day_for_break',
+            # 'start_day_for_break',
+            # 'end_day_for_break',
             'maximum_check_in_range',
             'price_per_night',
             'created_date',

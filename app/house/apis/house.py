@@ -1,8 +1,9 @@
 from rest_framework import permissions, generics
 
 from utils.pagination.custom_generic_pagination import DefaultPagination
+from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers.house import HouseSerializer
-from ..models import House, Amenities, Facilities
+from ..models import House
 
 __all__ = (
     'HouseListCreateAPIView',
@@ -17,14 +18,13 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
     )
 
     def perform_create(self, serializer):
-        print(self.request.data['amenities'])
-        print(self.request.data['facilities'])
         house = serializer.save(host=self.request.user)
-        house.amenities.set(self.request.data['amenities'])
-        house.facilities.set(self.request.data['facilities'])
+        house.amenities.set(self.request.data.getlist('amenities'))
+        house.facilities.set(self.request.data.getlist('facilities'))
         house.save()
 
 
