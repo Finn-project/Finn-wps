@@ -51,7 +51,7 @@ class House(models.Model):
         verbose_name='침대 수',
         help_text='침대 수를 입력 하세요. (기본값은 0개)',
 
-        default=0,
+        default=1,
     )
     bathroom = models.PositiveSmallIntegerField(
         verbose_name='욕실 수',
