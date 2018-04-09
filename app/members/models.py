@@ -19,6 +19,8 @@ from django.db.models import Manager
 #     (SIGNUP_TYPE_FACEBOOK, 'facebook'),
 #     (SIGNUP_TYPE_EMAIL, 'email'),
 # )
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 def dynamic_img_profile_path(instance, file_name):
@@ -99,3 +101,16 @@ class Guest(User):
 
     def __str__(self):
         return f'{self.username} (게스트)'
+
+
+@receiver(post_delete, sender=User)
+def remove_file_from_storage(sender, instance, using, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    print(f'sender: {sender}')
+    print(f'instance: {instance}')
+    print(f'using: {using}')
+    print(f'**kwargs: {kwargs}')
+    instance.img_profile.delete(save=False)

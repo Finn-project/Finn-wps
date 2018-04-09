@@ -47,9 +47,25 @@ class UserSignupTest(APITestCase):
         # authenticate를 사용해 실제 데이터베이스에 생성되었는지 확인,
         # 생성된 유저의 값을 테스트
         user = authenticate(username=self.USERNAME, password=self.PASSWORD)
-        self.assertEqual(user_data['pk'], user.pk)
-        self.assertEqual(user_data['username'], user.username)
-        self.assertEqual(user_data['email'], user.username)
-        self.assertEqual(user_data['first_name'], user.first_name)
-        self.assertEqual(user_data['last_name'], user.last_name)
-        self.assertEqual(user_data['phone_num'], user.phone_num)
+        self.assertEqual(user.pk, user_data['pk'])
+        self.assertEqual(user.username, user_data['username'])
+        self.assertEqual(user.username, user_data['email'])
+        self.assertEqual(user.first_name, user_data['first_name'])
+        self.assertEqual(user.last_name, user_data['last_name'])
+        self.assertEqual(user.phone_num, user_data['phone_num'])
+        self.assertEqual(user.check_password(data['password']), True)
+        self.assertEqual(user.is_email_user, True)
+        self.assertEqual(user.is_facebook_user, False)
+        self.assertEqual(user.is_host, False)
+        self.assertEqual(user.is_superuser, False)
+        self.assertEqual(user.is_staff, False)
+        self.assertIsNotNone(user.created_date)
+        self.assertIsNotNone(user.modified_date)
+
+        # host 전환 후 인증 되는지 검사
+        user.is_host = True
+        user.save()
+        self.assertEqual(user, authenticate(
+            username=data['username'],
+            password=data['password'],
+        ))
