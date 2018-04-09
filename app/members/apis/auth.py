@@ -4,15 +4,15 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from members.apis.custom_auth import AuthTokenSerializerForFacebookUser
+from members.serializers.facebook_auth import AuthTokenSerializerForFacebookUser
 from ..serializers import UserSerializer
 
 
 class UserLoginAuthTokenAPIView(APIView):
     def post(self, request):
         try:
-            # Facebook user가 username이 아닌 email로 로그인 시도하는
-            # 케이스를 위한 AuthTokenSerializer 정의
+            # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
+            # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
         except:
