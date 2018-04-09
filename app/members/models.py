@@ -6,7 +6,6 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Manager
 
-
 # 다른 곳에서 아래의 CHOICES 속성을 참조하려고 할 때
 # 모델 클래스 'User'와 'User = get_user_model'이 겹쳐서 import되지 않는 문제 발생
 # -> 1. 아래처럼 class 밖으로 빼서 전역변수로 만듦.
@@ -94,10 +93,6 @@ class Guest(User):
 
     class Meta:
         proxy = True
-
-    def change_host(self):
-        self.is_host = True
-        self.save()
 
     def __str__(self):
         return f'{self.username} (게스트)'
