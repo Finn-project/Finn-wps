@@ -195,20 +195,24 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
                 # 파일 지우기 2
                 if user.img_profile:
+                    user.img_profile.delete()
+
                     # 1) img_profile이 '데이터베이스'에 존재하는지 확인(파일경로값)
-                    if os.path.isfile(user.img_profile.path):
+                    # if os.path.isfile(user.img_profile.path):
                         # 2) 실제 파일이 해당 경로의 '저장소'에 존재하는지 확인
                         # 실제 파일이 없으면 아래 코드에서 FileNotFoundError 발생
                         # 하기 때문에 굳이 위의 두 단계를 거친 것.
-                        os.remove(user.img_profile.path)
+                        # os.remove(user.img_profile.path)
 
                 file = open('../.static/img_profile_default.png', 'rb').read()
                 user.img_profile.save('img_profile.png', ContentFile(file))
         else:
             # 이미지가 입력된 경우 별도의 단계 없이 바로 해당 이미지를 저장한다.
-            if user.img_profile:
-                if os.path.isfile(user.img_profile.path):
-                    os.remove(user.img_profile.path)
+            # if user.img_profile:
+            #     if os.path.isfile(user.img_profile.path):
+            #         os.remove(user.img_profile.path)
+            user.img_profile.delete()
+
             user.img_profile.save('img_profile.png', img_profile)
 
         return user

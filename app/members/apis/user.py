@@ -39,12 +39,21 @@ class UserListCreateAPIView(APIView):
         data = {
             'token': token.key,
             'user': UserSerializer(user).data,
+            # 'resized_images': sjafl
         }
         return Response(data, status=status.HTTP_201_CREATED)
 
     def get(self, request):
-        users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
 
+        user_list = User.objects.filter(Q(is_superuser=False), Q(is_staff=False))
+
+        # 1) Pagination 적용 이전
+        # return Response(UserSerializer(user_list, many=True).data, status=status.HTTP_200_OK)
+
+        # 2) CustomPagination 사용
+        # users = [UserSerializer(user).data for user in user_list]
+        users = UserSerializer(user_list, many=True).data
+        # print(users)
         pagination = CustomPagination(users, request)
 
         return Response(pagination.object_list, status=status.HTTP_200_OK)

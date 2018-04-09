@@ -73,7 +73,7 @@ class UserLoginLogoutTest(APITestCase):
         response = self.client.post('/user/logout/')
 
         # status_code 확인
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
         # Response message 확인
         self.assertEqual(response.data, '해당 유저가 로그아웃되었습니다.')
