@@ -1,14 +1,11 @@
-import os
 import datetime
 from decimal import Decimal
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from members.serializers import UserSerializer
 from ..models import (
     House,
     Amenities,
@@ -34,8 +31,7 @@ class HouseCreateTest(APITestCase):
             'last_name': '박',
             'phone_num': '010123456789',
         }
-        self.user\
-            = User.objects.create_django_user(**test_user_data)
+        self.user = User.objects.create_django_user(**test_user_data)
         self.token, _ = Token.objects.get_or_create(user=self.user)
 
     def test_check_user(self):
