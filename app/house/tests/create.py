@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from members.serializers import UserSerializer
 from ..models import (
     House,
     Amenities,
@@ -63,11 +64,8 @@ class HouseCreateTest(APITestCase):
             'facilities': [1, 2, 3, 4, 5],
             'minimum_check_in_duration': 1,
             'maximum_check_in_duration': 3,
-            # 'start_day_for_break': datetime.date(2018, 4, 1),
-            # 'end_day_for_break': datetime.date(2018, 4, 15),
             'maximum_check_in_range': 3,
             'price_per_night': 100000,
-            'host': self.user.pk,
             'country': '대한민국',
             'city': '사랑시',
             'district': '고백구',
@@ -79,7 +77,8 @@ class HouseCreateTest(APITestCase):
         }
 
         response = self.client.post(self.URL, data)
-        # print('\nresponse : ', response.data)
+        print('\nresponse : ', response.data)
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEqual(response.data['house_type'], data['house_type'])
@@ -96,7 +95,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(response.data['price_per_night'], data['price_per_night'])
         self.assertEqual(response.data['created_date'], datetime.date.today().strftime('%Y-%m-%d'))
         self.assertEqual(response.data['modified_date'], datetime.date.today().strftime('%Y-%m-%d'))
-        self.assertEqual(response.data['host'], data['host'])
+        self.assertEqual(response.data['host']['pk'], self.user.pk)
         self.assertEqual(response.data['country'], data['country'])
         self.assertEqual(response.data['city'], data['city'])
         self.assertEqual(response.data['district'], data['district'])
@@ -121,7 +120,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(house.price_per_night, data['price_per_night'])
         self.assertEqual(house.created_date, datetime.date.today())
         self.assertEqual(house.modified_date, datetime.date.today())
-        self.assertEqual(house.host.pk, data['host'])
+        self.assertEqual(house.host.pk, self.user.pk)
         self.assertEqual(house.country, data['country'])
         self.assertEqual(house.city, data['city'])
         self.assertEqual(house.district, data['district'])

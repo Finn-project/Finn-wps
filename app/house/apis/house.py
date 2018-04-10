@@ -14,7 +14,7 @@ __all__ = (
 
 class HouseListCreateAPIView(generics.ListCreateAPIView):
     queryset = House.objects.all()
-    serializer_class = HouseCreateSerializer
+    # serializer_class = HouseSerializer
     pagination_class = DefaultPagination
 
     permission_classes = (
@@ -22,19 +22,14 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
         IsOwnerOrReadOnly
     )
 
-    # def get_serializer_class(self):
-    #     if self.request.method == 'POST':
-    #         return HouseCreateSerializer
-    #     elif self.request.method == 'GET':
-    #         return HouseSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return HouseCreateSerializer
+        elif self.request.method == 'GET':
+            return HouseSerializer
 
-    # def perform_create(self, serializer):
-    #     house = serializer.save(host=self.request.user)
-    #     house.amenities.set(self.request.data.getlist('amenities'))
-    #     house.facilities.set(self.request.data.getlist('facilities'))
-    #     house.save()
     def perform_create(self, serializer):
-        # print('\nperform_create : ', self.request.data)
+        serializer.save(host=self.request.user)
         super().perform_create(serializer)
 
 

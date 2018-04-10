@@ -1,51 +1,25 @@
-from rest_framework import serializers
+from house.serializers.house import HouseSerializer
 
-from ..models import (
-    House,
+__all__ = (
+    'HouseCreateSerializer',
 )
 
 
-class HouseCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = House
-        fields = (
-            'pk',
-            'house_type',
-            'name',
-            'description',
-            'room',
-            'bathroom',
-            'personnel',
-            'amenities',
-            'facilities',
-            'minimum_check_in_duration',
-            'maximum_check_in_duration',
-            'maximum_check_in_range',
-            'price_per_night',
-            'created_date',
-            'modified_date',
-            'host',
-            'country',
-            'city',
-            'district',
-            'dong',
-            'address1',
-            'address2',
-            'latitude',
-            'longitude',
-        )
+class HouseCreateSerializer(HouseSerializer):
+    def validate(self, attrs):
+        return attrs
 
-    # def validate_host(self, host):
-    #     print('validate_host', host)
-    #     return host
-    #
-    # def validate(self, attrs):
-    #     print('\nvalidate : ', attrs)
-    #     return attrs
-    #
-    # def create(self, validated_data):
-    #     print('\ncreate : ', validated_data)
-    #     print(validated_data['amenities'][0].pk)
-    #
-    #     return House.objects.create(**validated_data)
-    #     # return super().create(validated_data)
+    def create(self, validated_data):
+        # amenities = validated_data.pop('amenities')
+        # facilities = validated_data.pop('facilities')
+        #
+        # house = House.objects.create(**validated_data)
+        #
+        # for amenity in amenities:
+        #     house.amenities.add(amenity)
+        #
+        # for facility in facilities:
+        #     house.facilities.add(facility)
+        #
+        # return house
+        return super().create(validated_data)

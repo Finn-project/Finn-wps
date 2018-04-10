@@ -72,12 +72,20 @@
 #         )
 
 from rest_framework import serializers
+
+from members.serializers import UserSerializer
 from ..models import (
     House,
 )
 
+__all__ = (
+    'HouseSerializer',
+)
+
 
 class HouseSerializer(serializers.ModelSerializer):
+    host = UserSerializer(read_only=True)
+
     class Meta:
         model = House
         fields = (
@@ -105,4 +113,10 @@ class HouseSerializer(serializers.ModelSerializer):
             'address2',
             'latitude',
             'longitude'
+        )
+        read_only_fields = (
+            'pk',
+            'host',
+            'created_date',
+            'modified_date',
         )
