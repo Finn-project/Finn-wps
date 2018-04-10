@@ -40,14 +40,22 @@ class UserListCreateAPIView(APIView):
             'token': token.key,
             'user': UserSerializer(user).data,
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_201_CREATED)
 
     def get(self, request):
-        users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
 
+        user_list = User.objects.filter(Q(is_superuser=False), Q(is_staff=False))
+
+        # 1) Pagination 적용 이전
+        # return Response(UserSerializer(user_list, many=True).data, status=status.HTTP_200_OK)
+
+        # 2) CustomPagination 사용
+        # users = [UserSerializer(user).data for user in user_list]
+        users = UserSerializer(user_list, many=True).data
+        # print(users)
         pagination = CustomPagination(users, request)
 
-        return Response(pagination.object_list)
+        return Response(pagination.object_list, status=status.HTTP_200_OK)
 
 
 class UserRetrieveUpdateDestroyAPIView(APIView):
@@ -60,12 +68,13 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         data = {
             'user': UserSerializer(get_object_or_404(User, pk=pk)).data
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         # user = get_object_or_404(User, pk=pk)
         serializer = UserUpdateSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
+            # serializer.save(images=request.data.get('img_profile'))
             serializer.save()
             return Response(serializer.data)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -75,7 +84,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
@@ -85,4 +94,4 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
         request.user.delete()
-        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
+        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
