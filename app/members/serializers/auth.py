@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.utils.module_loading import import_string
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.fields import ImageField
 
 from members.models import UserProfileImages
 from utils.exception.custom_exception import CustomException
@@ -17,7 +18,9 @@ User = get_user_model()
 class UserProfileImagesSerializer(serializers.ModelSerializer):
 
     # img_profile = serializers.ImageField(read_only=True)
-    img_profile_thumbnail = serializers.ImageField(read_only=True)
+    img_profile_thumbnailx1 = serializers.ImageField(read_only=True)
+    img_profile_thumbnailx2 = serializers.ImageField(read_only=True)
+    img_profile_thumbnailx3 = serializers.ImageField(read_only=True)
 
     class Meta:
         model = UserProfileImages
@@ -116,6 +119,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'images',
         )
 
+    # def validate_image(self, img_profile):
+    #     print(img_profile)
+    #     print('이미지검사중')
+    #     return img_profile
+
     def validate_email(self, email):
         # 내 이 메일은 중복검사 하면 안되서 ~Q(username=self.instance) 추가
         if User.objects.filter(~Q(username=self.instance), Q(email=email)).exists():
@@ -138,13 +146,27 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
+    def validate(self, attrs):
+        if self.initial_data.get('img_profile', ''):
+            # 검증할 수 있을뿐
+            attrs['images'] = self.initial_data['img_profile']
+            images = attrs['images']
+
+            imf = ImageField()
+            result = imf.to_internal_value(images)
+            # print(result)
+
+
+        return attrs
+
     def update(self, user, validated_data):
         email = validated_data.get('email', user.email)
         password = validated_data.get('password', user.password)
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
         phone_num = validated_data.get('phone_num', user.phone_num)
-        img_profile = self.initial_data.get('img_profile', '')
+        # img_profile = self.initial_data.get('img_profile', '')
+        img_profile = validated_data.get('images', '')
 
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
@@ -177,21 +199,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             #     user.img_profile.delete()
             user.images.all().delete()
 
-            static_storage_class = import_string(settings.STATICFILES_STORAGE)
-            static_storage = static_storage_class()
-            static_file = static_storage.open(
-                'img_profile_default.png'
-            )
-            print(static_file)
-            print(type(static_file))
-            print(static_file.name)
-            print(type(static_file.file))
-            print(static_file.read())
-            print(static_file.path)
+            # 1) 이미지 경로 문제로 제외
+            # static_storage_class = import_string(settings.STATICFILES_STORAGE)
+            # static_storage = static_storage_class()
+            # static_file = static_storage.open(
+            #     'img_profile_default.png'
+            # )
+            # user.images.create(img_profile=static_file)
 
-
-
-            user.images.create(img_profile=static_file)
+            # 2) 이미지 경로 제대로 들어감.
+            # file = open('../.static/img_profile_default.png', 'rb').read()
+            # img = UserProfileImages.objects.create(user=user)
+            # img.img_profile.save('img_profile.png', ContentFile(file))
 
         else:
             # 이미지가 입력된 경우 별도의 단계 없이 바로 해당 이미지를 저장한다.
@@ -199,10 +218,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             #     if os.path.isfile(user.img_profile.path):
             #         os.remove(user.img_profile.path)
             user.images.all().delete()
-            print(img_profile)
-            print(type(img_profile))
             user.images.create(img_profile=img_profile)
-
-            # user.img_profile.save('img_profile.png', img_profile)
 
         return user

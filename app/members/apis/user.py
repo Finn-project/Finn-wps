@@ -74,6 +74,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # user = get_object_or_404(User, pk=pk)
         serializer = UserUpdateSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
+            # serializer.save(images=request.data.get('img_profile'))
             serializer.save()
             return Response(serializer.data)
         return Response(status=status.HTTP_204_NO_CONTENT)

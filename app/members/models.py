@@ -2,6 +2,8 @@ import os
 from django.conf import settings
 
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.db.models import Manager
 from django.db.models.signals import post_delete
@@ -29,13 +31,9 @@ class UserManager(DjangoUserManager):
             # images=kwargs.get('images', '')
         )
         # default profile_image 생성
-        static_storage_class = import_string(settings.STATICFILES_STORAGE)
-        static_storage = static_storage_class()
-        static_file = static_storage.open(
-            'img_profile_default.png'
-        )
-        user.images.create(img_profile=static_file)
-
+        # file = open('../.static/img_profile_default.png', 'rb').read()
+        # img = UserProfileImages.objects.create(user=user)
+        # img.img_profile.save('img_profile.png', ContentFile(file))
         return user
 
     def create_facebook_user(self, *args, **kwargs):
@@ -116,8 +114,18 @@ class UserProfileImages(models.Model):
     img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
     # test_field = models.CharField(max_length=50)
 
-    img_profile_thumbnail = ImageSpecField(source='img_profile',
+    img_profile_thumbnailx1 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(150, 150)],
+                                      format='png',
+                                      options={'quality': 70})
+
+    img_profile_thumbnailx2 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(300, 300)],
+                                      format='png',
+                                      options={'quality': 70})
+
+    img_profile_thumbnailx3 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(500, 500)],
                                       format='png',
                                       options={'quality': 70})
 
@@ -125,3 +133,9 @@ class UserProfileImages(models.Model):
 @receiver(post_delete, sender=UserProfileImages)
 def remove_file_from_storage(sender, instance, using, **kwargs):
     instance.img_profile.delete(save=False)
+
+    # if os.path.isfile(instance.img_profile.path):
+    #     print(instance.img_profile.path)
+    #     img_url = instance.img_profile.url
+    #     print(img_url)
+    # pass
