@@ -30,6 +30,10 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(host=self.request.user)
+
+        self.request.user.is_host = True
+        self.request.user.save()
+
         super().perform_create(serializer)
 
 
