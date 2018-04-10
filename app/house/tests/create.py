@@ -34,7 +34,8 @@ class HouseCreateTest(APITestCase):
             'last_name': '박',
             'phone_num': '010123456789',
         }
-        self.user = User.objects.create_django_user(**test_user_data)
+        self.user\
+            = User.objects.create_django_user(**test_user_data)
         self.token, _ = Token.objects.get_or_create(user=self.user)
 
     def test_check_user(self):
@@ -121,6 +122,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(house.created_date, datetime.date.today())
         self.assertEqual(house.modified_date, datetime.date.today())
         self.assertEqual(house.host.pk, self.user.pk)
+        self.assertEqual(house.host.is_host, True)
         self.assertEqual(house.country, data['country'])
         self.assertEqual(house.city, data['city'])
         self.assertEqual(house.district, data['district'])
