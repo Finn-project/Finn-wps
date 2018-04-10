@@ -17,16 +17,12 @@ User = get_user_model()
 
 class UserProfileImagesSerializer(serializers.ModelSerializer):
 
-    # img_profile = serializers.ImageField(read_only=True)
-    img_profile_thumbnailx1 = serializers.ImageField(read_only=True)
-    img_profile_thumbnailx2 = serializers.ImageField(read_only=True)
-    img_profile_thumbnailx3 = serializers.ImageField(read_only=True)
+    img_profile_thumbnail_150 = serializers.ImageField(read_only=True)
+    img_profile_thumbnail_300 = serializers.ImageField(read_only=True)
 
     class Meta:
         model = UserProfileImages
-        # fields = (
-        #     'img_profile',
-        # )
+
         fields = '__all__'
 
 

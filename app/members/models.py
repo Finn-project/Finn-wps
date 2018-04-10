@@ -9,7 +9,7 @@ from django.db.models import Manager
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.module_loading import import_string
-from imagekit.models import ImageSpecField
+from imagekit.models import ImageSpecField, ProcessedImageField
 from pilkit.processors import ResizeToFill
 
 
@@ -111,31 +111,29 @@ class UserProfileImages(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
-    # test_field = models.CharField(max_length=50)
+    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+    img_profile = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(500, 500)],
+                                           format='png',
+                                           options={'quality': 100})
 
-    img_profile_thumbnailx1 = ImageSpecField(source='img_profile',
+    img_profile_thumbnail_150 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(150, 150)],
                                       format='png',
                                       options={'quality': 70})
 
-    img_profile_thumbnailx2 = ImageSpecField(source='img_profile',
+    img_profile_thumbnail_300 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(300, 300)],
-                                      format='png',
-                                      options={'quality': 70})
-
-    img_profile_thumbnailx3 = ImageSpecField(source='img_profile',
-                                      processors=[ResizeToFill(500, 500)],
                                       format='png',
                                       options={'quality': 70})
 
 
 @receiver(post_delete, sender=UserProfileImages)
 def remove_file_from_storage(sender, instance, using, **kwargs):
-    instance.img_profile.delete(save=False)
 
-    # if os.path.isfile(instance.img_profile.path):
-    #     print(instance.img_profile.path)
-    #     img_url = instance.img_profile.url
-    #     print(img_url)
-    # pass
+    if os.path.isfile(instance.img_profile.path):
+        # print(instance.img_profile.path)
+        img_url = instance.img_profile.url
+        print(img_url)
+    instance.img_profile.delete(save=False)
