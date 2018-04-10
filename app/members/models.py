@@ -132,8 +132,8 @@ class UserProfileImages(models.Model):
 @receiver(post_delete, sender=UserProfileImages)
 def remove_file_from_storage(sender, instance, using, **kwargs):
 
-    if os.path.isfile(instance.img_profile.path):
+    # if os.path.isfile(instance.img_profile.path):
         # print(instance.img_profile.path)
-        img_url = instance.img_profile.url
-        print(img_url)
+        # img_url = instance.img_profile.url
+        # print(img_url)
     instance.img_profile.delete(save=False)
