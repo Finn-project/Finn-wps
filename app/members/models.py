@@ -118,15 +118,15 @@ class UserProfileImages(models.Model):
                                            format='png',
                                            options={'quality': 100})
 
-    img_profile_thumbnail_150 = ImageSpecField(source='img_profile',
+    img_profile_150 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(150, 150)],
                                       format='png',
-                                      options={'quality': 70})
+                                      options={'quality': 80})
 
-    img_profile_thumbnail_300 = ImageSpecField(source='img_profile',
+    img_profile_300 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(300, 300)],
                                       format='png',
-                                      options={'quality': 70})
+                                      options={'quality': 800})
 
 
 @receiver(post_delete, sender=UserProfileImages)

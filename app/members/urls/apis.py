@@ -6,7 +6,6 @@ from ..apis import (
     UserLoginAuthTokenAPIView, UserLogoutAPIView,
     UserGetAuthTokenAPIView,
     AuthTokenForFacebookAccessTokenView,
-    IsUserHostAPIView
 )
 
 urlpatterns = [
@@ -17,6 +16,4 @@ urlpatterns = [
     path('login/', UserLoginAuthTokenAPIView.as_view()),
     path('logout/', UserLogoutAPIView.as_view()),
     path('facebook-login/', AuthTokenForFacebookAccessTokenView.as_view()),
-
-    path('is-host-user/', IsUserHostAPIView.as_view()),
 ]
