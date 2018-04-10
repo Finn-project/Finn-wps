@@ -80,17 +80,11 @@ class APIFacebookBackend:
 
                 response = requests.get(img_profile_url)
                 binary_data = response.content
-
                 img = UserProfileImages.objects.create(user=user)
 
-                # print(ContentFile(binary_data))
-                # print(type(ContentFile(binary_data)))
-
-                # print(File(temp_file))
-                # print(type(File(temp_file)))
-
                 # img.img_profile.save('img_profile.png', File(temp_file))
-                img.img_profile.save('img_profile.png', ContentFile(binary_data))
+                data = ContentFile(binary_data)
+                img.img_profile.save('img_profile.png', data)
 
                 user.is_facebook_user = True
                 user.save()
