@@ -23,7 +23,7 @@ class UserListTest(APITestCase):
     USER_COUNT = 13
     PAGE_SIZE = 3
 
-    def SetUp(self):
+    def setUp(self):
         # 유저 만들기
         for i in range(self.USER_COUNT):
             test_user_data = {
@@ -44,4 +44,5 @@ class UserListTest(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             self.assertEqual(response.data,
-                             UserSerializer(User.objects.all()[i * self.PAGE_SIZE:(i + 1) * self.PAGE_SIZE], many=True).data, )
+                             UserSerializer(User.objects.all()[i * self.PAGE_SIZE:(i + 1) * self.PAGE_SIZE],
+                                            many=True).data, )

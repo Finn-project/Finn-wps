@@ -1,6 +1,8 @@
 from rest_framework import permissions, generics
 
+from house.serializers.house_create import HouseCreateSerializer
 from utils.pagination.custom_generic_pagination import DefaultPagination
+from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers.house import HouseSerializer
 from ..models import House
 
@@ -12,12 +14,27 @@ __all__ = (
 
 class HouseListCreateAPIView(generics.ListCreateAPIView):
     queryset = House.objects.all()
-    serializer_class = HouseSerializer
+    # serializer_class = HouseSerializer
     pagination_class = DefaultPagination
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
     )
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return HouseCreateSerializer
+        elif self.request.method == 'GET':
+            return HouseSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(host=self.request.user)
+
+        self.request.user.is_host = True
+        self.request.user.save()
+
+        super().perform_create(serializer)
 
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):

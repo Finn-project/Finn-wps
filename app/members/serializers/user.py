@@ -17,7 +17,6 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_num',
             'img_profile',
             'is_host',
-            # 'signup_type',
             'is_email_user',
             'is_facebook_user',
         )
