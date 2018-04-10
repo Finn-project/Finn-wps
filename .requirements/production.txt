@@ -1,0 +1,12 @@
+boto3<1.7
+Django<2.1
+django-storages<1.7
+django-cors-headers<2.3
+djangorestframework<3.8
+django-imagekit<4.1
+psycopg2-binary<2.8
+Pillow<6.0.0
+raven<7
+requests<3.0
+uWSGI<2.1
+python-magic<0.5

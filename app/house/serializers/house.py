@@ -94,6 +94,7 @@ class HouseSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'room',
+            'bed',
             'bathroom',
             'personnel',
             'amenities',
