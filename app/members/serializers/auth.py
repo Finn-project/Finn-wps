@@ -152,7 +152,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             result = imf.to_internal_value(images)
             # print(result)
 
-
         return attrs
 
     def update(self, user, validated_data):
@@ -181,7 +180,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.save()
 
         # 유저가 사진을 입력안한 경우( 기존 이미지 또는 default 이미지로 다시 넣어준다.
-        if img_profile == '':
+        if img_profile == []:
             # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
             # 에서 img_profile 값이 입력되지 않았을 경우인데,
             # 이게 Postman 문제인지는 모르겠지만 null값을 보낼때와 빈 값('')을 보낼 때와
@@ -208,19 +207,27 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # img = UserProfileImages.objects.create(user=user)
             # img.img_profile.save('img_profile.png', ContentFile(file))
 
+            # 3) 4/10 오전 미팅결과 iOS/FDS에서 Default image 세팅하기로 결론
+
         else:
             # 이미지가 입력된 경우 별도의 단계 없이 바로 해당 이미지를 저장한다.
             # if user.img_profile:
             #     if os.path.isfile(user.img_profile.path):
             #         os.remove(user.img_profile.path)
-            pass
-            # user.images.all().delete()
+
+            user.images.all().delete()
             # user.images.create(img_profile=img_profile)
 
-            # f = img_profile.read()
-            # print(f)
+            # 4/10 content.seek(0) 에러 발생으로 이미지 저장 방법 변경
+            #       만약 아래 방법으로 해결된다면 Cache를 이용하여
+            #       이미지를 저장하는 라이브러리 특성상, 객체를 생성과 동시에
+            #       이미지를 저장하려고 할 때 오류가 난 것으로 추측.
+            img = UserProfileImages.objects.create(user=user)
 
-            # img = UserProfileImages.objects.get(user=user)
+            # 1) 먼저 생각난 방법
             # img.img_profile.save('img_profile.png', img_profile)
+
+            # 2) 일단 안전빵
+            img.img_profile.save('img_profile.png', ContentFile(img_profile.read()))
 
         return user
