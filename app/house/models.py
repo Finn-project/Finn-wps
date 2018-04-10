@@ -125,7 +125,7 @@ class House(models.Model):
     )
 
     DEFAULT_PRICE_PER_NIGHT = 100000
-    price_per_night = models.PositiveSmallIntegerField(
+    price_per_night = models.PositiveIntegerField(
         verbose_name='하루 요금',
         help_text='하루 요금을 적어 주세요. 기본값(100,000)',
 
@@ -208,16 +208,12 @@ class House(models.Model):
         verbose_name='위도',
         help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
 
-        blank=True,
-
         decimal_places=7,
         max_digits=9
     )
     longitude = models.DecimalField(
         verbose_name='경도',
         help_text='경도를 소수점(7자리) 입력 가능 (xxx.1234567)',
-
-        blank=True,
 
         decimal_places=7,
         max_digits=10
