@@ -53,3 +53,4 @@ class UserSignupTest(APITestCase):
         self.assertEqual(user_data['first_name'], user.first_name)
         self.assertEqual(user_data['last_name'], user.last_name)
         self.assertEqual(user_data['phone_num'], user.phone_num)
+        self.assertEqual(user_data['is_host'], False)
