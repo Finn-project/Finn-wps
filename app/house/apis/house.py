@@ -39,8 +39,29 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = House.objects.all()
-    serializer_class = HouseSerializer
+    # serializer_class = HouseSerializer
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
     )
+
+    def get_serializer_class(self):
+        # 추후 하나로 합칠 예정
+        if self.request.method == 'GET':
+            return HouseCreateSerializer
+        elif self.request.method == 'PUT':
+            return HouseRetrieveUpdateDestroyAPIView
+        elif self.request.method == 'PATCH':
+            return HouseRetrieveUpdateDestroyAPIView(partial=True)
+        elif self.request.method == 'DELETE':
+            return HouseRetrieveUpdateDestroyAPIView
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+
+    def partial_update(self, request, *args, **kwargs):
+        super().partial_update(request, *args, **kwargs)
