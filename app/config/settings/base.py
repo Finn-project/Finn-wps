@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     'members',
     'house',
     'reservation',
+    'imagekit',
 ]
 
 MIDDLEWARE = [

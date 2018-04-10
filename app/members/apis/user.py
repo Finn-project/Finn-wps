@@ -39,7 +39,6 @@ class UserListCreateAPIView(APIView):
         data = {
             'token': token.key,
             'user': UserSerializer(user).data,
-            # 'resized_images': sjafl
         }
         return Response(data, status=status.HTTP_201_CREATED)
 
