@@ -16,6 +16,7 @@ class CustomPagination():
 
         return paginator.get_page(self.page).object_list
 
-    @property
-    def get_page(self):
-        return self.page
+    # Page number까지 표현해주려고 만들어둔 method
+    # @property
+    # def get_page(self):
+    #     return self.page

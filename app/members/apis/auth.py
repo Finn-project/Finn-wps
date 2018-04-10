@@ -36,7 +36,7 @@ class UserLogoutAPIView(APIView):
     def post(self, request):
         token = Token.objects.get(user=request.user)
         token.delete()
-        return Response('해당 유저가 로그아웃되었습니다.', status=status.HTTP_200_OK)
+        return Response('해당 유저가 로그아웃되었습니다.', status=status.HTTP_204_NO_CONTENT)
 
 
 class UserGetAuthTokenAPIView(APIView):

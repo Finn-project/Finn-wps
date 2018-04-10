@@ -43,8 +43,16 @@ class UserListCreateAPIView(APIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
     def get(self, request):
-        users = [UserSerializer(user).data for user in User.objects.filter(Q(is_superuser=False), Q(is_staff=False))]
 
+        user_list = User.objects.filter(Q(is_superuser=False), Q(is_staff=False))
+
+        # 1) Pagination 적용 이전
+        # return Response(UserSerializer(user_list, many=True).data, status=status.HTTP_200_OK)
+
+        # 2) CustomPagination 사용
+        # users = [UserSerializer(user).data for user in user_list]
+        users = UserSerializer(user_list, many=True).data
+        # print(users)
         pagination = CustomPagination(users, request)
 
         return Response(pagination.object_list, status=status.HTTP_200_OK)
@@ -66,6 +74,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # user = get_object_or_404(User, pk=pk)
         serializer = UserUpdateSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
+            # serializer.save(images=request.data.get('img_profile'))
             serializer.save()
             return Response(serializer.data)
         return Response(status=status.HTTP_204_NO_CONTENT)
