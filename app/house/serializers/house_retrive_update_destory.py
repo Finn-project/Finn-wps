@@ -1,3 +1,4 @@
+from house.models import House
 from ..serializers import HouseSerializer
 
 __all__ = (
@@ -7,7 +8,4 @@ __all__ = (
 
 class HouseRetrieveUpdateDestroySerializer(HouseSerializer):
     def validate(self, attrs):
-        pass
-
-    def update(self, instance, validated_data):
-        return instance
+        return attrs
