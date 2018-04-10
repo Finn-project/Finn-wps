@@ -1,9 +1,8 @@
 from rest_framework import permissions, generics
 
-from house.serializers.house_create import HouseCreateSerializer
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsOwnerOrReadOnly
-from ..serializers.house import HouseSerializer
+from ..serializers import HouseSerializer, HouseCreateSerializer
 from ..models import House
 
 __all__ = (
@@ -23,6 +22,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     )
 
     def get_serializer_class(self):
+        # 추후 하나로 합칠 예정
         if self.request.method == 'POST':
             return HouseCreateSerializer
         elif self.request.method == 'GET':
