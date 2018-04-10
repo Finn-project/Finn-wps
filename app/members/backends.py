@@ -1,8 +1,9 @@
 import requests
 from django.contrib.auth import get_user_model
-from django.core.files.base import File
+from django.core.files.base import File, ContentFile
 from rest_framework import status
 
+from members.models import UserProfileImages
 from utils.image.file import download
 from utils.image.resize import img_resize
 
@@ -70,16 +71,23 @@ class APIFacebookBackend:
             # Facebook에서 받아온 사진으로 img_profile 저장
             if user.is_facebook_user is False:
                 user.is_facebook_user = True
-                temp_file = download(img_profile_url)
-                file_name = '{facebook_id}.{ext}'.format(
-                    # facebook_id=facebook_id,
-                    facebook_id='img_profile',
-                    ext='png',
-                )
-                user.img_profile.save(file_name, File(temp_file))
+                # temp_file = download(img_profile_url)
+                # file_name = '{facebook_id}.{ext}'.format(
+                #     facebook_id=facebook_id,
+                    # facebook_id='img_profile',
+                    # ext='png',
+                # )
+                # user.img_profile.save(file_name, File(temp_file))
+
+                response = requests.get(img_profile_url)
+                binary_data = response.content
+
+                img = UserProfileImages.objects.create(user=user)
+                img.img_profile.save('img_profile.png', ContentFile(binary_data))
+                # user.save()
                 # 사진 리사이징 및 저장
                 # (utils/image/resize.py)
-                img_resize(user, file_name)
+                # img_resize(user, file_name)
 
             return user
 

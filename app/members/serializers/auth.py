@@ -213,7 +213,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # if user.img_profile:
             #     if os.path.isfile(user.img_profile.path):
             #         os.remove(user.img_profile.path)
-            user.images.all().delete()
-            user.images.create(img_profile=img_profile)
+            pass
+            # user.images.all().delete()
+            # user.images.create(img_profile=img_profile)
+
+            # f = img_profile.read()
+            # print(f)
+
+            # img = UserProfileImages.objects.get(user=user)
+            # img.img_profile.save('img_profile.png', img_profile)
 
         return user
