@@ -74,7 +74,6 @@ class HouseCreateTest(APITestCase):
         }
 
         response = self.client.post(self.URL, data)
-        print('\nresponse : ', response.data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
