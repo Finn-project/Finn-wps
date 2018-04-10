@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -21,7 +22,7 @@ class Command(BaseCommand):
             'phone_num': '01012345678'
         }
         if not User.objects.filter(username=ios_test_user.get('username')):
-            User.objects.create_user(
+            user = User.objects.create_user(
                 username=ios_test_user.get('username'),
                 email=ios_test_user.get('username'),
                 password=ios_test_user.get('password'),
@@ -30,6 +31,7 @@ class Command(BaseCommand):
                 phone_num=ios_test_user.get('phone_num'),
                 is_email_user=True,
             )
+            token, _ = Token.objects.get_or_create(user=user)
 
         fds_test_user = {
             'username': 'fdstest@gmail.com',
@@ -39,7 +41,7 @@ class Command(BaseCommand):
             'phone_num': '01012345678'
         }
         if not User.objects.filter(username=fds_test_user.get('username')):
-            User.objects.create_user(
+            user = User.objects.create_user(
                 username=fds_test_user.get('username'),
                 email=fds_test_user.get('username'),
                 password=fds_test_user.get('password'),
@@ -48,3 +50,4 @@ class Command(BaseCommand):
                 phone_num=fds_test_user.get('phone_num'),
                 is_email_user=True,
             )
+            token, _ = Token.objects.get_or_create(user=user)

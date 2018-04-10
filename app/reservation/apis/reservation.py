@@ -1,5 +1,6 @@
 from rest_framework import generics, permissions
 
+from utils.pagination.custom_generic_pagination import DefaultPagination
 from ..models import Reservation
 from ..serializers import ReservationSerializer
 
@@ -16,6 +17,8 @@ class ReservationCreateListView(generics.ListCreateAPIView):
         permissions.IsAuthenticated
     )
 
+    pagination_class = DefaultPagination
+
 
 class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reservation.objects.all()
@@ -23,3 +26,5 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     permission_classes = (
         permissions.IsAuthenticated
     )
+
+    pagination_class = DefaultPagination

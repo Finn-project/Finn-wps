@@ -3,26 +3,18 @@ from django.conf import settings
 
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.db.models import Manager
-
-
-# 다른 곳에서 아래의 CHOICES 속성을 참조하려고 할 때
-# 모델 클래스 'User'와 'User = get_user_model'이 겹쳐서 import되지 않는 문제 발생
-# -> 1. 아래처럼 class 밖으로 빼서 전역변수로 만듦.
-#    2. 'User' 대신 'MyUser'로 네이밍
-
-# SIGNUP_TYPE_EMAIL = 'e'
-# SIGNUP_TYPE_FACEBOOK = 'f'
-#
-# SIGNUP_TYPE_CHOICES = (
-#     (SIGNUP_TYPE_FACEBOOK, 'facebook'),
-#     (SIGNUP_TYPE_EMAIL, 'email'),
-# )
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.utils.module_loading import import_string
+from imagekit.models import ImageSpecField, ProcessedImageField
+from pilkit.processors import ResizeToFill
 
 
 def dynamic_img_profile_path(instance, file_name):
-    return f'user/user_{instance.id}/{file_name}'
+    return f'user/user_{instance.user.id}/{file_name}'
 
 
 class UserManager(DjangoUserManager):
@@ -34,13 +26,14 @@ class UserManager(DjangoUserManager):
             first_name=kwargs.get('first_name'),
             last_name=kwargs.get('last_name'),
             phone_num=kwargs.get('phone_num', ''),
-            # signup_type=SIGNUP_TYPE_EMAIL
             is_email_user=True,
+
+            # images=kwargs.get('images', '')
         )
         # default profile_image 생성
-        file = open('../.static/img_profile_default.png', 'rb').read()
-        user.img_profile.save('img_profile.png', ContentFile(file))
-
+        # file = open('../.static/img_profile_default.png', 'rb').read()
+        # img = UserProfileImages.objects.create(user=user)
+        # img.img_profile.save('img_profile.png', ContentFile(file))
         return user
 
     def create_facebook_user(self, *args, **kwargs):
@@ -53,9 +46,7 @@ class User(AbstractUser):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True, blank=True, null=True)
 
-    img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
     phone_num = models.CharField(max_length=20, blank=True)
-    # signup_type = models.CharField(max_length=1, choices=SIGNUP_TYPE_CHOICES, default=SIGNUP_TYPE_EMAIL)
     is_facebook_user = models.BooleanField(default=False)
     is_email_user = models.BooleanField(default=False)
 
@@ -65,6 +56,17 @@ class User(AbstractUser):
     is_host = models.BooleanField(default=False)
 
     objects = UserManager()
+
+    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+    # img_profile_thumbnail = ImageSpecField(source='img_profile',
+    #                                   processors=[ResizeToFill(100, 50)],
+    #                                   format='png',
+    #                                   options={'quality': 60})
+
+    # img_profile = ProcessedImageField(upload_to=dynamic_img_profile_path,
+    #                                        processors=[ResizeToFill(100, 50)],
+    #                                        format='png',
+    #                                        options={'quality': 700})
 
 
 class HostManager(Manager):
@@ -93,9 +95,45 @@ class Guest(User):
     class Meta:
         proxy = True
 
-    def change_host(self):
-        self.is_host = True
-        self.save()
-
     def __str__(self):
         return f'{self.username} (게스트)'
+
+
+# @receiver(post_delete, sender=User)
+# def remove_file_from_storage(sender, instance, using, **kwargs):
+#     instance.images.all().delete(save=False)
+
+
+class UserProfileImages(models.Model):
+
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+    img_profile = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(500, 500)],
+                                           format='png',
+                                           options={'quality': 100})
+
+    img_profile_thumbnail_150 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(150, 150)],
+                                      format='png',
+                                      options={'quality': 70})
+
+    img_profile_thumbnail_300 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(300, 300)],
+                                      format='png',
+                                      options={'quality': 70})
+
+
+@receiver(post_delete, sender=UserProfileImages)
+def remove_file_from_storage(sender, instance, using, **kwargs):
+
+    if os.path.isfile(instance.img_profile.path):
+        # print(instance.img_profile.path)
+        img_url = instance.img_profile.url
+        print(img_url)
+    instance.img_profile.delete(save=False)
