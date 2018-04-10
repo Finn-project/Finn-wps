@@ -47,6 +47,7 @@ class UserSignupTest(APITestCase):
         # authenticate를 사용해 실제 데이터베이스에 생성되었는지 확인,
         # 생성된 유저의 값을 테스트
         user = authenticate(username=self.USERNAME, password=self.PASSWORD)
+
         self.assertEqual(user.pk, user_data['pk'])
         self.assertEqual(user.username, user_data['username'])
         self.assertEqual(user.username, user_data['email'])
@@ -61,11 +62,3 @@ class UserSignupTest(APITestCase):
         self.assertEqual(user.is_staff, False)
         self.assertIsNotNone(user.created_date)
         self.assertIsNotNone(user.modified_date)
-
-        # host 전환 후 인증 되는지 검사
-        user.is_host = True
-        user.save()
-        self.assertEqual(user, authenticate(
-            username=data['username'],
-            password=data['password'],
-        ))
