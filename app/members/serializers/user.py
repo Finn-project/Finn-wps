@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     images = UserProfileImagesSerializer(many=True)
 
     class Meta:
@@ -22,7 +21,5 @@ class UserSerializer(serializers.ModelSerializer):
             'is_host',
             'is_email_user',
             'is_facebook_user',
-
             'images'
-
         )
