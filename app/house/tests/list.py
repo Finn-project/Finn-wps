@@ -32,6 +32,7 @@ class HouseListTest(APITestCase):
         'name': '우리집',
         'description': '테스트용 집입니다.',
         'room': 1,
+        'bed': 2,
         'bathroom': 2,
         'personnel': 3,
         'minimum_check_in_duration': 1,
@@ -106,6 +107,7 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['name'], self.DATA['name'])
                 self.assertEqual(house_result['description'], self.DATA['description'])
                 self.assertEqual(house_result['room'], self.DATA['room'])
+                self.assertEqual(house_result['bed'], self.DATA['bed'])
                 self.assertEqual(house_result['bathroom'], self.DATA['bathroom'])
                 self.assertEqual(house_result['personnel'], self.DATA['personnel'])
                 self.assertEqual(house_result['amenities'], self.AMENITIES)
@@ -133,6 +135,7 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house.name, self.DATA['name'])
                 self.assertEqual(house.description, self.DATA['description'])
                 self.assertEqual(house.room, self.DATA['room'])
+                self.assertEqual(house.bed, self.DATA['bed'])
                 self.assertEqual(house.bathroom, self.DATA['bathroom'])
                 self.assertEqual(house.personnel, self.DATA['personnel'])
                 self.assertEqual(list(house.amenities.values_list('pk', flat=True)), self.AMENITIES)

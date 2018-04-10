@@ -30,48 +30,38 @@ class House(models.Model):
     )
     name = models.CharField(
         verbose_name='숙소 이름',
-        help_text='숙소의 이름을 입력하세요. (100자)',
+        help_text='숙소의 이름을 입력하세요.',
 
         max_length=100,
     )
     description = models.TextField(
         verbose_name='숙소 설명',
-        help_text='숙소를 설명 하세요. (blank/null 가능)',
-
-        blank=True,
+        help_text='숙소를 설명 하세요.',
     )
 
     room = models.PositiveSmallIntegerField(
         verbose_name='방 수',
-        help_text='방 수를 입력 하세요. (기본값은 1개)',
-
-        default=1,
+        help_text='방 수를 입력 하세요.',
     )
     bed = models.PositiveSmallIntegerField(
         verbose_name='침대 수',
-        help_text='침대 수를 입력 하세요. (기본값은 0개)',
-
-        default=1,
+        help_text='침대 수를 입력 하세요.',
     )
     bathroom = models.PositiveSmallIntegerField(
         verbose_name='욕실 수',
-        help_text='욕실 수를 입력 하세요. (기본값은 1개)',
-
-        default=1,
+        help_text='욕실 수를 입력 하세요.',
     )
 
     personnel = models.PositiveSmallIntegerField(
         verbose_name='숙박 인원',
-        help_text='숙박 인원 입력 하세요. (기본값은 1명)',
-
-        default=1,
+        help_text='숙박 인원 입력 하세요.',
     )
 
     amenities = models.ManyToManyField(
         'Amenities',
 
         verbose_name='편의 물품',
-        help_text='편의 물품의 종류를 선택하세요. (blank/null 가능)',
+        help_text='편의 물품의 종류를 선택하세요.',
 
         related_name='houses_with_amenities',
         blank=True,
@@ -81,7 +71,7 @@ class House(models.Model):
         'Facilities',
 
         verbose_name='편의 시설',
-        help_text='편의 시설을 선택하세요. (blank/null 가능)',
+        help_text='편의 시설을 선택하세요.',
 
         related_name='houses_with_facilities',
         blank=True,
@@ -89,17 +79,11 @@ class House(models.Model):
 
     minimum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최소 체크인 기간',
-        help_text='체크인 할 수 있는 최소 기간을 입력 하세요. (기본값은 1=1박2일)',
-
-        default=1,
-        blank=True
+        help_text='체크인 할 수 있는 최소 기간을 입력 하세요.',
     )
     maximum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최대 체크인 기간',
-        help_text='체크인 할 수 있는 최대 기간을 입력 하세요. (기본값은 3=3박4일)',
-
-        default=3,
-        blank=True
+        help_text='체크인 할 수 있는 최대 기간을 입력 하세요.',
     )
 
     # start_day_for_break = models.DateField(
@@ -118,18 +102,12 @@ class House(models.Model):
     # )
     maximum_check_in_range = models.PositiveSmallIntegerField(
         verbose_name='체크인 가능한 한계 시간',
-        help_text='오늘을 기준으로 체크인이 가능한 달 수 적어주세요 (기본값은 3)',
-
-        # 3달
-        # default=3,
+        help_text='오늘을 기준으로 체크인이 가능한 달 수 적어주세요',
     )
 
-    DEFAULT_PRICE_PER_NIGHT = 100000
     price_per_night = models.PositiveSmallIntegerField(
         verbose_name='하루 요금',
-        help_text='하루 요금을 적어 주세요. 기본값(100,000)',
-
-        default=DEFAULT_PRICE_PER_NIGHT,
+        help_text='하루 요금을 적어 주세요.',
     )
 
     created_date = models.DateField(
@@ -208,16 +186,12 @@ class House(models.Model):
         verbose_name='위도',
         help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
 
-        blank=True,
-
         decimal_places=7,
         max_digits=9
     )
     longitude = models.DecimalField(
         verbose_name='경도',
         help_text='경도를 소수점(7자리) 입력 가능 (xxx.1234567)',
-
-        blank=True,
 
         decimal_places=7,
         max_digits=10
