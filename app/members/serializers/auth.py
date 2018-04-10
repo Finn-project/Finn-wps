@@ -1,10 +1,7 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db.models import Q
-from django.utils.module_loading import import_string
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.fields import ImageField
@@ -17,13 +14,18 @@ User = get_user_model()
 
 class UserProfileImagesSerializer(serializers.ModelSerializer):
 
-    img_profile_thumbnail_150 = serializers.ImageField(read_only=True)
-    img_profile_thumbnail_300 = serializers.ImageField(read_only=True)
+    img_profile_150 = serializers.ImageField(read_only=True)
+    img_profile_300 = serializers.ImageField(read_only=True)
 
     class Meta:
         model = UserProfileImages
-
-        fields = '__all__'
+        fields = (
+            # 'id',
+            # 'user',
+            'img_profile_150',
+            'img_profile_300',
+            'img_profile'
+        )
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -47,7 +49,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         # read_only_fields = (
         #     'images',
         # )
-
 
     def validate_username(self, username):
         if User.objects.filter(username=username).exists():
@@ -97,7 +98,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # img_profile_thumbnail = serializers.ImageField(read_only=True)
     images = UserProfileImagesSerializer(many=True)
 
-
     class Meta:
         model = User
         fields = (
@@ -108,7 +108,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'phone_num',
-            # 'img_profile',
             'is_email_user',
             'is_facebook_user',
 
@@ -180,6 +179,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.save()
 
         # 유저가 사진을 입력안한 경우( 기존 이미지 또는 default 이미지로 다시 넣어준다.
+
+        # * 이유는 모르겠으나 validated_data에서 빈 값이면 None이 아니라
+        #   빈 리스트 '[]'를 받아서 가져온다.
+
         if img_profile == []:
             # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
             # 에서 img_profile 값이 입력되지 않았을 경우인데,
