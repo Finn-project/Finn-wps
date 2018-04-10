@@ -57,7 +57,7 @@ class HouseCreateTest(APITestCase):
             'room': 1,
             'bathroom': 2,
             'personnel': 3,
-            'amenities': [1, 2, 3, 4, 5],
+            'amenities': [],
             'facilities': [1, 2, 3, 4, 5],
             'minimum_check_in_duration': 1,
             'maximum_check_in_duration': 3,
