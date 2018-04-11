@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..models import Amenities, Facilities, House
+from ..models import Amenities, Facilities, House, HouseDisableDay
 
 __all__ = (
     'HouseListTest',
@@ -27,6 +27,12 @@ class HouseListTest(APITestCase):
     AMENITIES = [1, 2, 3, 4]
     FACILITIES = [1, 2, 3]
 
+    DISABLE_DAYS = [
+        '2014-01-01',
+        '2014-02-01',
+        '2014-03-01',
+        '2014-04-01',
+    ]
     DATA = {
         'house_type': House.HOUSE_TYPE_HOUSING,
         'name': '우리집',
@@ -83,6 +89,10 @@ class HouseListTest(APITestCase):
             for facility in self.FACILITIES:
                 house.facilities.add(facility)
 
+            for disable_day in self.DISABLE_DAYS:
+                date_instance, created = HouseDisableDay.objects.get_or_create(date=disable_day)
+                house.disable_days.add(date_instance)
+
     def test_list_house(self):
         page_num = math.ceil(self.HOUSE_COUNT / self.PAGE_SIZE)
 
@@ -129,6 +139,11 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['latitude'], self.DATA['latitude'])
                 self.assertEqual(house_result['longitude'], self.DATA['longitude'])
 
+                self.assertIsNotNone(house_result['disable_days'], 'disable_days')
+
+                for index, date in enumerate(house_result['disable_days']):
+                    self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+
                 house = House.objects.get(pk=house_result['pk'])
                 self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
                 self.assertEqual(house.house_type, self.DATA['house_type'])
@@ -156,3 +171,7 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house.address2, self.DATA['address2'])
                 self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
                 self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
+
+                disable_day_list = list(house.disable_days.values_list('date', flat=True))
+                for index, date in enumerate(disable_day_list):
+                    self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])

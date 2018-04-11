@@ -3,6 +3,7 @@ from django.db import models
 
 __all__ = (
     'House',
+    'HouseDisableDay',
     'HouseImage',
     'Amenities',
     'Facilities',
@@ -86,23 +87,9 @@ class House(models.Model):
         help_text='체크인 할 수 있는 최대 기간을 입력 하세요.',
     )
 
-    # start_day_for_break = models.DateField(
-    #     verbose_name='쉬는 시작 날짜',
-    #     help_text='날짜로 입력 가능 합니다.',
-    #
-    #     blank=True,
-    #     null=True,
-    # )
-    # end_day_for_break = models.DateField(
-    #     verbose_name='쉬는 마지막 날짜',
-    #     help_text='날짜로 입력 가능 합니다.',
-    #
-    #     blank=True,
-    #     null=True,
-    # )
     maximum_check_in_range = models.PositiveSmallIntegerField(
         verbose_name='체크인 가능한 한계 시간',
-        help_text='오늘을 기준으로 체크인이 가능한 달 수 적어주세요',
+        help_text='오늘을 기준으로 체크인이 가능한 날 수 적어주세요',
     )
 
     price_per_night = models.PositiveIntegerField(
@@ -121,6 +108,16 @@ class House(models.Model):
         help_text='날짜로 입력 가능 합니다.(기본값은 오늘)',
 
         auto_now=True
+    )
+
+    disable_days = models.ManyToManyField(
+        'HouseDisableDay',
+
+        verbose_name='쉬는날',
+        help_text='쉬는날을 선택하세요.',
+
+        related_name='houses_with_disable_day',
+        blank=True,
     )
 
     host = models.ForeignKey(
@@ -202,6 +199,16 @@ class House(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class HouseDisableDay(models.Model):
+    date = models.DateField(
+        verbose_name='쉬는날',
+        help_text='쉬는날을 입력해 주세요',
+
+        # manytomany로 하기 때문에 같은날이 존재 x
+        unique=True,
+    )
 
 
 class HouseImage(models.Model):
