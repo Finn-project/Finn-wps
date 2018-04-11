@@ -70,7 +70,7 @@ class APIFacebookBackend:
             # (최초 로그인 user의 경우에만!)
             # Facebook에서 받아온 사진으로 img_profile 저장
             if user.is_facebook_user is False:
-                temp_file = download(img_profile_url)
+                # temp_file = download(img_profile_url)
                 # file_name = '{facebook_id}.{ext}'.format(
                 #     facebook_id=facebook_id,
                     # facebook_id='img_profile',
@@ -80,17 +80,11 @@ class APIFacebookBackend:
 
                 response = requests.get(img_profile_url)
                 binary_data = response.content
-
                 img = UserProfileImages.objects.create(user=user)
 
-                # print(ContentFile(binary_data))
-                # print(type(ContentFile(binary_data)))
-
-                # print(File(temp_file))
-                # print(type(File(temp_file)))
-
                 # img.img_profile.save('img_profile.png', File(temp_file))
-                img.img_profile.save('img_profile.png', ContentFile(binary_data))
+                data = ContentFile(binary_data)
+                img.img_profile.save('img_profile.png', data)
 
                 user.is_facebook_user = True
                 user.save()
