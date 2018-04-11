@@ -62,7 +62,7 @@ class HouseCreateTest(APITestCase):
             'facilities': [1, 2, 3, 4, 5],
             'minimum_check_in_duration': 1,
             'maximum_check_in_duration': 3,
-            'maximum_check_in_range': 3,
+            'maximum_check_in_range': 90,
             'price_per_night': 100000,
             'country': '대한민국',
             'city': '사랑시',
@@ -72,6 +72,12 @@ class HouseCreateTest(APITestCase):
             'address2': '희망빌라 2동 301호',
             'latitude': '12.1234567',
             'longitude': '123.1234567',
+            'disable_days': [
+                '2014-01-01',
+                '2014-02-01',
+                '2014-03-01',
+                '2014-04-01',
+            ]
         }
 
         response = self.client.post(self.URL, data)
@@ -103,6 +109,11 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(response.data['latitude'], data['latitude'])
         self.assertEqual(response.data['longitude'], data['longitude'])
 
+        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+
+        for index, date in enumerate(response.data['disable_days']):
+            self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
+
         house = House.objects.get(pk=response.data['pk'])
         self.assertEqual(house.house_type, data['house_type'])
         self.assertEqual(house.name, data['name'])
@@ -129,3 +140,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(house.address2, data['address2'])
         self.assertEqual(house.latitude, Decimal(data['latitude']))
         self.assertEqual(house.longitude, Decimal(data['longitude']))
+
+        disable_day_list = list(house.disable_days.values_list('date', flat=True))
+        for index, date in enumerate(disable_day_list):
+            self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
