@@ -157,6 +157,7 @@ class HouseRetrieveTest(APITestCase):
         self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
         self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
 
+        self.assertEqual(house.disable_days.count(), len(self.DISABLE_DAYS))
         disable_day_list = list(house.disable_days.values_list('date', flat=True))
         for index, date in enumerate(disable_day_list):
             self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
