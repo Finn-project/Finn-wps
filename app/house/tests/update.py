@@ -22,6 +22,13 @@ class HouseUpdateTest(APITestCase):
     AMENITIES_LIST = ['TV', '에어컨', '전자렌지', '커피포트', '컴퓨터', '공기청정기']
     FACILITIES_LIST = ['수영장', '엘리베이터', '세탁소', '노래방', '오락실', '온천']
 
+    DISABLE_DAYS = [
+        '2014-01-01',
+        '2014-02-01',
+        '2014-03-01',
+        '2014-04-01',
+    ]
+
     BASE_AMENITIES = [1, 2, 3, 4]
     BASE_FACILITIES = [1, 2, 3]
 
@@ -135,6 +142,10 @@ class HouseUpdateTest(APITestCase):
         self.assertEqual(response.data['latitude'], self.UPDATE_DATA['latitude'])
         self.assertEqual(response.data['longitude'], self.UPDATE_DATA['longitude'])
 
+        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+        for index, date in enumerate(response.data['disable_days']):
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+
         house = House.objects.get(pk=response.data['pk'])
         self.assertEqual(house.house_type, self.UPDATE_DATA['house_type'])
         self.assertEqual(house.name, self.UPDATE_DATA['name'])
@@ -161,3 +172,7 @@ class HouseUpdateTest(APITestCase):
         self.assertEqual(house.address2, self.UPDATE_DATA['address2'])
         self.assertEqual(house.latitude, Decimal(self.UPDATE_DATA['latitude']))
         self.assertEqual(house.longitude, Decimal(self.UPDATE_DATA['longitude']))
+
+        disable_day_list = list(house.disable_days.values_list('date', flat=True))
+        for index, date in enumerate(disable_day_list):
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])

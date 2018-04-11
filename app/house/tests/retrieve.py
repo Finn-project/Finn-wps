@@ -1,12 +1,11 @@
 import datetime
-import math
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..models import Amenities, Facilities, House
+from ..models import Amenities, Facilities, House, HouseDisableDay
 
 __all__ = (
     'HouseRetrieveTest',
@@ -27,6 +26,13 @@ class HouseRetrieveTest(APITestCase):
 
     AMENITIES = [1, 2, 3, 4]
     FACILITIES = [1, 2, 3]
+
+    DISABLE_DAYS = [
+        '2014-01-01',
+        '2014-02-01',
+        '2014-03-01',
+        '2014-04-01',
+    ]
 
     DATA = {
         'house_type': House.HOUSE_TYPE_HOUSING,
@@ -84,39 +90,46 @@ class HouseRetrieveTest(APITestCase):
             for facility in self.FACILITIES:
                 house.facilities.add(facility)
 
+            for disable_day in self.DISABLE_DAYS:
+                date_instance, created = HouseDisableDay.objects.get_or_create(date=disable_day)
+                house.disable_days.add(date_instance)
+
     def test_retrieve_house(self):
         response = self.client.get(self.URL + f'{self.HOUSE_PK}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        house_result = response.data
 
-        self.assertEqual(house_result['pk'], self.HOUSE_PK)
-        self.assertEqual(house_result['house_type'], self.DATA['house_type'])
-        self.assertEqual(house_result['name'], self.DATA['name'])
-        self.assertEqual(house_result['description'], self.DATA['description'])
-        self.assertEqual(house_result['room'], self.DATA['room'])
-        self.assertEqual(house_result['bed'], self.DATA['bed'])
-        self.assertEqual(house_result['bathroom'], self.DATA['bathroom'])
-        self.assertEqual(house_result['personnel'], self.DATA['personnel'])
-        self.assertEqual(house_result['amenities'], self.AMENITIES)
-        self.assertEqual(house_result['facilities'], self.FACILITIES)
-        self.assertEqual(house_result['minimum_check_in_duration'], self.DATA['minimum_check_in_duration'])
-        self.assertEqual(house_result['maximum_check_in_duration'], self.DATA['maximum_check_in_duration'])
-        self.assertEqual(house_result['maximum_check_in_range'], self.DATA['maximum_check_in_range'])
-        self.assertEqual(house_result['price_per_night'], self.DATA['price_per_night'])
-        self.assertEqual(house_result['created_date'], datetime.date.today().strftime('%Y-%m-%d'))
-        self.assertEqual(house_result['modified_date'], datetime.date.today().strftime('%Y-%m-%d'))
-        self.assertEqual(house_result.get('host').get('pk'),
-                         self.user1.pk if (self.HOUSE_PK-1) % 2 else self.user2.pk)
-        self.assertEqual(house_result['country'], self.DATA['country'])
-        self.assertEqual(house_result['city'], self.DATA['city'])
-        self.assertEqual(house_result['district'], self.DATA['district'])
-        self.assertEqual(house_result['dong'], self.DATA['dong'])
-        self.assertEqual(house_result['address1'], self.DATA['address1'])
-        self.assertEqual(house_result['address2'], self.DATA['address2'])
-        self.assertEqual(house_result['latitude'], self.DATA['latitude'])
-        self.assertEqual(house_result['longitude'], self.DATA['longitude'])
+        self.assertEqual(response.data['pk'], self.HOUSE_PK)
+        self.assertEqual(response.data['house_type'], self.DATA['house_type'])
+        self.assertEqual(response.data['name'], self.DATA['name'])
+        self.assertEqual(response.data['description'], self.DATA['description'])
+        self.assertEqual(response.data['room'], self.DATA['room'])
+        self.assertEqual(response.data['bed'], self.DATA['bed'])
+        self.assertEqual(response.data['bathroom'], self.DATA['bathroom'])
+        self.assertEqual(response.data['personnel'], self.DATA['personnel'])
+        self.assertEqual(response.data['amenities'], self.AMENITIES)
+        self.assertEqual(response.data['facilities'], self.FACILITIES)
+        self.assertEqual(response.data['minimum_check_in_duration'], self.DATA['minimum_check_in_duration'])
+        self.assertEqual(response.data['maximum_check_in_duration'], self.DATA['maximum_check_in_duration'])
+        self.assertEqual(response.data['maximum_check_in_range'], self.DATA['maximum_check_in_range'])
+        self.assertEqual(response.data['price_per_night'], self.DATA['price_per_night'])
+        self.assertEqual(response.data['created_date'], datetime.date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['modified_date'], datetime.date.today().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data.get('host').get('pk'),
+                         self.user1.pk if (self.HOUSE_PK - 1) % 2 else self.user2.pk)
+        self.assertEqual(response.data['country'], self.DATA['country'])
+        self.assertEqual(response.data['city'], self.DATA['city'])
+        self.assertEqual(response.data['district'], self.DATA['district'])
+        self.assertEqual(response.data['dong'], self.DATA['dong'])
+        self.assertEqual(response.data['address1'], self.DATA['address1'])
+        self.assertEqual(response.data['address2'], self.DATA['address2'])
+        self.assertEqual(response.data['latitude'], self.DATA['latitude'])
+        self.assertEqual(response.data['longitude'], self.DATA['longitude'])
 
-        house = House.objects.get(pk=house_result['pk'])
+        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+        for index, date in enumerate(response.data['disable_days']):
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+
+        house = House.objects.get(pk=response.data['pk'])
         self.assertEqual(house.pk, self.HOUSE_PK)
         self.assertEqual(house.house_type, self.DATA['house_type'])
         self.assertEqual(house.name, self.DATA['name'])
@@ -134,7 +147,7 @@ class HouseRetrieveTest(APITestCase):
         self.assertEqual(house.created_date, datetime.date.today())
         self.assertEqual(house.modified_date, datetime.date.today())
         self.assertEqual(house.host.pk,
-                         self.user1.pk if (self.HOUSE_PK-1) % 2 else self.user2.pk)
+                         self.user1.pk if (self.HOUSE_PK - 1) % 2 else self.user2.pk)
         self.assertEqual(house.country, self.DATA['country'])
         self.assertEqual(house.city, self.DATA['city'])
         self.assertEqual(house.district, self.DATA['district'])
@@ -143,3 +156,7 @@ class HouseRetrieveTest(APITestCase):
         self.assertEqual(house.address2, self.DATA['address2'])
         self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
         self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
+
+        disable_day_list = list(house.disable_days.values_list('date', flat=True))
+        for index, date in enumerate(disable_day_list):
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])

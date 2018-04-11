@@ -109,7 +109,8 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(response.data['latitude'], data['latitude'])
         self.assertEqual(response.data['longitude'], data['longitude'])
 
-        print(response.data['disable_days'])
+        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+
         for index, date in enumerate(response.data['disable_days']):
             self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
 
