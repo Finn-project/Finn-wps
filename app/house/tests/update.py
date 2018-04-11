@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from ..models import Amenities, Facilities, House
+from ..models import Amenities, Facilities, House, HouseDisableDay
 
 __all__ = (
     'HouseUpdateTest',
@@ -22,7 +22,7 @@ class HouseUpdateTest(APITestCase):
     AMENITIES_LIST = ['TV', '에어컨', '전자렌지', '커피포트', '컴퓨터', '공기청정기']
     FACILITIES_LIST = ['수영장', '엘리베이터', '세탁소', '노래방', '오락실', '온천']
 
-    DISABLE_DAYS = [
+    BASE_DISABLE_DAYS = [
         '2014-01-01',
         '2014-02-01',
         '2014-03-01',
@@ -54,6 +54,11 @@ class HouseUpdateTest(APITestCase):
         'longitude': '123.1234567',
     }
 
+    UPDATE_DISABLE_DAYS = [
+        '2014-01-01',
+        '2014-02-01',
+    ]
+
     UPDATE_AMENITIES = []
     UPDATE_FACILITIES = [1, ]
 
@@ -79,6 +84,7 @@ class HouseUpdateTest(APITestCase):
         'address2': '희망빌라 2동 301호',
         'latitude': '12.1234567',
         'longitude': '123.1234567',
+        'disable_days': UPDATE_DISABLE_DAYS,
     }
 
     def setUp(self):
@@ -107,6 +113,10 @@ class HouseUpdateTest(APITestCase):
 
         for facility in self.BASE_FACILITIES:
             house.facilities.add(facility)
+
+        for disable_day in self.BASE_DISABLE_DAYS:
+            date_instance, created = HouseDisableDay.objects.get_or_create(date=disable_day)
+            house.disable_days.add(date_instance)
 
         self.token, _ = Token.objects.get_or_create(user=self.user)
         self.client.credentials(
@@ -144,7 +154,7 @@ class HouseUpdateTest(APITestCase):
 
         self.assertIsNotNone(response.data['disable_days'], 'disable_days')
         for index, date in enumerate(response.data['disable_days']):
-            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.UPDATE_DISABLE_DAYS[index])
 
         house = House.objects.get(pk=response.data['pk'])
         self.assertEqual(house.house_type, self.UPDATE_DATA['house_type'])
@@ -173,6 +183,7 @@ class HouseUpdateTest(APITestCase):
         self.assertEqual(house.latitude, Decimal(self.UPDATE_DATA['latitude']))
         self.assertEqual(house.longitude, Decimal(self.UPDATE_DATA['longitude']))
 
+        self.assertEqual(house.disable_days.count(), len(self.UPDATE_DISABLE_DAYS))
         disable_day_list = list(house.disable_days.values_list('date', flat=True))
         for index, date in enumerate(disable_day_list):
-            self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+            self.assertEqual(date.strftime('%Y-%m-%d'), self.UPDATE_DISABLE_DAYS[index])
