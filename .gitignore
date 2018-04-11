@@ -4,6 +4,9 @@
 /.secrets
 aws.md
 
+# Gitignore for deploy test server
+deploy2.sh
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

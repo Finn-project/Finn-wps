@@ -15,6 +15,7 @@ class ReservationCreateListView(generics.ListCreateAPIView):
     serializer_class = ReservationSerializer
     permission_classes = (
         permissions.IsAuthenticated
+        # IsHostAndGuestOnly, 필요?
     )
 
     pagination_class = DefaultPagination
