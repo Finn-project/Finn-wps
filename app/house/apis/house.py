@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
-from ..models import House
+from ..models import House, HouseDisableDay
 
 __all__ = (
     'HouseListCreateAPIView',
@@ -30,7 +30,13 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
             return HouseSerializer
 
     def perform_create(self, serializer):
-        serializer.save(host=self.request.user)
+        house = serializer.save(host=self.request.user)
+
+        # [house.disable_days.get_or_create(date=date) for date in self.request.data.getlist('disable_days')]
+
+        for date in self.request.data.getlist('disable_days'):
+            date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+            house.disable_days.add(date_instance)
 
         self.request.user.is_host = True
         self.request.user.save()
