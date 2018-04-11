@@ -21,15 +21,18 @@ class ReservationCreateListView(generics.ListCreateAPIView):
     pagination_class = DefaultPagination
 
     def perform_create(self, serializer):
-        reservation = serializer.save(guest=self.request.user)
-        print(f'reservation: {reservation}')
 
         house_pk = self.request.data.get('house')
         house_instance, _ = House.objects.get_or_create(pk=house_pk)
-        print(house_instance)
+
+        reservation = serializer.save(
+            guest=self.request.user,
+            # house=house_instance
+        )
+
         reservation.house = house_instance
 
-        super().perform_create(serializer)
+        # super().perform_create(serializer)
 
 
 class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
