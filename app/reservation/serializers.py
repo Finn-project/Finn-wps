@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
+from members.serializers import UserSerializer
 from reservation.models import Reservation
 
 
 class ReservationSerializer(serializers.ModelSerializer):
+
+    house = UserSerializer(read_only=True)
+    guest = UserSerializer(read_only=True)
 
     class Meta:
         model = Reservation

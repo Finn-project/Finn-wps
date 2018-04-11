@@ -1,6 +1,9 @@
+import os
 from django.contrib.auth import get_user_model
 from django.test.client import encode_multipart
 from rest_framework.test import APITestCase
+
+from members.models import UserProfileImages
 
 __all__ = (
     'UserUpdateTest',
@@ -10,17 +13,25 @@ User = get_user_model()
 
 
 class UserUpdateTest(APITestCase):
+
+    URL = '/user/'
+    USERNAME = 'test@gmail.com'
+    PASSWORD = 'testpassword'
+    FIRST_NAME = '보영'
+    LAST_NAME = '박'
+    PHONE_NUM = '01012345567'
+
     def setUp(self):
         # test user 생성
         test_user_info = {
-            'username': 'test_user_01@gmail.com',
-            'password': 'asdfqwer',
-            'confirm_password': 'asdfqwer',
-            'first_name': 'Park',
-            'last_name': 'Boyoung',
-            'phone_num': '010-1234-5678',
+            'username': self.USERNAME,
+            'password': self.PASSWORD,
+            'confirm_password': self.PASSWORD,
+            'first_name': self.FIRST_NAME,
+            'last_name': self.LAST_NAME,
+            'phone_num': self.PHONE_NUM,
         }
-        self.client.post('/user/', test_user_info)
+        self.client.post(self.URL, test_user_info)
 
     def test_user_update(self):
         """
@@ -30,7 +41,7 @@ class UserUpdateTest(APITestCase):
         """
 
         # 미리 생성된 test user로 로그인 후 Header에 Token 값 넣기
-        test_user_info = {'username': 'test_user_01@gmail.com', 'password': 'asdfqwer'}
+        test_user_info = {'username': self.USERNAME, 'password': self.PASSWORD}
         response = self.client.post('/user/login/', test_user_info)
         token = response.json()['token']
         self.client.credentials(
@@ -38,11 +49,10 @@ class UserUpdateTest(APITestCase):
         )
 
         # User Update 요청 부분
-
         img_profile = open('../.static/iu.jpg', 'rb')
 
         request_contents = {
-            'email': 'test_user_02@gmail.com',
+            'email': 'test2@gmail.com',
             'password': 'asdfqwer1',
             'confirm_password': 'asdfqwer1',
             'first_name': '이유',
@@ -53,14 +63,40 @@ class UserUpdateTest(APITestCase):
         encoded_contents = encode_multipart('BoUnDaRyStRiNg', request_contents)
         content_type = 'multipart/form-data; boundary=BoUnDaRyStRiNg'
 
-        user = User.objects.get(username='test_user_01@gmail.com')
+        user = User.objects.get(username='test@gmail.com')
         response = self.client.put(
             f'/user/{user.pk}/',
             encoded_contents,
             content_type=content_type,
         )
         img_profile.close()
-
         result = response.json()
 
-        print(result)
+        # status_code 확인
+        self.assertEqual(response.status_code, 200)
+
+        # update 결과 response 확인
+        self.assertEqual(result['username'], request_contents['email'])
+        self.assertEqual(result['email'], request_contents['email'])
+        self.assertEqual(result['first_name'], request_contents['first_name'])
+        self.assertEqual(result['last_name'], request_contents['last_name'])
+        self.assertEqual(result['phone_num'], request_contents['phone_num'])
+        self.assertEqual(result['is_email_user'], True)
+        self.assertEqual(result['is_facebook_user'], False)
+        self.assertIsNotNone(result['images'][0]['img_profile'])
+
+        # update로 비밀변경 후 기존 비밀번호로 로그인
+        response = self.client.post('/user/login/', test_user_info)
+        self.assertEqual(response.status_code, 400)
+
+        # update로 비밀변경 후 변경된 비밀번호로 로그인
+        request_contents2 = {
+            'username': request_contents['email'],
+            'password': request_contents['password'],
+        }
+        response = self.client.post('/user/login/', request_contents2)
+        self.assertEqual(response.status_code, 200)
+
+        # image 저장 확인
+        img = UserProfileImages.objects.get(user=user)
+        self.assertTrue(os.path.isfile(img.img_profile.path))
