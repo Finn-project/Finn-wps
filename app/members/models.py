@@ -129,11 +129,11 @@ class UserProfileImages(models.Model):
                                       options={'quality': 800})
 
 
-@receiver(post_delete, sender=UserProfileImages)
-def remove_file_from_storage(sender, instance, using, **kwargs):
-
-    # if os.path.isfile(instance.img_profile.path):
-        # print(instance.img_profile.path)
-        # img_url = instance.img_profile.url
-        # print(img_url)
-    instance.img_profile.delete(save=False)
+# @receiver(post_delete, sender=UserProfileImages)
+# def remove_file_from_storage(sender, instance, using, **kwargs):
+#
+#     # if os.path.isfile(instance.img_profile.path):
+#         # print(instance.img_profile.path)
+#         # img_url = instance.img_profile.url
+#         # print(img_url)
+#     instance.img_profile.delete(save=False)
