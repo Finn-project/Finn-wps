@@ -4,6 +4,13 @@
 /.secrets
 aws.md
 
+# Deploy Second
+Dockerfile
+Dockerfile.base
+Dockerfile2
+Dockerfile2.base
+deploy2.sh
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

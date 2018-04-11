@@ -162,6 +162,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         # img_profile = self.initial_data.get('img_profile', '')
         img_profile = validated_data.get('images', '')
 
+        print(img_profile)
+
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
             # Facebook user도 메일주소를 가졌다는 것을 표시
