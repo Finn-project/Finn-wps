@@ -60,6 +60,14 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         return HouseRetrieveUpdateDestroySerializer
 
     def perform_update(self, serializer):
+        house = serializer.save(host=self.request.user)
+
+        house.disable_days.clear()
+
+        for date in self.request.data.getlist('disable_days'):
+            date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+            house.disable_days.add(date_instance)
+
         super().perform_update(serializer)
 
     def perform_destroy(self, instance):
