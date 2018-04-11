@@ -4,11 +4,7 @@
 /.secrets
 aws.md
 
-# Deploy Second
-Dockerfile
-Dockerfile.base
-Dockerfile2
-Dockerfile2.base
+# Gitignore for deploy test server
 deploy2.sh
 
 # Elastic Beanstalk Files
