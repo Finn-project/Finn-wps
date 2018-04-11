@@ -128,6 +128,11 @@ class UserProfileImages(models.Model):
                                       format='png',
                                       options={'quality': 800})
 
+    class Meta:
+        verbose_name_plural = '사용자 프로필이미지'
+
+    def __str__(self):
+        return f'{self.img_profile.name}'
 
 # @receiver(post_delete, sender=UserProfileImages)
 # def remove_file_from_storage(sender, instance, using, **kwargs):

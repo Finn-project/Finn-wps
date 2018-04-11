@@ -1,15 +1,20 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.fields import ImageField
 
-from members.models import UserProfileImages
+from ..models import UserProfileImages
 from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
+
+__all__ = (
+    'UserProfileImagesSerializer',
+    'UserCreateSerializer',
+    'UserUpdateSerializer',
+)
 
 
 class UserProfileImagesSerializer(serializers.ModelSerializer):
@@ -141,15 +146,22 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
-    def validate(self, attrs):
+    def validate_images(self, data):
+
         if self.initial_data.get('img_profile', ''):
+            images = self.initial_data.get('img_profile')
+            # imf = ImageField
+            # images = imf.to_internal_value(images)
+            return images
+
+    def validate(self, attrs):
+        if attrs.get('images', ''):
             # 검증할 수 있을뿐
-            attrs['images'] = self.initial_data['img_profile']
+            # attrs['images'] = self.initial_data['img_profile']
             images = attrs['images']
 
             imf = ImageField()
-            result = imf.to_internal_value(images)
-            # print(result)
+            imf.to_internal_value(images)
 
         return attrs
 
@@ -185,7 +197,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         # * 이유는 모르겠으나 validated_data에서 빈 값이면 None이 아니라
         #   빈 리스트 '[]'를 받아서 가져온다.
 
-        if img_profile == []:
+        if img_profile is None:
             # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
             # 에서 img_profile 값이 입력되지 않았을 경우인데,
             # 이게 Postman 문제인지는 모르겠지만 null값을 보낼때와 빈 값('')을 보낼 때와
