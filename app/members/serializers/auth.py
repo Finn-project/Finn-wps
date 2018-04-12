@@ -241,6 +241,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             img = UserProfileImages.objects.create(user=user)
 
             # 1) 먼저 생각난 방법
+
             # img.img_profile.save('img_profile.png', img_profile)
             # img.img_profile_28.save('img_profile_28.png', img_profile)
             # img.img_profile_225.save('img_profile_225.png', img_profile)
