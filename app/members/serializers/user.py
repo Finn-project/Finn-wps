@@ -14,6 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
     #     read_only=True,
     #     slug_field='img_profile',
     # )
+    # 4/12 Trouble shooting - SlugRelatedField로 images 표현 불가
 
     class Meta:
         model = User

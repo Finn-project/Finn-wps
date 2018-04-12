@@ -24,16 +24,14 @@ class ReservationSerializer(serializers.ModelSerializer):
             'bank_account',
             'created_date',
             'modified_date',
-            'house',
             'guest',
+            'house',
         )
 
     def validate_house(self, house):
-
         return house
 
     def validate(self, attrs):
-
         return attrs
     #
     # def create(self, validated_data):

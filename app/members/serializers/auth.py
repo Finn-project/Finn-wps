@@ -85,8 +85,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     """
     회원정보 수정 과정 중 필요한 인증절차를 가진 Serializer 새로 작성
     """
-    password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
+    # password = serializers.CharField(write_only=True)
+    # confirm_password = serializers.CharField(write_only=True)
+    # password = serializers.CharField(required=False)
+    # confirm_password = serializers.CharField(required=False)
 
     username = serializers.EmailField(read_only=True)
     # username이 제대로 설정되었는지 확인하기 위해 read_only 옵션으로 출력만 되도록 설정
@@ -104,13 +106,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # img_profile_thumbnail = serializers.ImageField(read_only=True)
     images = UserProfileImagesSerializer(many=True)
 
+
     class Meta:
         model = User
         fields = (
             'username',
             'email',
-            'password',
-            'confirm_password',
             'first_name',
             'last_name',
             'phone_num',
@@ -119,6 +120,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
             'images',
         )
+
+        # exclude = (
+        #     'password',
+        #     'confirm_password',
+        # )
 
     # def validate_image(self, img_profile):
     #     print(img_profile)
@@ -147,28 +153,28 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
-    def validate_images(self, data):
-
-        if self.initial_data.get('img_profile', ''):
-            images = self.initial_data.get('img_profile')
-            # imf = ImageField
-            # images = imf.to_internal_value(images)
-            return images
-
-    def validate(self, attrs):
-        if attrs.get('images', ''):
-            # 검증할 수 있을뿐
-            # attrs['images'] = self.initial_data['img_profile']
-            images = attrs['images']
-
-            imf = ImageField()
-            imf.to_internal_value(images)
-
-        return attrs
+    # def validate_images(self, data):
+    #
+    #     if self.initial_data.get('img_profile', ''):
+    #         images = self.initial_data.get('img_profile')
+    #         # imf = ImageField
+    #         # images = imf.to_internal_value(images)
+    #         return images
+    #
+    # def validate(self, attrs):
+    #     if attrs.get('images', ''):
+    #         # 검증할 수 있을뿐
+    #         # attrs['images'] = self.initial_data['img_profile']
+    #         images = attrs['images']
+    #
+    #         imf = ImageField()
+    #         imf.to_internal_value(images)
+    #
+    #     return attrs
 
     def update(self, user, validated_data):
         email = validated_data.get('email', user.email)
-        password = validated_data.get('password', user.password)
+        # password = validated_data.get('password', user.password)
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
         phone_num = validated_data.get('phone_num', user.phone_num)
@@ -185,7 +191,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             #    나누어야 하는 이유 발견.
             user.username = email
         user.email = email
-        user.set_password(password)
+        # user.set_password(password)
         user.first_name = first_name
         user.last_name = last_name
         user.phone_num = phone_num
@@ -246,11 +252,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # img.img_profile_225.save('img_profile_225.png', img_profile)
 
             # 2) 일단 안전빵
-            print('update save 전')
             data = ContentFile(img_profile.read())
             img.img_profile.save('img_profile.png', data)
-            img.img_profile_28.save('img_profile_28.png', data)
-            img.img_profile_225.save('img_profile_225.png', data)
-            print('update save 후')
+            # img.img_profile_28.save('img_profile_28.png', data)
+            # img.img_profile_225.save('img_profile_225.png', data)
 
         return user
