@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
@@ -19,16 +20,16 @@ __all__ = (
 
 class UserProfileImagesSerializer(serializers.ModelSerializer):
 
-    img_profile_150 = serializers.ImageField(read_only=True)
-    img_profile_300 = serializers.ImageField(read_only=True)
+    img_profile_28 = serializers.ImageField(read_only=True)
+    img_profile_225 = serializers.ImageField(read_only=True)
 
     class Meta:
         model = UserProfileImages
         fields = (
             # 'id',
             # 'user',
-            'img_profile_150',
-            'img_profile_300',
+            'img_profile_28',
+            'img_profile_225',
             'img_profile'
         )
 
@@ -174,8 +175,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         # img_profile = self.initial_data.get('img_profile', '')
         img_profile = validated_data.get('images', '')
 
-        print(img_profile)
-
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
             # Facebook user도 메일주소를 가졌다는 것을 표시
@@ -242,10 +241,16 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             img = UserProfileImages.objects.create(user=user)
 
             # 1) 먼저 생각난 방법
-            img.img_profile.save('img_profile.png', img_profile)
+            # img.img_profile.save('img_profile.png', img_profile)
+            # img.img_profile_28.save('img_profile_28.png', img_profile)
+            # img.img_profile_225.save('img_profile_225.png', img_profile)
 
             # 2) 일단 안전빵
-            # img.img_profile.save('img_profile.png', ContentFile(img_profile.read()))
-            # img.img_profile.storage.save('img_profile.png', ContentFile(img_profile.read()))
+            print('update save 전')
+            data = ContentFile(img_profile.read())
+            img.img_profile.save('img_profile.png', data)
+            img.img_profile_28.save('img_profile_28.png', data)
+            img.img_profile_225.save('img_profile_225.png', data)
+            print('update save 후')
 
         return user
