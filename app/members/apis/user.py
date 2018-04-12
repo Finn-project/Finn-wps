@@ -75,25 +75,27 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
 
         serializer = UserUpdateSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
-            # serializer.save(images=request.data.get('img_profile'))
-            serializer.save()
+            serializer.save(images=request.data.get('img_profile'))
+            # serializer.save()
             # return Response(serializer.data, status=status.HTTP_200_OK)
             # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
 
             user = get_object_or_404(User, pk=pk)
-            # 이곳에서 'user'를 호출하지 않으면 수정된 데이터가 Response에 나타나지 않음.
-            # (* 위에서 user에 할당된 데이터는 serializers/auth.py에서 'user.save()'로
-            #    값이 변하지 않기 때문에)
-            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            if request.user == user:
+                # 이곳에서 'user'를 호출하지 않으면 수정된 데이터가 Response에 나타나지 않음.
+                # (* 위에서 user에 할당된 데이터는 serializers/auth.py에서 'user.save()'로
+                # 값이 변하지 않기 때문에)
+                return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
-        # user = get_object_or_404(User, pk=pk)
-        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
 
@@ -101,5 +103,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # if serializer.is_valid(raise_exception=True):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
-        request.user.delete()
-        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
+        user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            request.user.delete()
+            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)

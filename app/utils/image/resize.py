@@ -51,6 +51,16 @@ def clear_imagekit_cache():
         shutil.rmtree(cache_dir)
 
 
+def clear_imagekit_cache_img_profile(pk):
+    cache = get_cache()
+    cache.clear()
+    # Clear IMAGEKIT_CACHEFILE_DIR
+    cache_dir = os.path.join(settings.MEDIA_ROOT, settings.IMAGEKIT_CACHEFILE_DIR)
+    img_profile_dir = os.path.join(cache_dir, f'user/user_{pk}/img_profile')
+    if os.path.exists(img_profile_dir):
+        shutil.rmtree(img_profile_dir)
+
+
 def clear_imagekit_test_files():
     clear_imagekit_cache()
     for fname in os.listdir(settings.MEDIA_ROOT):

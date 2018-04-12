@@ -85,8 +85,8 @@ class APIFacebookBackend:
                 # img.img_profile.save('img_profile.png', File(temp_file))
                 data = ContentFile(binary_data)
                 img.img_profile.save('img_profile.png', data)
-                img.img_profile_28.save('img_profile_28.png', data)
-                img.img_profile_225.save('img_profile_225.png', data)
+                # img.img_profile_28.save('img_profile_28.png', data)
+                # img.img_profile_225.save('img_profile_225.png', data)
 
                 user.is_facebook_user = True
                 user.save()
