@@ -9,6 +9,12 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     images = UserProfileImagesSerializer(many=True)
 
+    # images = serializers.SlugRelatedField(
+    #     many=True,
+    #     read_only=True,
+    #     slug_field='img_profile',
+    # )
+
     class Meta:
         model = User
         fields = (
