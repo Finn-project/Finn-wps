@@ -6,7 +6,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.db.models import Manager
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.module_loading import import_string
 from imagekit.models import ImageSpecField, ProcessedImageField
@@ -111,22 +111,35 @@ class UserProfileImages(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
-    # img_profile = ProcessedImageField(blank=True, default='',
-    #                                        upload_to=dynamic_img_profile_path,
-    #                                        processors=[ResizeToFill(500, 500)],
-    #                                        format='png',
-    #                                        options={'quality': 100})
+    img_profile = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(500, 500)],
+                                           format='png',
+                                           options={'quality': 100})
 
-    img_profile_150 = ImageSpecField(source='img_profile',
-                                      processors=[ResizeToFill(150, 150)],
-                                      format='png',
-                                      options={'quality': 80})
+    img_profile_28 = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(28, 28)],
+                                           format='png',
+                                           options={'quality': 100})
 
-    img_profile_300 = ImageSpecField(source='img_profile',
-                                      processors=[ResizeToFill(300, 300)],
-                                      format='png',
-                                      options={'quality': 800})
+    img_profile_225 = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(225, 225)],
+                                           format='png',
+                                           options={'quality': 100})
+
+    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+
+    # img_profile_150 = ImageSpecField(source='img_profile',
+    #                                   processors=[ResizeToFill(150, 150)],
+    #                                   format='png',
+    #                                   options={'quality': 80})
+    #
+    # img_profile_300 = ImageSpecField(source='img_profile',
+    #                                   processors=[ResizeToFill(300, 300)],
+    #                                   format='png',
+    #                                   options={'quality': 800})
 
     class Meta:
         verbose_name_plural = '사용자 프로필이미지'
@@ -134,11 +147,14 @@ class UserProfileImages(models.Model):
     def __str__(self):
         return f'{self.img_profile.name}'
 
-# @receiver(post_delete, sender=UserProfileImages)
-# def remove_file_from_storage(sender, instance, using, **kwargs):
-#
-#     # if os.path.isfile(instance.img_profile.path):
-#         # print(instance.img_profile.path)
-#         # img_url = instance.img_profile.url
-#         # print(img_url)
-#     instance.img_profile.delete(save=False)
+
+@receiver(post_delete, sender=UserProfileImages)
+def remove_file_from_storage(sender, instance, using, **kwargs):
+    # if os.path.isfile(instance.img_profile.path):
+    #     print(instance.img_profile.path)
+    #     img_url = instance.img_profile.url
+    #     print(img_url)
+
+    instance.img_profile.delete(save=False)
+    instance.img_profile_28.delete(save=False)
+    instance.img_profile_225.delete(save=False)
