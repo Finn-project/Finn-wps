@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
@@ -240,12 +241,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             img = UserProfileImages.objects.create(user=user)
 
             # 1) 먼저 생각난 방법
-            img.img_profile.save('img_profile.png', img_profile)
-            img.img_profile_28.save('img_profile_28.png', img_profile)
-            img.img_profile_225.save('img_profile_225.png', img_profile)
+
+            # img.img_profile.save('img_profile.png', img_profile)
+            # img.img_profile_28.save('img_profile_28.png', img_profile)
+            # img.img_profile_225.save('img_profile_225.png', img_profile)
 
             # 2) 일단 안전빵
-            # img.img_profile.save('img_profile.png', ContentFile(img_profile.read()))
-            # img.img_profile.storage.save('img_profile.png', ContentFile(img_profile.read()))
+            print('update save 전')
+            data = ContentFile(img_profile.read())
+            img.img_profile.save('img_profile.png', data)
+            img.img_profile_28.save('img_profile_28.png', data)
+            img.img_profile_225.save('img_profile_225.png', data)
+            print('update save 후')
 
         return user

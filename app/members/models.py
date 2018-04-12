@@ -155,6 +155,9 @@ def remove_file_from_storage(sender, instance, using, **kwargs):
     #     img_url = instance.img_profile.url
     #     print(img_url)
 
-    instance.img_profile.delete(save=False)
-    instance.img_profile_28.delete(save=False)
-    instance.img_profile_225.delete(save=False)
+    if instance.img_profile:
+        instance.img_profile.delete(save=False)
+    if instance.img_profile_28:
+        instance.img_profile_28.delete(save=False)
+    if instance.img_profile_225:
+        instance.img_profile_225.delete(save=False)
