@@ -86,6 +86,8 @@ __all__ = (
 class HouseSerializer(serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    img_cover = serializers.ImageField(required=False)
+    img_cover_400_300 = serializers.ImageField(read_only=True)
 
     class Meta:
         model = House
@@ -116,6 +118,8 @@ class HouseSerializer(serializers.ModelSerializer):
             'latitude',
             'longitude',
             'disable_days',
+            'img_cover',
+            'img_cover_400_300',
         )
         read_only_fields = (
             'pk',
@@ -123,4 +127,5 @@ class HouseSerializer(serializers.ModelSerializer):
             'created_date',
             'modified_date',
             'disable_days',
+            'img_cover_400_300',
         )
