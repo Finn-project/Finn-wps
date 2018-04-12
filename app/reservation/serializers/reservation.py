@@ -12,7 +12,7 @@ __all__ = (
 class ReservationSerializer(serializers.ModelSerializer):
 
     # house = serializers.PrimaryKeyRelatedField(read_only=True)
-    # house = HouseSerializer()
+    house = HouseSerializer(read_only=True)
     guest = UserSerializer(read_only=True)
 
     class Meta:
@@ -28,13 +28,13 @@ class ReservationSerializer(serializers.ModelSerializer):
             'guest',
         )
 
-    # def validate_house(self, house):
-    #
-    #     return house
-    #
-    # def validate(self, attrs):
-    #
-    #     return attrs
+    def validate_house(self, house):
+
+        return house
+
+    def validate(self, attrs):
+
+        return attrs
     #
     # def create(self, validated_data):
     #     return super().create(validated_data)

@@ -14,7 +14,7 @@ class ReservationCreateListView(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
     permission_classes = (
-        permissions.IsAuthenticated,
+        permissions.IsAuthenticatedOrReadOnly,
         # IsGuestOrReadOnly,
     )
 
@@ -27,11 +27,11 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 
         reservation = serializer.save(
             guest=self.request.user,
-            # house=house_instance
+            house=house_instance
         )
-
         reservation.house = house_instance
 
+        # 아래 구문은 save() 두번 호출하는 중복구문.
         # super().perform_create(serializer)
 
 
