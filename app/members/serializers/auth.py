@@ -4,8 +4,8 @@ from django.core.files.base import ContentFile
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.fields import ImageField
 
+from utils.image.resize import clear_imagekit_cache_img_profile
 from ..models import UserProfileImages
 from utils.exception.custom_exception import CustomException
 
@@ -214,6 +214,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # (* static 이미지를 활용하는 방법을 알아낼 경우 아래 코드 Refactoring 예정)
             # if user.img_profile:
             #     user.img_profile.delete()
+
+            clear_imagekit_cache_img_profile(user.pk)
             user.images.all().delete()
 
             # 1) 이미지 경로 문제로 제외
@@ -237,6 +239,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             #     if os.path.isfile(user.img_profile.path):
             #         os.remove(user.img_profile.path)
 
+            clear_imagekit_cache_img_profile(user.pk)
             user.images.all().delete()
             # user.images.create(img_profile=img_profile)
 
