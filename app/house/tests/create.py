@@ -1,11 +1,18 @@
 import datetime
+import filecmp
+import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
+from django.test.client import encode_multipart
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from utils.image.resize import clear_imagekit_test_files
 from ..models import (
     House,
     Amenities,
@@ -41,6 +48,9 @@ class HouseCreateTest(APITestCase):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.token.key,
         )
+        file_path = os.path.join(settings.STATIC_DIR, 'iu.jpg')
+        img_cover = open(file_path, 'rb')
+
         # house_image1 = os.path.join(settings.STATIC_DIR, 'test', 'test_inner_image.jpg')
         # house_image2 = os.path.join(settings.STATIC_DIR, 'test', 'test_outer_image.jpg')
 
@@ -77,10 +87,12 @@ class HouseCreateTest(APITestCase):
                 '2014-02-01',
                 '2014-03-01',
                 '2014-04-01',
-            ]
+            ],
+            'img_cover': img_cover,
         }
 
         response = self.client.post(self.URL, data)
+        img_cover.close()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -145,3 +157,12 @@ class HouseCreateTest(APITestCase):
         disable_day_list = list(house.disable_days.values_list('date', flat=True))
         for index, date in enumerate(disable_day_list):
             self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
+
+        uploaded_file = default_storage.open(house.img_cover.name)
+
+        with NamedTemporaryFile() as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_file.seek(0)
+            self.assertTrue(filecmp.cmp(file_path, temp_file.name))
+
+        clear_imagekit_test_files()

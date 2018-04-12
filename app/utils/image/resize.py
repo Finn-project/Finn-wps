@@ -1,12 +1,14 @@
 import os
+import shutil
+
 from PIL import Image
 from django.conf import settings
 from django.conf.global_settings import MEDIA_ROOT
 from django.core.files.storage import default_storage as storage
+from imagekit.utils import get_cache
 
 
 def img_resize(user, file_name):
-
     def get_uploaded_file_path(file_name):
         file_path = os.path.join(MEDIA_ROOT, 'user', f'user_{user.id}', file_name)
         uploaded_file_path = storage.open(
@@ -38,3 +40,23 @@ def img_resize(user, file_name):
     # img3
     profile_dir = os.path.join(directory, 'img_profile_500.png')
     img3.save(profile_dir)
+
+
+def clear_imagekit_cache():
+    cache = get_cache()
+    cache.clear()
+    # Clear IMAGEKIT_CACHEFILE_DIR
+    cache_dir = os.path.join(settings.MEDIA_ROOT, settings.IMAGEKIT_CACHEFILE_DIR)
+    if os.path.exists(cache_dir):
+        shutil.rmtree(cache_dir)
+
+
+def clear_imagekit_test_files():
+    clear_imagekit_cache()
+    for fname in os.listdir(settings.MEDIA_ROOT):
+        if fname != 'reference.png':
+            path = os.path.join(settings.MEDIA_ROOT, fname)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)

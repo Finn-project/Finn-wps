@@ -1,11 +1,18 @@
 import datetime
+import filecmp
+import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from utils.image.resize import clear_imagekit_test_files
 from ..models import Amenities, Facilities, House, HouseDisableDay
 
 __all__ = (
@@ -105,6 +112,10 @@ class HouseUpdateTest(APITestCase):
 
         house = House.objects.create(**self.BASE_DATA)
 
+        file_path = os.path.join(settings.STATIC_DIR, 'iu.jpg')
+        img_cover = open(file_path, 'rb')
+        house.img_cover.save('iu.jpg', img_cover, save=True)
+
         self.user.is_host = True
         self.user.save()
 
@@ -124,7 +135,13 @@ class HouseUpdateTest(APITestCase):
         )
 
     def test_update_house(self):
+        file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
+        img_cover = open(file_path, 'rb')
+        self.UPDATE_DATA['img_cover'] = img_cover
+
         response = self.client.put(self.URL + f'{self.HOUSE_PK}/', self.UPDATE_DATA)
+        img_cover.close()
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(response.data['house_type'], self.UPDATE_DATA['house_type'])
@@ -187,3 +204,12 @@ class HouseUpdateTest(APITestCase):
         disable_day_list = list(house.disable_days.values_list('date', flat=True))
         for index, date in enumerate(disable_day_list):
             self.assertEqual(date.strftime('%Y-%m-%d'), self.UPDATE_DISABLE_DAYS[index])
+
+        uploaded_file = default_storage.open(house.img_cover.name)
+
+        with NamedTemporaryFile() as temp_file:
+            temp_file.write(uploaded_file.read())
+            temp_file.seek(0)
+            self.assertTrue(filecmp.cmp(file_path, temp_file.name))
+
+        clear_imagekit_test_files()
