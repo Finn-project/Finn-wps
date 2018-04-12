@@ -111,12 +111,12 @@ class UserProfileImages(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
-    img_profile = ProcessedImageField(blank=True, default='',
-                                           upload_to=dynamic_img_profile_path,
-                                           processors=[ResizeToFill(500, 500)],
-                                           format='png',
-                                           options={'quality': 100})
+    img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+    # img_profile = ProcessedImageField(blank=True, default='',
+    #                                        upload_to=dynamic_img_profile_path,
+    #                                        processors=[ResizeToFill(500, 500)],
+    #                                        format='png',
+    #                                        options={'quality': 100})
 
     img_profile_150 = ImageSpecField(source='img_profile',
                                       processors=[ResizeToFill(150, 150)],
@@ -128,6 +128,11 @@ class UserProfileImages(models.Model):
                                       format='png',
                                       options={'quality': 800})
 
+    class Meta:
+        verbose_name_plural = '사용자 프로필이미지'
+
+    def __str__(self):
+        return f'{self.img_profile.name}'
 
 # @receiver(post_delete, sender=UserProfileImages)
 # def remove_file_from_storage(sender, instance, using, **kwargs):

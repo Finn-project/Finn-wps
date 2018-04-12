@@ -85,11 +85,11 @@ class UserUpdateTest(APITestCase):
         self.assertEqual(result['is_facebook_user'], False)
         self.assertIsNotNone(result['images'][0]['img_profile'])
 
-        # update로 비밀변경 후 기존 비밀번호로 로그인
+        # update로 비밀변경 후 기존 비밀번호로 로그인 (실패)
         response = self.client.post('/user/login/', test_user_info)
         self.assertEqual(response.status_code, 400)
 
-        # update로 비밀변경 후 변경된 비밀번호로 로그인
+        # update로 비밀변경 후 변경된 비밀번호로 로그인 (성공)
         request_contents2 = {
             'username': request_contents['email'],
             'password': request_contents['password'],

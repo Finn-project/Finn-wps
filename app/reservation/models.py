@@ -40,6 +40,9 @@ class Reservation(models.Model):
     # (message 구현여부에 따라 결정) 예약과정에서 호스트에게 보내는 메시지
     # message_to_host = models.TextField(max_length=300)
 
+    class Meta:
+        verbose_name_plural = '예약'
+
     def __str__(self):
         return '{} 님의 예약 (기간: {} ~ {}) | 호스트: {}'.format(
             self.guest,
