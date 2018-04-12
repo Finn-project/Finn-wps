@@ -1,6 +1,7 @@
 from rest_framework import permissions, generics, status
 from rest_framework.response import Response
 
+from utils.image.resize import clear_imagekit_cache
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
@@ -32,16 +33,16 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         house = serializer.save(host=self.request.user)
 
-        # [house.disable_days.get_or_create(date=date) for date in self.request.data.getlist('disable_days')]
-
         for date in self.request.data.getlist('disable_days'):
             date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
             house.disable_days.add(date_instance)
 
+        if self.request.FILES:
+            img_cover = self.request.FILES['img_cover']
+            house.img_cover.save(img_cover.name, img_cover)
+
         self.request.user.is_host = True
         self.request.user.save()
-
-        super().perform_create(serializer)
 
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
@@ -68,7 +69,13 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
             house.disable_days.add(date_instance)
 
-        super().perform_update(serializer)
+        if house.img_cover:
+            clear_imagekit_cache()
+            house.img_cover.delete()
+
+        if self.request.FILES:
+            img_cover = self.request.FILES['img_cover']
+            house.img_cover.save(img_cover.name, img_cover)
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
