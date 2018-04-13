@@ -78,7 +78,18 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return password
 
     def create(self, validated_data):
-        return self.Meta.model.objects.create_django_user(self.initial_data.getlist('images'), **validated_data)
+        # test_data = self.initial_data.get('img_profile')
+        # test_data = self.initial_data.getlist('img_profile')
+        # print(test_data)
+        # print(validated_data)
+        # print(*validated_data)
+        # print(**validated_data)
+
+        # return self.Meta.model.objects.create_django_user(test_data, validated_data)
+        # 4/13 Postman 'raw' 형식으로 send 했을 때 self.initial_data.getlist('images')에서
+        #      getlist
+
+        return self.Meta.model.objects.create_django_user(**validated_data)
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
