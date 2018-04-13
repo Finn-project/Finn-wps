@@ -72,16 +72,15 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
 
     def put(self, request, pk):
         user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            serializer = UserUpdateSerializer(request.user, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(images=request.data.get('img_profile'))
+                # serializer.save()
+                # return Response(serializer.data, status=status.HTTP_200_OK)
+                # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
 
-        serializer = UserUpdateSerializer(request.user, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(images=request.data.get('img_profile'))
-            # serializer.save()
-            # return Response(serializer.data, status=status.HTTP_200_OK)
-            # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
-
-            user = get_object_or_404(User, pk=pk)
-            if request.user == user:
+                user = get_object_or_404(User, pk=pk)
                 # 이곳에서 'user'를 호출하지 않으면 수정된 데이터가 Response에 나타나지 않음.
                 # (* 위에서 user에 할당된 데이터는 serializers/auth.py에서 'user.save()'로
                 # 값이 변하지 않기 때문에)
@@ -93,7 +92,9 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
-                serializer.save()
+                serializer.save(images=request.data.get('img_profile'))
+
+                user = get_object_or_404(User, pk=pk)
                 return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
         return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
