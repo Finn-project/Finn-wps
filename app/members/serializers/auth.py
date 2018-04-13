@@ -57,7 +57,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
         # )
 
     def validate_username(self, username):
-        if User.objects.filter(username=username).exists():
+        # if User.objects.filter(username=username).exists():
+        if User.objects.filter(Q(username=username) | Q(email=username)).exists():
+            # Facebook으로 가입한 유저가 email 주소를 입력할 경우 위 쿼리문에서 에외처리를 하지 못해서
+            # UNIQUE constraint failed: members_user.email 에러가 발생
             raise CustomException(detail='이미 존재하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
 
         return username
@@ -181,6 +184,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, user, validated_data):
         email = validated_data.get('email', user.email)
         # password = validated_data.get('password', user.password)
+        # 회원정보 수정을 PUT -> PATCH로 바꾸면서 예외처리를 위해 변
         password = validated_data.get('password', '')
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
