@@ -65,7 +65,7 @@ class UserUpdateTest(APITestCase):
 
         user = User.objects.get(username='test@gmail.com')
         print(user.pk)
-        response = self.client.put(
+        response = self.client.patch(
             f'/user/{user.pk}/',
             encoded_contents,
             content_type=content_type,
