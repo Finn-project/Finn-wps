@@ -90,8 +90,8 @@ class Guest(User):
 
 class UserProfileImages(models.Model):
 
-    user = models.ForeignKey(
-        'User',
+    user = models.OneToOneField(
+        User,
         on_delete=models.CASCADE,
         related_name='images'
     )
@@ -120,7 +120,7 @@ class UserProfileImages(models.Model):
         verbose_name_plural = '사용자 프로필이미지'
 
     def __str__(self):
-        return f'{self.img_profile.name}'
+        return f'{self.user}의 프로필사진 | {self.img_profile.name}'
 
 
 @receiver(post_delete, sender=UserProfileImages)

@@ -64,7 +64,6 @@ class UserUpdateTest(APITestCase):
         content_type = 'multipart/form-data; boundary=BoUnDaRyStRiNg'
 
         user = User.objects.get(username='test@gmail.com')
-        print(user.pk)
         response = self.client.patch(
             f'/user/{user.pk}/',
             encoded_contents,
@@ -84,7 +83,9 @@ class UserUpdateTest(APITestCase):
         self.assertEqual(result['phone_num'], request_contents['phone_num'])
         self.assertEqual(result['is_email_user'], True)
         self.assertEqual(result['is_facebook_user'], False)
-        self.assertIsNotNone(result['images'][0]['img_profile'])
+        self.assertIsNotNone(result['images']['img_profile'])
+        self.assertIsNotNone(result['images']['img_profile_28'])
+        self.assertIsNotNone(result['images']['img_profile_225'])
 
         # update로 비밀변경 후 기존 비밀번호로 로그인 (실패)
         response = self.client.post('/user/login/', test_user_info)
@@ -102,3 +103,10 @@ class UserUpdateTest(APITestCase):
         # image 저장 확인
         img = UserProfileImages.objects.get(user=user)
         self.assertTrue(os.path.isfile(img.img_profile.path))
+
+        # print(type(img.img_profile))
+        # print(img.img_profile_28.url)
+
+        self.assertEqual(result['images']['img_profile'], img.img_profile.url)
+        self.assertEqual(result['images']['img_profile_28'], img.img_profile_28.url)
+        self.assertEqual(result['images']['img_profile_225'], img.img_profile_225.url)

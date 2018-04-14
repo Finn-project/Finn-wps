@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.fields import ImageField
 
 from members.serializers import UserProfileImagesSerializer
 from utils.image.resize import clear_imagekit_cache_img_profile
@@ -38,8 +39,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # facebook user가 회원정보를 수정하게되면 is_email_user=True가 되는데
     # 이 부분이 바뀌었는지 확인하기 위해서 위에 read_only 옵션을 주고 출력되도록 함.
     # img_profile_thumbnail = serializers.ImageField(read_only=True)
-    images = UserProfileImagesSerializer(many=True)
-
+    images = UserProfileImagesSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -56,11 +56,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
             'images',
         )
-
-    # def validate_image(self, img_profile):
-    #     print(img_profile)
-    #     print('이미지검사중')
-    #     return img_profile
 
     def validate_email(self, email):
         # 내 이 메일은 중복검사 하면 안되서 ~Q(username=self.instance) 추가
@@ -84,24 +79,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
-    # def validate_images(self, data):
-    #
-    #     if self.initial_data.get('img_profile', ''):
-    #         images = self.initial_data.get('img_profile')
-    #         # imf = ImageField
-    #         # images = imf.to_internal_value(images)
-    #         return images
-    #
-    # def validate(self, attrs):
-    #     if attrs.get('images', ''):
-    #         # 검증할 수 있을뿐
-    #         # attrs['images'] = self.initial_data['img_profile']
-    #         images = attrs['images']
-    #
-    #         imf = ImageField()
-    #         imf.to_internal_value(images)
-    #
-    #     return attrs
+    def validate(self, attrs):
+        if self.initial_data.get('img_profile'):
+            images = self.initial_data['img_profile']
+
+            # restframework 내부 이미지 검증 코드 가져옴
+            imf = ImageField()
+            images2 = imf.to_internal_value(images)
+
+            attrs['images'] = images2
+
+        return attrs
 
     def update(self, user, validated_data):
         email = validated_data.get('email', user.email)
@@ -111,8 +99,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
         phone_num = validated_data.get('phone_num', user.phone_num)
-        # img_profile = self.initial_data.get('img_profile', '')
-        img_profile = validated_data.get('images', '')
+        img_profile = validated_data.get('images')
 
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
@@ -121,7 +108,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         else:
             # email user의 경우에만 변경한 email과 username을 같도록 설정해준다.
             # -> signup_type 대신에 is_facebook_user / is_email_user로
-            #    나누어야 하는 이유 발견.
+            #    나누어야 하는 이유
             user.username = email
         user.email = email
 
@@ -132,11 +119,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         user.phone_num = phone_num
         user.save()
 
-        # 유저가 사진을 입력안한 경우( 기존 이미지 또는 default 이미지로 다시 넣어준다.
-
-        # * 이유는 모르겠으나 validated_data에서 빈 값이면 None이 아니라
-        #   빈 리스트 '[]'를 받아서 가져온다.
-
         if img_profile is None:
             # '' 값은 위의 img_profile = validated_data.get('img_profile', '')
             # 에서 img_profile 값이 입력되지 않았을 경우인데,
@@ -145,14 +127,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # 구분할 수 없는데 이 부분은 실제 프론트와의 파일 업로드 테스트에서도 동일한지
             # 확인할 필요가 있다.
 
+            pass
+            # 유저가 사진을 입력안한 경우 그냥둔다.
+
             # 저장소에 기존 이미지가 없을 경우 default 이미지를 넣어준다.
             # (* static 이미지를 활용하는 방법을 알아낼 경우 아래 코드 Refactoring 예정)
             # if user.img_profile:
             #     user.img_profile.delete()
-
-            clear_imagekit_cache_img_profile(user.pk)
-            user.images.all().delete()
-
             # 1) 이미지 경로 문제로 제외
             # static_storage_class = import_string(settings.STATICFILES_STORAGE)
             # static_storage = static_storage_class()
@@ -169,30 +150,23 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # 3) 4/10 오전 미팅결과 iOS/FDS에서 Default image 세팅하기로 결론
 
         else:
-            # 이미지가 입력된 경우 별도의 단계 없이 바로 해당 이미지를 저장한다.
-            # if user.img_profile:
-            #     if os.path.isfile(user.img_profile.path):
-            #         os.remove(user.img_profile.path)
+
+            img, _ = UserProfileImages.objects.get_or_create(user=user)
+            # UserProfileImages가 OneToOneField이기 때문에 기존
+            # Foreignkey처럼 user.images.all().delete()한 다음
+            # user.images에 접근할 수 없다.
+            # Q. 기존 Foreignkey에서는 모든 연결된 객체가 삭제되었는데
+            # user.images로 접근할 때 에러가 안난 이유는?
 
             clear_imagekit_cache_img_profile(user.pk)
-            user.images.all().delete()
-            # user.images.create(img_profile=img_profile)
-
-            # 4/10 content.seek(0) 에러 발생으로 이미지 저장 방법 변경
-            #       만약 아래 방법으로 해결된다면 Cache를 이용하여
-            #       이미지를 저장하는 라이브러리 특성상, 객체를 생성과 동시에
-            #       이미지를 저장하려고 할 때 오류가 난 것으로 추측.
-            img = UserProfileImages.objects.create(user=user)
+            if user.images.img_profile:
+                user.images.img_profile.delete()
 
             # 1) 먼저 생각난 방법
-            # img.img_profile.save('img_profile.png', img_profile)
-            # img.img_profile_28.save('img_profile_28.png', img_profile)
-            # img.img_profile_225.save('img_profile_225.png', img_profile)
+            img.img_profile.save('img_profile.png', img_profile)
 
             # 2) 일단 안전빵
-            data = ContentFile(img_profile.read())
-            img.img_profile.save('img_profile.png', data)
-            # img.img_profile_28.save('img_profile_28.png', data)
-            # img.img_profile_225.save('img_profile_225.png', data)
+            # data = ContentFile(img_profile.read())
+            # img.img_profile.save('img_profile.png', data)
 
         return user
