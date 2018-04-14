@@ -1,6 +1,6 @@
 from .facebook import *
 from .facebook_auth import *
-from .user_profile import *
+from .user_image import *
 from .user import *
 from .user_create import *
 from .user_update import *
