@@ -6,12 +6,14 @@ from ..apis import (
     UserLoginAuthTokenAPIView, UserLogoutAPIView,
     UserGetAuthTokenAPIView,
     AuthTokenForFacebookAccessTokenView,
+    UserProfileImageDeleteAPIView,
 )
 
 urlpatterns = [
     path('', UserListCreateAPIView.as_view()),
     path('<int:pk>/', UserRetrieveUpdateDestroyAPIView.as_view()),
     path('info/', UserGetAuthTokenAPIView.as_view()),
+    path('<int:pk>/noimage/', UserProfileImageDeleteAPIView.as_view()),
 
     path('login/', UserLoginAuthTokenAPIView.as_view()),
     path('logout/', UserLogoutAPIView.as_view()),

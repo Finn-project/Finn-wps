@@ -6,7 +6,8 @@ set_config(secrets, module_name=__name__, root=True)
 DEBUG = True
 ALLOWED_HOSTS = [
     '.elasticbeanstalk.com',
-    '.himanmen.com'
+    '.himanmen.com',
+    '.dlighter.com',
 ]
 WSGI_APPLICATION = 'config.wsgi.production.application'
 INSTALLED_APPS += [
