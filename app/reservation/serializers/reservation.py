@@ -18,14 +18,14 @@ __all__ = (
 class ReservationSerializer(serializers.ModelSerializer):
 
     # house = serializers.PrimaryKeyRelatedField(read_only=True)
-    # house를 PrimaryKeyRelatedField로 하면
+    # house를 PrimaryKeyRelatedField로 하면 Response에서 tree 구조로 표현이 안되고 pk만 보임.
     house = HouseSerializer(read_only=True)
     guest = UserSerializer(read_only=True)
 
     class Meta:
         model = Reservation
         fields = (
-            'id',
+            'pk',
             'check_in_date',
             'check_out_date',
             'guest_num',
@@ -36,15 +36,6 @@ class ReservationSerializer(serializers.ModelSerializer):
             'guest',
             'house',
         )
-
-    def validate_house(self, house):
-        pass
-        return house
-
-    def validate_guest_num(self, guest_num):
-
-        # print(self.house.personnel)
-        return guest_num
 
     def validate(self, attrs):
 
@@ -57,6 +48,10 @@ class ReservationSerializer(serializers.ModelSerializer):
         else:
             raise CustomException(detail='house 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
+        # 숙박 인원 validation
+        if house.personnel < attrs['guest_num']:
+            raise CustomException(detail='숙박 허용인원을 초과했습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
         # 기존 disable_days 찾기
         disabled_days = []
         for i in house.disable_days.all():
@@ -64,23 +59,17 @@ class ReservationSerializer(serializers.ModelSerializer):
 
         # 기존 예약일 찾기
         reserved_days = []
-        num = 1
-
         if self.instance:
             reserved_days_list = house.reservation_set.filter(~Q(pk=self.instance.pk))
+            # 업데이트 시 자신의 예약은 예외처리에서 제외
         else:
             reserved_days_list = house.reservation_set.filter()
-
         for i in reserved_days_list:
-            print(f'{num}번째')
-            num += 1
-            print(i)
             staying_days = i.check_out_date - i.check_in_date
             reserved_days += [i.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
 
         # 기존 disable_days + 예약일
         disabled_and_reserved_days = disabled_days + reserved_days
-        print(disabled_and_reserved_days)
 
         check_in_date = attrs['check_in_date']
         check_out_date = attrs['check_out_date']
@@ -94,10 +83,6 @@ class ReservationSerializer(serializers.ModelSerializer):
             if day < check_in_date or day > check_out_date:
                 pass
             else:
-                # print(day)
-                # print(check_out_date)
-                # print(day < check_in_date)
-                # print(day > check_out_date)
                 raise CustomException(detail='예약할 수 없는 날짜를 선택하셨습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         return attrs

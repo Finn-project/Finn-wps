@@ -90,7 +90,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
         # return self.Meta.model.objects.create_django_user(test_data, validated_data)
         # 4/13 Postman 'raw' 형식으로 send 했을 때 self.initial_data.getlist('images')에서
-        #      getlist
+        #      getlist를 할 경우 에러 발생 (get으로 하면 에러가 발생x, 'form-data'형식으로 보내도 에러x 원인은 모름)
 
         return self.Meta.model.objects.create_django_user(**validated_data)
 
@@ -142,7 +142,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def validate_email(self, email):
         # 내 이 메일은 중복검사 하면 안되서 ~Q(username=self.instance) 추가
-        if User.objects.filter(~Q(username=self.instance), Q(email=email)).exists():
+        if User.objects.filter(~Q(username=self.instance.username), Q(email=email)).exists():
             raise CustomException(detail='이미 존재 하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
 
         return email
@@ -184,7 +184,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, user, validated_data):
         email = validated_data.get('email', user.email)
         # password = validated_data.get('password', user.password)
-        # 회원정보 수정을 PUT -> PATCH로 바꾸면서 예외처리를 위해 변
+        # 회원정보 수정을 PUT -> PATCH로 바꾸면서 예외처리를 위해 변경
         password = validated_data.get('password', '')
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
@@ -263,7 +263,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             img = UserProfileImages.objects.create(user=user)
 
             # 1) 먼저 생각난 방법
-
             # img.img_profile.save('img_profile.png', img_profile)
             # img.img_profile_28.save('img_profile_28.png', img_profile)
             # img.img_profile_225.save('img_profile_225.png', img_profile)
