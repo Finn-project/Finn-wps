@@ -75,8 +75,10 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(images=request.data.get('img_profile'))
-                # serializer.save()
+                # serializer.save(images=request.FILES.get('img_profile'))
+                # 위 코드 대신 def validate에서 images를 꺼낸 후 validation까지 한 후 넣어준다.
+
+                serializer.save()
                 # return Response(serializer.data, status=status.HTTP_200_OK)
                 # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
 
@@ -92,7 +94,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(images=request.data.get('img_profile'))
+                serializer.save()
 
                 user = get_object_or_404(User, pk=pk)
                 return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
