@@ -1,76 +1,3 @@
-# from rest_framework import serializers
-#
-# from members.serializers import UserSerializer
-# from ..models import (
-#     House,
-#     Amenities,
-#     Facilities,
-#     HouseImage
-# )
-#
-#
-# class AmenitiesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Amenities
-#         fields = (
-#             'pk',
-#             'name',
-#         )
-#
-#
-# class FacilitiesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Facilities
-#         fields = (
-#             'pk',
-#             'name',
-#         )
-#
-#
-# class HouseImageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = HouseImage
-#         fields = '__all__'
-#
-#
-# class HouseSerializer(serializers.ModelSerializer):
-#     amenities = AmenitiesSerializer(many=True, read_only=True)
-#     facilities = FacilitiesSerializer(many=True, read_only=True)
-#
-#     # house_images = HouseImageSerializer(many=True, read_only=True)
-#     host = UserSerializer(read_only=True)
-#
-#     class Meta:
-#         model = House
-#         fields = (
-#             'pk',
-#             'house_type',
-#             'name',
-#             'description',
-#             'room',
-#             'bathroom',
-#             'personnel',
-#             'amenities',
-#             'facilities',
-#             'minimum_check_in_duration',
-#             'maximum_check_in_duration',
-#             # 'start_day_for_break',
-#             # 'end_day_for_break',
-#             'maximum_check_in_range',
-#             'price_per_night',
-#             'created_date',
-#             'modified_date',
-#             'host',
-#             'country',
-#             'city',
-#             'district',
-#             'dong',
-#             'address1',
-#             'address2',
-#             'latitude',
-#             'longitude'
-#         )
-
 from rest_framework import serializers
 
 from members.serializers import UserSerializer
@@ -87,7 +14,8 @@ class HouseSerializer(serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
     img_cover = serializers.ImageField(required=False)
-    img_cover_400_300 = serializers.ImageField(read_only=True)
+    img_cover_thumbnail = serializers.ImageField(read_only=True)
+    house_images = serializers.SerializerMethodField()
 
     class Meta:
         model = House
@@ -119,7 +47,8 @@ class HouseSerializer(serializers.ModelSerializer):
             'longitude',
             'disable_days',
             'img_cover',
-            'img_cover_400_300',
+            'img_cover_thumbnail',
+            'house_images',
         )
         read_only_fields = (
             'pk',
@@ -127,5 +56,11 @@ class HouseSerializer(serializers.ModelSerializer):
             'created_date',
             'modified_date',
             'disable_days',
-            'img_cover_400_300',
+            'img_cover_thumbnail',
         )
+
+    def get_house_images(self, obj):
+        name_list = list()
+        for house_image in obj.images.all():
+            name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
+        return name_list

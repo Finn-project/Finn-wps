@@ -71,4 +71,4 @@ class UserCreateSerializer(serializers.ModelSerializer):
         # 4/13 Postman 'raw' 형식으로 send 했을 때 self.initial_data.getlist('images')에서
         #      getlist를 할 경우 에러 발생 (get으로 하면 에러가 발생x, 'form-data'형식으로 보내도 에러x 원인은 모름)
 
-        return self.Meta.model.objects.create_django_user(**validated_data)
+        return User.objects.create_django_user(**validated_data)
