@@ -157,7 +157,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # Q. 기존 Foreignkey에서는 모든 연결된 객체가 삭제되었는데
             # user.images로 접근할 때 에러가 안난 이유는?
 
-            clear_imagekit_cache_img_profile(user.pk)
+            clear_imagekit_cache_img_profile(user, user.pk)
+            # clear_imagekit_cache_img_profile(user.pk)
             if user.images.img_profile:
                 user.images.img_profile.delete()
                 # user.images.img_profile_28.delete()

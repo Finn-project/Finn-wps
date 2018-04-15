@@ -92,7 +92,9 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+        # user = get_object_or_404(User, pk=pk)
+        user = User.objects.get(pk=pk)
+
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
@@ -108,7 +110,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # if serializer.is_valid(raise_exception=True):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
-        user = get_object_or_404(User, pk=pk)
+        # user = get_object_or_404(User, pk=pk)
+        user = User.objects.get(pk=pk)
         if request.user == user:
             request.user.delete()
             return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)

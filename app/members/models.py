@@ -147,7 +147,7 @@ def remove_file_from_storage(sender, instance, using, **kwargs):
     # -> 4/12 S3에 deploy한 환경에서 os.path(?) 또는
     # instance.img_profile.path(?)를 쓰면
     # 주소를 읽지못해 에러 발생
-    clear_imagekit_cache_img_profile(instance.pk)
+    # clear_imagekit_cache_img_profile(instance.pk)
     if instance.img_profile:
         instance.img_profile.delete(save=False)
 

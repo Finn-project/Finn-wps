@@ -5,6 +5,7 @@ set_config(secrets, module_name=__name__, root=True)
 
 DEBUG = True
 ALLOWED_HOSTS = [
+    'localhost',
     '.elasticbeanstalk.com',
     '.himanmen.com',
     '.dlighter.com',
