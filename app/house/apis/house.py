@@ -40,7 +40,6 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
         if self.request.FILES:
             img_cover = self.request.FILES['img_cover']
             house.img_cover.save(img_cover.name, img_cover)
-            house.img_cover_thumbnail.save(img_cover.name, img_cover)
 
         self.request.user.is_host = True
         self.request.user.save()
@@ -71,9 +70,8 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             house.disable_days.add(date_instance)
 
         if house.img_cover:
+            clear_imagekit_cache()
             house.img_cover.delete()
-            house.img_cover_thumbnail.delete()
-
             # ImageSpecField로 썸네일을 만들면
             # s3의 캐쉬를 삭제 할 수 있는 방법이 없다.
             # img_cover_thumbnail.delete()
@@ -81,7 +79,6 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.FILES:
             img_cover = self.request.FILES['img_cover']
             house.img_cover.save(img_cover.name, img_cover)
-            house.img_cover_thumbnail.save(img_cover.name, img_cover)
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
