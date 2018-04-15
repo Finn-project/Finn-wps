@@ -235,27 +235,11 @@ class HouseImage(models.Model):
     HouseImage모델은  House모델을 참조 하며
     House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
     """
-    IMAGE_TYPE_INNER = 'IN'
-    IMAGE_TYPE_OUTER = 'OU'
-
-    IMAGE_TYPE_CHOICES = (
-        (IMAGE_TYPE_INNER, 'inner'),
-        (IMAGE_TYPE_OUTER, 'outer'),
-    )
-
     image = models.ImageField(
         verbose_name='숙소 이미지',
         help_text='숙소와 연결된 이미지를 저장합니다.',
 
         upload_to='house'
-    )
-    kind = models.CharField(
-        verbose_name='이미지 타입',
-        help_text='숙소 안 이미지 인지 바깥 이미지 인지 저장',
-
-        max_length=2,
-        choices=IMAGE_TYPE_CHOICES,
-        default=IMAGE_TYPE_INNER
     )
     house = models.ForeignKey(
         House,
