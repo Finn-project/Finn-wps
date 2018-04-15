@@ -70,8 +70,8 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             house.disable_days.add(date_instance)
 
         if house.img_cover:
-            clear_imagekit_cache_house_cover(user_pk=self.request.user.pk, house_pk=house.pk)
             house.img_cover.delete()
+            clear_imagekit_cache_house_cover(user_pk=self.request.user.pk, house_pk=house.pk)
 
         if self.request.FILES:
             img_cover = self.request.FILES['img_cover']
