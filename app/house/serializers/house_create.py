@@ -1,5 +1,3 @@
-from rest_framework.fields import ImageField
-
 from house.serializers.house import HouseSerializer
 
 __all__ = (

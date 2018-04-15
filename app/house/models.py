@@ -16,8 +16,8 @@ def dynamic_img_cover_path(instance, file_name):
     return f'house/user_{instance.host.id}/house_{instance.pk}/{file_name}'
 
 
-def dynamic_img_cover_thumbnail_path(instance, file_name):
-    return f'house/user_{instance.host.id}/house_{instance.pk}/thumbnail/{file_name}'
+def dynamic_img_house_path(instance, file_name):
+    return f'house/user_{instance.house.host.id}/house_{instance.house.pk}/images/{file_name}'
 
 
 class House(models.Model):
@@ -235,27 +235,11 @@ class HouseImage(models.Model):
     HouseImage모델은  House모델을 참조 하며
     House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
     """
-    IMAGE_TYPE_INNER = 'IN'
-    IMAGE_TYPE_OUTER = 'OU'
-
-    IMAGE_TYPE_CHOICES = (
-        (IMAGE_TYPE_INNER, 'inner'),
-        (IMAGE_TYPE_OUTER, 'outer'),
-    )
-
     image = models.ImageField(
         verbose_name='숙소 이미지',
         help_text='숙소와 연결된 이미지를 저장합니다.',
 
-        upload_to='house'
-    )
-    kind = models.CharField(
-        verbose_name='이미지 타입',
-        help_text='숙소 안 이미지 인지 바깥 이미지 인지 저장',
-
-        max_length=2,
-        choices=IMAGE_TYPE_CHOICES,
-        default=IMAGE_TYPE_INNER
+        upload_to=dynamic_img_house_path,
     )
     house = models.ForeignKey(
         House,
@@ -263,7 +247,7 @@ class HouseImage(models.Model):
         verbose_name='숙소',
         help_text='이미지와 연결된 숙소를 저장합니다.',
 
-        related_name='house_images',
+        related_name='images',
         on_delete=models.CASCADE,
     )
 
@@ -271,6 +255,9 @@ class HouseImage(models.Model):
         verbose_name_plural = '숙소 이미지들'
 
     def __str__(self):
+        return f'{self.image.name}'
+
+    def __unicode__(self):
         return f'{self.image.name}'
 
 
