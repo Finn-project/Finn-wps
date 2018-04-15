@@ -1,7 +1,7 @@
 from rest_framework import permissions, generics, status
 from rest_framework.response import Response
 
-from utils.image.resize import clear_imagekit_cache_house_cover
+from utils.image.resize import clear_imagekit_cache
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
@@ -70,8 +70,10 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             house.disable_days.add(date_instance)
 
         if house.img_cover:
-            clear_imagekit_cache_house_cover(user_pk=self.request.user.pk, house_pk=house.pk)
+            clear_imagekit_cache()
             house.img_cover.delete()
+            # s3의 캐쉬를 삭제 할 수 있는 방법이 없다.
+            # img_cover_400_300.delete()
 
         if self.request.FILES:
             img_cover = self.request.FILES['img_cover']
