@@ -7,6 +7,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from utils.image.resize import clear_imagekit_cache_img_profile
 from utils.pagination.custom_pagination import CustomPagination
 from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers import (
@@ -124,6 +125,7 @@ class UserProfileImageDeleteAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         if request.user == user:
             if user.images.img_profile:
+                clear_imagekit_cache_img_profile(user.pk)
                 user.images.img_profile.delete()
                 return Response('해당 유저의 프로필사진이 삭제되었습니다.', status=status.HTTP_200_OK)
             return Response('해당 유저의 프로필사진이 존재하지 않습니다.', status=status.HTTP_404_NOT_FOUND)

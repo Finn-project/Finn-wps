@@ -117,6 +117,18 @@ class UserProfileImages(models.Model):
                                       format='png',
                                       options={'quality': 100})
 
+    # img_profile_28 = ProcessedImageField(blank=True, default='',
+    #                                        upload_to=dynamic_img_profile_path,
+    #                                        processors=[ResizeToFill(28, 28)],
+    #                                        format='png',
+    #                                        options={'quality': 100})
+    #
+    # img_profile_225 = ProcessedImageField(blank=True, default='',
+    #                                        upload_to=dynamic_img_profile_path,
+    #                                        processors=[ResizeToFill(225, 225)],
+    #                                        format='png',
+    #                                        options={'quality': 100})
+
     class Meta:
         verbose_name_plural = '사용자 프로필이미지'
 
@@ -137,3 +149,16 @@ def remove_file_from_storage(sender, instance, using, **kwargs):
     if instance.img_profile:
         instance.img_profile.delete(save=False)
 
+
+# @receiver(post_save, sender=UserProfileImages)
+# def remove_file_from_storage(sender, instance, using, **kwargs):
+#     # if os.path.isfile(instance.img_profile.path):
+#     #     print(instance.img_profile.path)
+#     #     img_url = instance.img_profile.url
+#     #     print(img_url)
+#     # -> 4/12 S3에 deploy한 환경에서 os.path(?) 또는
+#     # instance.img_profile.path(?)를 쓰면
+#     # 주소를 읽지못해 에러 발생
+#
+#     if instance.img_profile:
+#         instance.img_profile.delete(save=False)
