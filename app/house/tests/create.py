@@ -1,17 +1,14 @@
 import datetime
-import filecmp
 import os
 from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.files.storage import default_storage
-from django.core.files.temp import NamedTemporaryFile
-from django.test.client import encode_multipart
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from utils.image.file import upload_file_cmp
 from utils.image.resize import clear_imagekit_test_files
 from ..models import (
     House,
@@ -51,8 +48,11 @@ class HouseCreateTest(APITestCase):
         file_path = os.path.join(settings.STATIC_DIR, 'iu.jpg')
         img_cover = open(file_path, 'rb')
 
-        # house_image1 = os.path.join(settings.STATIC_DIR, 'test', 'test_inner_image.jpg')
-        # house_image2 = os.path.join(settings.STATIC_DIR, 'test', 'test_outer_image.jpg')
+        house_image1_path = os.path.join(settings.STATIC_DIR, 'test', 'test_inner_image.jpg')
+        house_image2_path = os.path.join(settings.STATIC_DIR, 'test', 'test_outer_image.jpg')
+
+        house_image1 = open(house_image1_path, 'rb')
+        house_image2 = open(house_image2_path, 'rb')
 
         amenities_list = ['TV', '에어컨', '전자렌지', '커피포트', '컴퓨터', '공기청정기']
         facilities_list = ['수영장', '엘리베이터', '세탁소', '노래방', '오락실', '온천']
@@ -89,10 +89,16 @@ class HouseCreateTest(APITestCase):
                 '2014-04-01',
             ],
             'img_cover': img_cover,
+            'house_images': [
+                house_image1,
+                house_image2,
+            ],
         }
 
         response = self.client.post(self.URL, data)
         img_cover.close()
+        house_image1.close()
+        house_image2.close()
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -158,11 +164,8 @@ class HouseCreateTest(APITestCase):
         for index, date in enumerate(disable_day_list):
             self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
 
-        uploaded_file = default_storage.open(house.img_cover.name)
-
-        with NamedTemporaryFile() as temp_file:
-            temp_file.write(uploaded_file.read())
-            temp_file.seek(0)
-            self.assertTrue(filecmp.cmp(file_path, temp_file.name))
+        self.assertTrue(upload_file_cmp(file_path=file_path, img_name=house.img_cover.name))
+        self.assertTrue(upload_file_cmp(file_path=house_image1_path, img_name=house.images.first().image.name))
+        self.assertTrue(upload_file_cmp(file_path=house_image2_path, img_name=house.images.last().image.name))
 
         clear_imagekit_test_files()

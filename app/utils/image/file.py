@@ -1,7 +1,10 @@
+import filecmp
 from io import BytesIO
 
 import magic
 import requests
+from django.core.files.storage import default_storage
+from django.core.files.temp import NamedTemporaryFile
 
 
 def download(url):
@@ -20,3 +23,12 @@ def get_buffer_ext(buffer):
     mime_info = magic.from_buffer(buffer.read(), mime=True)
     buffer.seek(0)
     return mime_info.split('/')[-1]
+
+
+def upload_file_cmp(**kwargs):
+    uploaded_file = default_storage.open(kwargs['img_name'])
+
+    with NamedTemporaryFile() as temp_file:
+        temp_file.write(uploaded_file.read())
+        temp_file.seek(0)
+        return filecmp.cmp(kwargs['file_path'], temp_file.name)

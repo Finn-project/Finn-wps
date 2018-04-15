@@ -1,12 +1,16 @@
 import datetime
 import math
+import os
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from ..models import Amenities, Facilities, House, HouseDisableDay
+from utils.image.file import upload_file_cmp
+from utils.image.resize import clear_imagekit_test_files
+from ..models import Amenities, Facilities, House, HouseDisableDay, HouseImage
 
 __all__ = (
     'HouseListTest',
@@ -93,6 +97,24 @@ class HouseListTest(APITestCase):
                 date_instance, created = HouseDisableDay.objects.get_or_create(date=disable_day)
                 house.disable_days.add(date_instance)
 
+            self.file_path = os.path.join(settings.STATIC_DIR, 'iu.jpg')
+            self.house_image1_path = os.path.join(settings.STATIC_DIR, 'test', 'test_inner_image.jpg')
+            self.house_image2_path = os.path.join(settings.STATIC_DIR, 'test', 'test_outer_image.jpg')
+
+            img_cover = open(self.file_path, 'rb')
+            house_image1 = open(self.house_image1_path, 'rb')
+            house_image2 = open(self.house_image2_path, 'rb')
+
+            house.img_cover.save('iu.jpg', img_cover)
+            house1 = HouseImage.objects.create(house=house)
+            house2 = HouseImage.objects.create(house=house)
+            house1.image.save('test_inner_image.jpg', house_image1)
+            house2.image.save('test_outer_image.jpg', house_image2)
+
+            img_cover.close()
+            house_image1.close()
+            house_image2.close()
+
     def test_list_house(self):
         page_num = math.ceil(self.HOUSE_COUNT / self.PAGE_SIZE)
 
@@ -176,3 +198,11 @@ class HouseListTest(APITestCase):
                 disable_day_list = list(house.disable_days.values_list('date', flat=True))
                 for index, date in enumerate(disable_day_list):
                     self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+
+                self.assertTrue(upload_file_cmp(file_path=self.file_path, img_name=house.img_cover.name))
+                self.assertTrue(
+                    upload_file_cmp(file_path=self.house_image1_path, img_name=house.images.first().image.name))
+                self.assertTrue(
+                    upload_file_cmp(file_path=self.house_image2_path, img_name=house.images.last().image.name))
+
+        clear_imagekit_test_files()
