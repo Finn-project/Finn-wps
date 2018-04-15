@@ -1,11 +1,20 @@
 import os
 import shutil
 
+import boto3
 from PIL import Image
 from django.conf import settings
-from django.conf.global_settings import MEDIA_ROOT
+
+from django.conf.global_settings import MEDIA_ROOT, AUTH_USER_MODEL
+from django.contrib.auth import get_user_model
+
 from django.core.files.storage import default_storage as storage
 from imagekit.utils import get_cache
+from rest_framework.generics import get_object_or_404
+
+
+# User = get_user_model()
+# User = AUTH_USER_MODEL
 
 
 def img_resize(user, file_name):
@@ -51,14 +60,52 @@ def clear_imagekit_cache():
         shutil.rmtree(cache_dir)
 
 
-def clear_imagekit_cache_img_profile(pk):
-    cache = get_cache()
-    cache.clear()
-    # Clear IMAGEKIT_CACHEFILE_DIR
-    cache_dir = os.path.join(settings.MEDIA_ROOT, settings.IMAGEKIT_CACHEFILE_DIR)
-    img_profile_dir = os.path.join(cache_dir, f'user/user_{pk}/img_profile')
-    if os.path.exists(img_profile_dir):
-        shutil.rmtree(img_profile_dir)
+def clear_imagekit_cache_img_profile(user, pk):
+# def clear_imagekit_cache_img_profile(pk):
+
+    print('resize.py 왔다.')
+
+    SETTINGS_MODULE = os.environ.get('DJANGO_SETTINGS_MODULE')
+    if SETTINGS_MODULE == 'config.settings':
+        cache = get_cache()
+        cache.clear()
+        # Clear IMAGEKIT_CACHEFILE_DIR
+        cache_dir = os.path.join(settings.MEDIA_ROOT, settings.IMAGEKIT_CACHEFILE_DIR)
+        img_profile_dir = os.path.join(cache_dir, f'user/user_{pk}/img_profile')
+
+        if os.path.exists(img_profile_dir):
+            shutil.rmtree(img_profile_dir)
+    else:
+        # 1) User = get_user_model()
+        # user = User.objects.get(pk=pk)
+        # -> "AUTH_USER_MODEL refers to model '%s' that has not been installed" % settings.AUTH_USER_MODEL
+        # django.core.exceptions.ImproperlyConfigured: AUTH_USER_MODEL refers to model 'members.User'
+        # that has not been installed
+
+        # 2) AUTH_USER_MODEL
+        # user = get_object_or_404(settings.AUTH_USER_MODEL, pk=pk)
+        # -> { "detail": "찾을 수 없습니다." }
+        #     404 Not Found
+
+        # 3) def clear_imagekit_cache_img_profile(user, pk):
+        # -> user를 parameter로 전달받음.
+
+        s3 = boto3.resource('s3')
+
+        if user.images.img_profile_28:
+            file_path_1 = 'media/' + user.images.img_profile_28.name
+            print(f'file_path_1: {file_path_1}')
+            print(type(file_path_1))
+
+            # response = s3.Object('s3-finn-project', file_path_1).delete()
+            # print(response)
+
+        if user.images.img_profile_225:
+            file_path_2 = 'media/' + user.images.img_profile_225.name
+            print(f'file_path_2: {file_path_2}')
+            print(type(file_path_2))
+
+            # s3.Object('s3-finn-project', file_path_2).delete()
 
 
 def clear_imagekit_test_files():

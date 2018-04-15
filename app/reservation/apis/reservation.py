@@ -4,7 +4,7 @@ from rest_framework.generics import get_object_or_404
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsGuestOrReadOnly
 from ..models import Reservation, House
-from ..serializers import ReservationSerializer
+from ..serializers import ReservationSerializer, ReservationPatchSerializer
 
 __all__ = (
     'ReservationCreateListView',
@@ -15,12 +15,12 @@ __all__ = (
 class ReservationCreateListView(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    pagination_class = DefaultPagination
+
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsGuestOrReadOnly,
     )
-
-    pagination_class = DefaultPagination
 
     def perform_create(self, serializer):
 
@@ -39,18 +39,24 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    pagination_class = DefaultPagination
+
     permission_classes = (
         permissions.IsAuthenticated,
         IsGuestOrReadOnly,
     )
 
-    pagination_class = DefaultPagination
+    # def get_serializer_class(self):
+    #     if self.request.method == 'PATCH':
+    #         return ReservationPatchSerializer
+    #     else:
+    #         return ReservationSerializer
 
     def perform_update(self, serializer):
         super().perform_update(serializer)
 
-    def partial_update(self, request, *args, **kwargs):
-        super().partial_update(request, *args, **kwargs)
+    # def partial_update(self, request, *args, **kwargs):
+    #     super().partial_update(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         super().perform_destroy(instance)

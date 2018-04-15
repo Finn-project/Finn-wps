@@ -11,14 +11,11 @@ from utils.exception.custom_exception import CustomException
 from ..models import Reservation
 
 __all__ = (
-    'ReservationSerializer',
+    'ReservationPatchSerializer',
 )
 
 
-class ReservationSerializer(serializers.ModelSerializer):
-
-    # house = serializers.PrimaryKeyRelatedField(read_only=True)
-    # house를 PrimaryKeyRelatedField로 하면 Response에서 tree 구조로 표현이 안되고 pk만 보임.
+class ReservationPatchSerializer(serializers.ModelSerializer):
     house = HouseSerializer(read_only=True)
     guest = UserSerializer(read_only=True)
 
@@ -44,14 +41,11 @@ class ReservationSerializer(serializers.ModelSerializer):
             # house instance를 validated_data에 넣어주기
             # (pk로 house 값을 받았기 때문에 이 값을 인스턴스로 바꾸어주어야 한다.)
             attrs['house'] = house
-            # attrs에 'house' 객체를 넣어주면 def update() 에서 기존 'house'를
-            # 업데이트 하게 된다.
         else:
-            # raise CustomException(detail='house 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
             house = self.instance.house
 
         # 숙박 인원 validation
-        if attrs.get('guest_num') and house.personnel < attrs['guest_num']:
+        if house.personnel < attrs['guest_num']:
             raise CustomException(detail='숙박 허용인원을 초과했습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         # 기존 disable_days 찾기
@@ -90,4 +84,21 @@ class ReservationSerializer(serializers.ModelSerializer):
         return attrs
 
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+
+        check_in_date = validated_data.get('check_in_date', instance.check_in_date)
+        check_out_date = validated_data.get('check_out_date', instance.check_out_date)
+        guest_num = validated_data.get('guest_num', instance.guest_num)
+        house = validated_data.get('house', instance.house)
+        guest = validated_data.get('guest', instance.guest)
+        payment_type = validated_data.get('payment_type')
+        reservation_status = validated_data.get('reservation_status')
+
+        instance.check_in_date = check_in_date
+        instance.check_out_date = check_out_date
+        instance.guest_num = guest_num
+        instance.houst = house
+        instance.guest = guest
+        instance.payment_type = payment_type
+        instance.reservation_status = reservation_status
+
+        return instance
