@@ -1,7 +1,7 @@
 from rest_framework import permissions, generics, status
 from rest_framework.response import Response
 
-from utils.image.resize import clear_imagekit_cache
+from utils.image.resize import clear_imagekit_cache_house_cover
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
@@ -70,7 +70,7 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
             house.disable_days.add(date_instance)
 
         if house.img_cover:
-            clear_imagekit_cache()
+            clear_imagekit_cache_house_cover(user_pk=self.request.user.pk, house_pk=house.pk)
             house.img_cover.delete()
 
         if self.request.FILES:
