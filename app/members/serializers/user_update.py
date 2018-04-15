@@ -158,15 +158,21 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # Q. 기존 Foreignkey에서는 모든 연결된 객체가 삭제되었는데
             # user.images로 접근할 때 에러가 안난 이유는?
 
-            clear_imagekit_cache_img_profile(user.pk)
+            # clear_imagekit_cache_img_profile(user.pk)
             if user.images.img_profile:
                 user.images.img_profile.delete()
+                user.images.img_profile_28.delete()
+                user.images.img_profile_225.delete()
 
             # 1) 먼저 생각난 방법
             img.img_profile.save('img_profile.png', img_profile)
+            img.img_profile_28.save('img_profile_28.png', img_profile)
+            img.img_profile_225.save('img_profile_225.png', img_profile)
 
             # 2) 일단 안전빵
             # data = ContentFile(img_profile.read())
             # img.img_profile.save('img_profile.png', data)
+            # img.img_profile_28.save('img_profile_28.png', data)
+            # img.img_profile_225.save('img_profile_225.png', data)
 
         return user

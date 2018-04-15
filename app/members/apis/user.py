@@ -125,8 +125,10 @@ class UserProfileImageDeleteAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         if request.user == user:
             if user.images.img_profile:
-                clear_imagekit_cache_img_profile(user.pk)
+                # clear_imagekit_cache_img_profile(user.pk)
                 user.images.img_profile.delete()
+                user.images.img_profile_28.delete()
+                user.images.img_profile_225.delete()
                 return Response('해당 유저의 프로필사진이 삭제되었습니다.', status=status.HTTP_200_OK)
             return Response('해당 유저의 프로필사진이 존재하지 않습니다.', status=status.HTTP_404_NOT_FOUND)
         return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_404_NOT_FOUND)
