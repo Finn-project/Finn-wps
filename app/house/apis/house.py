@@ -5,7 +5,7 @@ from utils.image.resize import clear_imagekit_cache
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
-from ..models import House, HouseDisableDay, HouseImage
+from ..models import House, HouseDisableDay
 
 __all__ = (
     'HouseListCreateAPIView',
@@ -103,5 +103,6 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
+
         self.perform_destroy(instance)
         return Response('해당 숙소가 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
