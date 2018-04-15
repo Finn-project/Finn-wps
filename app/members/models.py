@@ -101,15 +101,15 @@ class UserProfileImages(models.Model):
 
     img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
 
-    img_profile_28 = ImageSpecField(source='img_profile',
-                                      processors=[ResizeToFill(28, 28)],
-                                      format='png',
-                                      options={'quality': 100})
-
-    img_profile_225 = ImageSpecField(source='img_profile',
-                                      processors=[ResizeToFill(225, 225)],
-                                      format='png',
-                                      options={'quality': 100})
+    # img_profile_28 = ImageSpecField(source='img_profile',
+    #                                   processors=[ResizeToFill(28, 28)],
+    #                                   format='png',
+    #                                   options={'quality': 100})
+    #
+    # img_profile_225 = ImageSpecField(source='img_profile',
+    #                                   processors=[ResizeToFill(225, 225)],
+    #                                   format='png',
+    #                                   options={'quality': 100})
 
     # img_profile = ProcessedImageField(blank=True, default='',
     #                                        upload_to=dynamic_img_profile_path,
@@ -119,17 +119,17 @@ class UserProfileImages(models.Model):
     # 원본을 활용할 일이 많기 때문에 ProcessedImageField 대신 원본 이미지 저장
     # * 4/12 Django에서 2MB 이상은 막기때문에 너무 큰 이미지 파일 업로드는 걱정하지 않아도 됨
 
-    # img_profile_28 = ProcessedImageField(blank=True, default='',
-    #                                        upload_to=dynamic_img_profile_path,
-    #                                        processors=[ResizeToFill(28, 28)],
-    #                                        format='png',
-    #                                        options={'quality': 100})
-    #
-    # img_profile_225 = ProcessedImageField(blank=True, default='',
-    #                                        upload_to=dynamic_img_profile_path,
-    #                                        processors=[ResizeToFill(225, 225)],
-    #                                        format='png',
-    #                                        options={'quality': 100})
+    img_profile_28 = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(28, 28)],
+                                           format='png',
+                                           options={'quality': 100})
+
+    img_profile_225 = ProcessedImageField(blank=True, default='',
+                                           upload_to=dynamic_img_profile_path,
+                                           processors=[ResizeToFill(225, 225)],
+                                           format='png',
+                                           options={'quality': 100})
 
     class Meta:
         verbose_name_plural = '사용자 프로필이미지'
@@ -150,6 +150,8 @@ def remove_file_from_storage(sender, instance, using, **kwargs):
     # clear_imagekit_cache_img_profile(instance.pk)
     if instance.img_profile:
         instance.img_profile.delete(save=False)
+        instance.img_profile_28.delete(save=False)
+        instance.img_profile_225.delete(save=False)
 
 
 # @receiver(post_save, sender=UserProfileImages)
