@@ -51,6 +51,16 @@ def clear_imagekit_cache():
         shutil.rmtree(cache_dir)
 
 
+def clear_imagekit_cache_house_cover(user_pk, house_pk):
+    cache = get_cache()
+    cache.clear()
+    # Clear IMAGEKIT_CACHEFILE_DIR
+    cache_dir = os.path.join(settings.MEDIA_ROOT, settings.IMAGEKIT_CACHEFILE_DIR)
+    img_profile_dir = os.path.join(cache_dir, f'house/user_{user_pk}/house_{house_pk}')
+    if os.path.exists(img_profile_dir):
+        shutil.rmtree(img_profile_dir)
+
+
 def clear_imagekit_cache_img_profile(pk):
     cache = get_cache()
     cache.clear()
