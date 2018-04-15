@@ -17,6 +17,7 @@ from ..serializers import (
 __all__ = (
     'UserListCreateAPIView',
     'UserRetrieveUpdateDestroyAPIView',
+    'UserProfileImageDeleteAPIView',
 )
 
 User = get_user_model()
@@ -72,28 +73,33 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
 
     def put(self, request, pk):
         user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            serializer = UserUpdateSerializer(request.user, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                # serializer.save(images=request.FILES.get('img_profile'))
+                # 위 코드 대신 def validate에서 images를 꺼낸 후 validation까지 한 후 넣어준다.
 
-        serializer = UserUpdateSerializer(request.user, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            # serializer.save(images=request.data.get('img_profile'))
-            serializer.save()
-            # return Response(serializer.data, status=status.HTTP_200_OK)
-            # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
+                serializer.save()
+                # return Response(serializer.data, status=status.HTTP_200_OK)
+                # 디버깅 할 때 수정된 정보만 보기위해 설정 -> "serializer.data"
 
-            user = get_object_or_404(User, pk=pk)
-            # 이곳에서 'user'를 호출하지 않으면 수정된 데이터가 Response에 나타나지 않음.
-            # (* 위에서 user에 할당된 데이터는 serializers/auth.py에서 'user.save()'로
-            #    값이 변하지 않기 때문에)
-            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+                user = get_object_or_404(User, pk=pk)
+                # 이곳에서 'user'를 호출하지 않으면 수정된 데이터가 Response에 나타나지 않음.
+                # (* 위에서 user에 할당된 데이터는 serializers/auth.py에서 'user.save()'로
+                # 값이 변하지 않기 때문에)
+                return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
-        # user = get_object_or_404(User, pk=pk)
-        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+                user = get_object_or_404(User, pk=pk)
+                return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def delete(self, request, pk):
 
@@ -101,5 +107,24 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # if serializer.is_valid(raise_exception=True):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
-        request.user.delete()
-        return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
+        user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            request.user.delete()
+            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
+
+
+class UserProfileImageDeleteAPIView(APIView):
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    )
+
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if request.user == user:
+            if user.images.img_profile:
+                user.images.img_profile.delete()
+                return Response('해당 유저의 프로필사진이 삭제되었습니다.', status=status.HTTP_200_OK)
+            return Response('해당 유저의 프로필사진이 존재하지 않습니다.', status=status.HTTP_404_NOT_FOUND)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_404_NOT_FOUND)

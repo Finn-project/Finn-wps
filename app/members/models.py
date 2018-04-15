@@ -57,17 +57,6 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
-    # img_profile_thumbnail = ImageSpecField(source='img_profile',
-    #                                   processors=[ResizeToFill(100, 50)],
-    #                                   format='png',
-    #                                   options={'quality': 60})
-
-    # img_profile = ProcessedImageField(upload_to=dynamic_img_profile_path,
-    #                                        processors=[ResizeToFill(100, 50)],
-    #                                        format='png',
-    #                                        options={'quality': 700})
-
 
 class HostManager(Manager):
     def get_queryset(self):
@@ -99,53 +88,40 @@ class Guest(User):
         return f'{self.username} (게스트)'
 
 
-# @receiver(post_delete, sender=User)
-# def remove_file_from_storage(sender, instance, using, **kwargs):
-#     instance.images.all().delete(save=False)
-
-
 class UserProfileImages(models.Model):
 
-    user = models.ForeignKey(
-        'User',
+    user = models.OneToOneField(
+        User,
         on_delete=models.CASCADE,
+        primary_key=True,
         related_name='images'
     )
-    img_profile = ProcessedImageField(blank=True, default='',
-                                           upload_to=dynamic_img_profile_path,
-                                           processors=[ResizeToFill(500, 500)],
-                                           format='png',
-                                           options={'quality': 100})
 
-    img_profile_28 = ProcessedImageField(blank=True, default='',
-                                           upload_to=dynamic_img_profile_path,
-                                           processors=[ResizeToFill(28, 28)],
-                                           format='png',
-                                           options={'quality': 100})
+    img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
 
-    img_profile_225 = ProcessedImageField(blank=True, default='',
-                                           upload_to=dynamic_img_profile_path,
-                                           processors=[ResizeToFill(225, 225)],
-                                           format='png',
-                                           options={'quality': 100})
+    # img_profile = ProcessedImageField(blank=True, default='',
+    #                                        upload_to=dynamic_img_profile_path,
+    #                                        processors=[ResizeToFill(500, 500)],
+    #                                        format='png',
+    #                                        options={'quality': 100})
+    # 원본을 활용할 일이 많기 때문에 ProcessedImageField 대신 원본 이미지 저장
+    # * 4/12 Django에서 2MB 이상은 막기때문에 너무 큰 이미지 파일 업로드는 걱정하지 않아도 됨
 
-    # img_profile = models.ImageField(upload_to=dynamic_img_profile_path, blank=True, default='')
+    img_profile_28 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(28, 28)],
+                                      format='png',
+                                      options={'quality': 100})
 
-    # img_profile_150 = ImageSpecField(source='img_profile',
-    #                                   processors=[ResizeToFill(150, 150)],
-    #                                   format='png',
-    #                                   options={'quality': 80})
-    #
-    # img_profile_300 = ImageSpecField(source='img_profile',
-    #                                   processors=[ResizeToFill(300, 300)],
-    #                                   format='png',
-    #                                   options={'quality': 800})
+    img_profile_225 = ImageSpecField(source='img_profile',
+                                      processors=[ResizeToFill(225, 225)],
+                                      format='png',
+                                      options={'quality': 100})
 
     class Meta:
         verbose_name_plural = '사용자 프로필이미지'
 
     def __str__(self):
-        return f'{self.img_profile.name}'
+        return f'{self.user}의 프로필사진 | {self.img_profile.name}'
 
 
 @receiver(post_delete, sender=UserProfileImages)
@@ -154,10 +130,10 @@ def remove_file_from_storage(sender, instance, using, **kwargs):
     #     print(instance.img_profile.path)
     #     img_url = instance.img_profile.url
     #     print(img_url)
+    # -> 4/12 S3에 deploy한 환경에서 os.path(?) 또는
+    # instance.img_profile.path(?)를 쓰면
+    # 주소를 읽지못해 에러 발생
 
     if instance.img_profile:
         instance.img_profile.delete(save=False)
-    if instance.img_profile_28:
-        instance.img_profile_28.delete(save=False)
-    if instance.img_profile_225:
-        instance.img_profile_225.delete(save=False)
+

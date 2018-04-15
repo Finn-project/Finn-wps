@@ -1,6 +1,8 @@
 from rest_framework import generics, permissions
+from rest_framework.generics import get_object_or_404
 
 from utils.pagination.custom_generic_pagination import DefaultPagination
+from utils.permission.custom_permission import IsGuestOrReadOnly
 from ..models import Reservation, House
 from ..serializers import ReservationSerializer
 
@@ -15,21 +17,20 @@ class ReservationCreateListView(generics.ListCreateAPIView):
     serializer_class = ReservationSerializer
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
-        # IsGuestOrReadOnly,
+        IsGuestOrReadOnly,
     )
 
     pagination_class = DefaultPagination
 
     def perform_create(self, serializer):
 
-        house_pk = self.request.data.get('house')
-        house_instance, _ = House.objects.get_or_create(pk=house_pk)
+        # house_pk = self.request.data.get('house')
+        # house_instance = get_object_or_404(House, pk=house_pk)
 
-        reservation = serializer.save(
+        serializer.save(
             guest=self.request.user,
-            house=house_instance
+            # house=house_instance
         )
-        reservation.house = house_instance
 
         # 아래 구문은 save() 두번 호출하는 중복구문.
         # super().perform_create(serializer)
@@ -40,6 +41,16 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     serializer_class = ReservationSerializer
     permission_classes = (
         permissions.IsAuthenticated,
+        IsGuestOrReadOnly,
     )
 
     pagination_class = DefaultPagination
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+
+    def partial_update(self, request, *args, **kwargs):
+        super().partial_update(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
