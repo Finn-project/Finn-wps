@@ -1,7 +1,11 @@
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import post_delete, pre_delete
+from django.dispatch import receiver
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill
+
+from utils.image.resize import clear_imagekit_cache
 
 __all__ = (
     'House',
@@ -295,3 +299,21 @@ class Facilities(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_delete, sender=House)
+def remove_file_from_storage(sender, instance, **kwargs):
+    clear_imagekit_cache()
+    if instance.img_cover:
+        instance.img_cover.delete()
+
+    if instance.images:
+        for house_image in instance.images.all():
+            if house_image.image:
+                house_image.image.delete()
+
+
+# @receiver(pre_delete, sender=HouseImage)
+# def remove_file_from_storage(sender, instance, **kwargs):
+#     if instance.image:
+#         instance.image.delete()
