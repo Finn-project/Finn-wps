@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from imagekit.models import ProcessedImageField
+from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill
 
 __all__ = (
@@ -206,9 +206,8 @@ class House(models.Model):
 
     img_cover = models.ImageField(upload_to=dynamic_img_cover_path, blank=True, default='')
 
-    img_cover_thumbnail = ProcessedImageField(
-        blank=True, default='',
-        upload_to=dynamic_img_cover_thumbnail_path,
+    img_cover_thumbnail = ImageSpecField(
+        source='img_cover',
         processors=[ResizeToFill(400, 300)],
         format='png',
         options={'quality': 100}
