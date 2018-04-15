@@ -43,6 +43,7 @@ STATICFILES_DIRS = [
 
 # IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'imagekit.cachefiles.strategies.Optimistic'
 IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = 'config.settings.imagekit-strategy.FixJustInTime'
+IMAGEKIT_DEFAULT_FILE_STORAGE = 'config.storage.DefaultFilesStorage'
 
 
 def set_config(obj, module_name=None, root=False):
