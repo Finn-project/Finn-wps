@@ -302,18 +302,13 @@ class Facilities(models.Model):
 
 
 @receiver(pre_delete, sender=House)
-def remove_file_from_storage(sender, instance, **kwargs):
+def remove_house_cover_s3storage(sender, instance, **kwargs):
     clear_imagekit_cache()
     if instance.img_cover:
         instance.img_cover.delete()
 
-    if instance.images:
-        for house_image in instance.images.all():
-            if house_image.image:
-                house_image.image.delete()
 
-
-# @receiver(pre_delete, sender=HouseImage)
-# def remove_file_from_storage(sender, instance, **kwargs):
-#     if instance.image:
-#         instance.image.delete()
+@receiver(pre_delete, sender=HouseImage)
+def remove_house_iage_s3storage(sender, instance, **kwargs):
+    if instance.image:
+        instance.image.delete()
