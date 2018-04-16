@@ -106,10 +106,10 @@ class HouseListTest(APITestCase):
             house_image2 = open(self.house_image2_path, 'rb')
 
             house.img_cover.save('iu.jpg', img_cover)
-            house1 = HouseImage.objects.create(house=house)
-            house2 = HouseImage.objects.create(house=house)
-            house1.image.save('test_inner_image.jpg', house_image1)
-            house2.image.save('test_outer_image.jpg', house_image2)
+            houseimage1 = HouseImage.objects.create(house=house)
+            houseimage2 = HouseImage.objects.create(house=house)
+            houseimage1.image.save('test_inner_image.jpg', house_image1)
+            houseimage2.image.save('test_outer_image.jpg', house_image2)
 
             img_cover.close()
             house_image1.close()

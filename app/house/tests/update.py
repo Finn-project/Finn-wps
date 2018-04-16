@@ -117,10 +117,16 @@ class HouseUpdateTest(APITestCase):
         house_image2 = open(house_image2_path, 'rb')
 
         house.img_cover.save('iu.jpg', img_cover)
-        house1 = HouseImage.objects.create(house=house)
-        house2 = HouseImage.objects.create(house=house)
-        house1.image.save('test_inner_image.jpg', house_image1)
-        house2.image.save('test_outer_image.jpg', house_image2)
+        houseimage1 = HouseImage.objects.create(house=house)
+        houseimage2 = HouseImage.objects.create(house=house)
+        houseimage1.image.save('test_inner_image.jpg', house_image1)
+        houseimage2.image.save('test_outer_image.jpg', house_image2)
+
+        # from django.core.files.base import ContentFile
+        # house.images.create(image=ContentFile(house_image1.read()))
+        # house.images.create(image=house_image1.name)
+        # HouseImage.objects.create(house=house, image=ContentFile(house_image1.read()))
+        # HouseImage.objects.create(house=house, image=house_image1.name)
 
         img_cover.close()
         house_image1.close()
@@ -143,6 +149,8 @@ class HouseUpdateTest(APITestCase):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.token.key,
         )
+        self.assertTrue(upload_file_cmp(file_path=house_image1_path, img_name=house.images.first().image.name))
+        self.assertTrue(upload_file_cmp(file_path=house_image2_path, img_name=house.images.last().image.name))
 
     def test_update_house(self):
         file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')

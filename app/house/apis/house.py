@@ -66,11 +66,12 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         house = serializer.save(host=self.request.user)
 
-        house.disable_days.clear()
+        if self.request.data.getlist('disable_days'):
+            house.disable_days.clear()
 
-        for date in self.request.data.getlist('disable_days'):
-            date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
-            house.disable_days.add(date_instance)
+            for date in self.request.data.getlist('disable_days'):
+                date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+                house.disable_days.add(date_instance)
 
         if house.img_cover:
             clear_imagekit_cache()
@@ -94,12 +95,6 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
             for room_image in self.request.data.getlist('house_images'):
                 house.images.create(image=room_image)
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-
-    def partial_update(self, request, *args, **kwargs):
-        super().partial_update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
