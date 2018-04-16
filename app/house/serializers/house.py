@@ -1,3 +1,4 @@
+from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers
 
 from members.serializers import UserSerializer
@@ -10,7 +11,7 @@ __all__ = (
 )
 
 
-class HouseSerializer(serializers.ModelSerializer):
+class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
     img_cover = serializers.ImageField(read_only=True)
@@ -64,5 +65,6 @@ class HouseSerializer(serializers.ModelSerializer):
     def get_house_images(self, obj):
         name_list = list()
         for house_image in obj.images.all():
-            name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
+            if house_image.image:
+                name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
         return name_list
