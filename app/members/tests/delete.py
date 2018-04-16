@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 __all__ = (
@@ -35,6 +36,9 @@ class UserDeleteTest(APITestCase):
         일반회원이 회원탈퇴 테스트
         :return:
         """
+        # test user pk
+        user = User.objects.get(username=self.USERNAME)
+        user_pk = user.pk
 
         # 미리 생성된 test user로 로그인 후 Header에 Token 값 넣기
         test_user_info = {'username': self.USERNAME, 'password': self.PASSWORD}
@@ -49,14 +53,17 @@ class UserDeleteTest(APITestCase):
         response = self.client.delete(
             f'/user/{user.pk}/',
         )
-        print(response)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # User Delete 후 로그인 검증
         test_user_info = {'username': self.USERNAME, 'password': self.PASSWORD}
         response = self.client.post('/user/login/', test_user_info)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # User Delete 후 회원 디테일 정보 조회 여부 검증
+        response = self.client.get(f'/user/{user_pk}/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-        print(response)
-
-        # User Delete 후 회원 디테일 정보 검증
+        # User Delete 후 User에서 filetering
+        result = User.objects.filter(pk=user_pk)
+        self.assertEqual(list(result), [])

@@ -117,8 +117,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         user = User.objects.get(pk=pk)
         if request.user == user:
             request.user.delete()
-            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
-        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
+            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_404_NOT_FOUND)
 
 
 class UserProfileImageDeleteAPIView(APIView):
