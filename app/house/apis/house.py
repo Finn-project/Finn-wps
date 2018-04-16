@@ -15,20 +15,13 @@ __all__ = (
 
 class HouseListCreateAPIView(generics.ListCreateAPIView):
     queryset = House.objects.all()
-    # serializer_class = HouseSerializer
+    serializer_class = HouseSerializer
     pagination_class = DefaultPagination
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
-
-    def get_serializer_class(self):
-        # 추후 하나로 합칠 예정
-        if self.request.method == 'POST':
-            return HouseCreateSerializer
-        elif self.request.method == 'GET':
-            return HouseSerializer
 
     def perform_create(self, serializer):
         house = serializer.save(host=self.request.user)
@@ -50,18 +43,12 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = House.objects.all()
-    # serializer_class = HouseRetrieveUpdateDestroySerializer
+    serializer_class = HouseSerializer
 
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
-
-    def get_serializer_class(self):
-        # 추후 하나로 합칠 예정
-        if self.request.method == 'GET':
-            return HouseSerializer
-        return HouseRetrieveUpdateDestroySerializer
 
     def perform_update(self, serializer):
         house = serializer.save(host=self.request.user)
