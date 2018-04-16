@@ -1,5 +1,6 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsGuestOrReadOnly
@@ -58,5 +59,16 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     # def partial_update(self, request, *args, **kwargs):
     #     super().partial_update(request, *args, **kwargs)
 
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
+    # def perform_destroy(self, instance):
+    #     super().perform_destroy(instance)
+    #     return Response(해당 예약 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
+
+    # def perform_destroy(self, instance):
+    #     self.perform_destroy(instance)
+    #     return Response('해당 예약이 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        self.perform_destroy(instance)
+        return Response('해당 예약이 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)

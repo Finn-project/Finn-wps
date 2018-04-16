@@ -46,9 +46,11 @@ class ReservationSerializer(serializers.ModelSerializer):
             attrs['house'] = house
             # attrs에 'house' 객체를 넣어주면 def update() 에서 기존 'house'를
             # 업데이트 하게 된다.
-        else:
-            # raise CustomException(detail='house 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+        elif self.instance:
             house = self.instance.house
+        else:
+            # Reservation create 예외처리 (1)
+            raise CustomException(detail='house 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         # 숙박 인원 validation
         if attrs.get('guest_num') and house.personnel < attrs['guest_num']:
@@ -65,6 +67,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             reserved_days_list = house.reservation_set.filter(~Q(pk=self.instance.pk))
             # 업데이트 시 자신의 예약은 예외처리에서 제외
         else:
+            # Reservation create 예외처리 (2)
             reserved_days_list = house.reservation_set.filter()
         for i in reserved_days_list:
             staying_days = i.check_out_date - i.check_in_date
@@ -73,8 +76,19 @@ class ReservationSerializer(serializers.ModelSerializer):
         # 기존 disable_days + 예약일
         disabled_and_reserved_days = disabled_days + reserved_days
 
-        check_in_date = attrs.get('check_in_date', self.instance.check_in_date)
-        check_out_date = attrs.get('check_out_date', self.instance.check_out_date)
+        if self.instance:
+            check_in_date = attrs.get('check_in_date', self.instance.check_in_date)
+            check_out_date = attrs.get('check_out_date', self.instance.check_out_date)
+        else:
+            # Reservation create 예외처리 (3)
+            check_in_date = attrs.get('check_in_date')
+            check_out_date = attrs.get('check_out_date')
+
+        # Reservation create 예외처리 (4)
+        if not check_in_date:
+            raise CustomException(detail='check-in 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+        elif not check_out_date:
+            raise CustomException(detail='check-out 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         # check_in_date & check_out_date 기본 validation
         if check_in_date > check_out_date or check_in_date == check_out_date:
