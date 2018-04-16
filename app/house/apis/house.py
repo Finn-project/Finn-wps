@@ -81,8 +81,6 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
         if self.request.data.get('house_images'):
             if house.images:
-                for house_image in house.images.all():
-                    house_image.image.delete()
                 house.images.all().delete()
 
             for room_image in self.request.data.getlist('house_images'):
@@ -90,6 +88,5 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
-
-        self.perform_destroy(instance)
+        instance.delete()
         return Response('해당 숙소가 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
