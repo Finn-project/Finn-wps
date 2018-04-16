@@ -54,7 +54,7 @@ class HouseListTest(APITestCase):
         'district': '고백구',
         'dong': '행복동',
         'address1': '777-1',
-        'address2': '희망빌라 2동 301호',
+        # 'address2': '희망빌라 2동 301호',
         'latitude': '12.1234567',
         'longitude': '123.1234567',
     }
@@ -106,10 +106,10 @@ class HouseListTest(APITestCase):
             house_image2 = open(self.house_image2_path, 'rb')
 
             house.img_cover.save('iu.jpg', img_cover)
-            house1 = HouseImage.objects.create(house=house)
-            house2 = HouseImage.objects.create(house=house)
-            house1.image.save('test_inner_image.jpg', house_image1)
-            house2.image.save('test_outer_image.jpg', house_image2)
+            houseimage1 = HouseImage.objects.create(house=house)
+            houseimage2 = HouseImage.objects.create(house=house)
+            houseimage1.image.save('test_inner_image.jpg', house_image1)
+            houseimage2.image.save('test_outer_image.jpg', house_image2)
 
             img_cover.close()
             house_image1.close()
@@ -157,7 +157,7 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['district'], self.DATA['district'])
                 self.assertEqual(house_result['dong'], self.DATA['dong'])
                 self.assertEqual(house_result['address1'], self.DATA['address1'])
-                self.assertEqual(house_result['address2'], self.DATA['address2'])
+                # self.assertEqual(house_result['address2'], self.DATA['address2'])
                 self.assertEqual(house_result['latitude'], self.DATA['latitude'])
                 self.assertEqual(house_result['longitude'], self.DATA['longitude'])
 
@@ -190,7 +190,7 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house.district, self.DATA['district'])
                 self.assertEqual(house.dong, self.DATA['dong'])
                 self.assertEqual(house.address1, self.DATA['address1'])
-                self.assertEqual(house.address2, self.DATA['address2'])
+                # self.assertEqual(house.address2, self.DATA['address2'])
                 self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
                 self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
 
