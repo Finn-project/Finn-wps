@@ -79,7 +79,7 @@ class HouseCreateTest(APITestCase):
             'district': '고백구',
             'dong': '행복동',
             'address1': '777-1',
-            'address2': '희망빌라 2동 301호',
+            # 'address2': '희망빌라 2동 301호',
             'latitude': '12.1234567',
             'longitude': '123.1234567',
             'disable_days': [
@@ -123,7 +123,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(response.data['district'], data['district'])
         self.assertEqual(response.data['dong'], data['dong'])
         self.assertEqual(response.data['address1'], data['address1'])
-        self.assertEqual(response.data['address2'], data['address2'])
+        # self.assertEqual(response.data['address2'], data['address2'])
         self.assertEqual(response.data['latitude'], data['latitude'])
         self.assertEqual(response.data['longitude'], data['longitude'])
 
@@ -155,7 +155,7 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(house.district, data['district'])
         self.assertEqual(house.dong, data['dong'])
         self.assertEqual(house.address1, data['address1'])
-        self.assertEqual(house.address2, data['address2'])
+        # self.assertEqual(house.address2, data['address2'])
         self.assertEqual(house.latitude, Decimal(data['latitude']))
         self.assertEqual(house.longitude, Decimal(data['longitude']))
 
