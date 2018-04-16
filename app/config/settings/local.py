@@ -8,6 +8,7 @@ ALLOWED_HOSTS = []
 WSGI_APPLICATION = 'config.wsgi.local.application'
 INSTALLED_APPS += [
     'django_extensions',
+    'drf_dynamic_fields',
 ]
 
 
