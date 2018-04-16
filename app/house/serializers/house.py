@@ -17,6 +17,7 @@ class HouseSerializer(serializers.ModelSerializer):
     img_cover_thumbnail = serializers.ImageField(read_only=True)
     house_images = serializers.SerializerMethodField()
 
+
     class Meta:
         model = House
         fields = (
@@ -42,7 +43,7 @@ class HouseSerializer(serializers.ModelSerializer):
             'district',
             'dong',
             'address1',
-            'address2',
+            # 'address2',
             'latitude',
             'longitude',
             'disable_days',

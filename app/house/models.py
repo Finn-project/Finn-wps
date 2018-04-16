@@ -181,14 +181,14 @@ class House(models.Model):
 
         blank=True,
     )
-    address2 = models.CharField(
-        verbose_name='상세 주소2',
-        help_text='상세 주소2를 입력 하세요 (희망빌라 2차 201호)',
-
-        max_length=100,
-
-        blank=True,
-    )
+    # address2 = models.CharField(
+    #     verbose_name='상세 주소2',
+    #     help_text='상세 주소2를 입력 하세요 (희망빌라 2차 201호)',
+    #
+    #     max_length=100,
+    #
+    #     blank=True,
+    # )
     latitude = models.DecimalField(
         verbose_name='위도',
         help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',

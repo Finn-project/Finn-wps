@@ -5,7 +5,7 @@ from utils.image.resize import clear_imagekit_cache
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsHostOrReadOnly
 from ..serializers import HouseSerializer, HouseCreateSerializer, HouseRetrieveUpdateDestroySerializer
-from ..models import House, HouseDisableDay, HouseImage
+from ..models import House, HouseDisableDay
 
 __all__ = (
     'HouseListCreateAPIView',
@@ -73,25 +73,17 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
                 date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
                 house.disable_days.add(date_instance)
 
-        if house.img_cover:
+        if self.request.data.get('img_cover'):
             clear_imagekit_cache()
             house.img_cover.delete()
-            # ImageSpecField로 썸네일을 만들면
-            # s3의 캐쉬를 삭제 할 수 있는 방법이 없다.
-            # img_cover_thumbnail.delete()
-
-            # HouseImage.objects.filter(house=house).delete()
-
-        # 이미지를 가지고 있는 foreignkey에서 이미지와 객체를 같이 지우는
-        # 더 좋은 방법?
-        if house.images:
-            for house_image in house.images.all():
-                house_image.image.delete()
-            house.images.all().delete()
-
-        if self.request.FILES:
             for img_cover in self.request.data.getlist('img_cover'):
                 house.img_cover.save(img_cover.name, img_cover)
+
+        if self.request.data.get('house_images'):
+            if house.images:
+                for house_image in house.images.all():
+                    house_image.image.delete()
+                house.images.all().delete()
 
             for room_image in self.request.data.getlist('house_images'):
                 house.images.create(image=room_image)
