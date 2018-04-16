@@ -53,7 +53,7 @@ class HouseUpdateTest(APITestCase):
         'district': '고백구',
         'dong': '행복동',
         'address1': '777-1',
-        'address2': '희망빌라 2동 301호',
+        # 'address2': '희망빌라 2동 301호',
         'latitude': '12.1234567',
         'longitude': '123.1234567',
     }
@@ -85,7 +85,7 @@ class HouseUpdateTest(APITestCase):
         'district': '고백구',
         'dong': '행복동',
         'address1': '777-1',
-        'address2': '희망빌라 2동 301호',
+        # 'address2': '희망빌라 2동 301호',
         'latitude': '12.1234567',
         'longitude': '123.1234567',
         'disable_days': UPDATE_DISABLE_DAYS,
@@ -117,10 +117,10 @@ class HouseUpdateTest(APITestCase):
         house_image2 = open(house_image2_path, 'rb')
 
         house.img_cover.save('iu.jpg', img_cover)
-        house1 = HouseImage.objects.create(house=house)
-        house2 = HouseImage.objects.create(house=house)
-        house1.image.save('test_inner_image.jpg', house_image1)
-        house2.image.save('test_outer_image.jpg', house_image2)
+        houseimage1 = HouseImage.objects.create(house=house)
+        houseimage2 = HouseImage.objects.create(house=house)
+        houseimage1.image.save('test_inner_image.jpg', house_image1)
+        houseimage2.image.save('test_outer_image.jpg', house_image2)
 
         img_cover.close()
         house_image1.close()
@@ -143,6 +143,8 @@ class HouseUpdateTest(APITestCase):
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.token.key,
         )
+        self.assertTrue(upload_file_cmp(file_path=house_image1_path, img_name=house.images.first().image.name))
+        self.assertTrue(upload_file_cmp(file_path=house_image2_path, img_name=house.images.last().image.name))
 
     def test_update_house(self):
         file_path = os.path.join(settings.STATIC_DIR, 'img_profile_default.png')
@@ -184,7 +186,7 @@ class HouseUpdateTest(APITestCase):
         self.assertEqual(response.data['district'], self.UPDATE_DATA['district'])
         self.assertEqual(response.data['dong'], self.UPDATE_DATA['dong'])
         self.assertEqual(response.data['address1'], self.UPDATE_DATA['address1'])
-        self.assertEqual(response.data['address2'], self.UPDATE_DATA['address2'])
+        # self.assertEqual(response.data['address2'], self.UPDATE_DATA['address2'])
         self.assertEqual(response.data['latitude'], self.UPDATE_DATA['latitude'])
         self.assertEqual(response.data['longitude'], self.UPDATE_DATA['longitude'])
 
@@ -215,7 +217,7 @@ class HouseUpdateTest(APITestCase):
         self.assertEqual(house.district, self.UPDATE_DATA['district'])
         self.assertEqual(house.dong, self.UPDATE_DATA['dong'])
         self.assertEqual(house.address1, self.UPDATE_DATA['address1'])
-        self.assertEqual(house.address2, self.UPDATE_DATA['address2'])
+        # self.assertEqual(house.address2, self.UPDATE_DATA['address2'])
         self.assertEqual(house.latitude, Decimal(self.UPDATE_DATA['latitude']))
         self.assertEqual(house.longitude, Decimal(self.UPDATE_DATA['longitude']))
 

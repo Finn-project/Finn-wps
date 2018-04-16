@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    images = UserProfileImagesSerializer()
+    images = UserProfileImagesSerializer(read_only=True)
 
     # images = serializers.SlugRelatedField(
     #     many=True,

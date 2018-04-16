@@ -7,6 +7,7 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from utils.image.resize import clear_imagekit_cache_img_profile
 from utils.pagination.custom_pagination import CustomPagination
 from utils.permission.custom_permission import IsOwnerOrReadOnly
 from ..serializers import (
@@ -91,7 +92,9 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
     def patch(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+        # user = get_object_or_404(User, pk=pk)
+        user = User.objects.get(pk=pk)
+
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
@@ -107,7 +110,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         # if serializer.is_valid(raise_exception=True):
         #     user = serializer.validated_data.get('user')
         #     user.delete()
-        user = get_object_or_404(User, pk=pk)
+        # user = get_object_or_404(User, pk=pk)
+        user = User.objects.get(pk=pk)
         if request.user == user:
             request.user.delete()
             return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
@@ -124,7 +128,10 @@ class UserProfileImageDeleteAPIView(APIView):
         user = get_object_or_404(User, pk=pk)
         if request.user == user:
             if user.images.img_profile:
+                # clear_imagekit_cache_img_profile(user.pk)
                 user.images.img_profile.delete()
+                user.images.img_profile_28.delete()
+                user.images.img_profile_225.delete()
                 return Response('해당 유저의 프로필사진이 삭제되었습니다.', status=status.HTTP_200_OK)
             return Response('해당 유저의 프로필사진이 존재하지 않습니다.', status=status.HTTP_404_NOT_FOUND)
         return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_404_NOT_FOUND)
