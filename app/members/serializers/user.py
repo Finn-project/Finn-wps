@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers
 
 from ..serializers import UserProfileImagesSerializer
@@ -6,7 +7,7 @@ from ..serializers import UserProfileImagesSerializer
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     images = UserProfileImagesSerializer(read_only=True)
 
     # images = serializers.SlugRelatedField(

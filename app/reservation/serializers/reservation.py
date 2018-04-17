@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.db.models import Q
+from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
@@ -15,7 +16,7 @@ __all__ = (
 )
 
 
-class ReservationSerializer(serializers.ModelSerializer):
+class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     # house = serializers.PrimaryKeyRelatedField(read_only=True)
     # house를 PrimaryKeyRelatedField로 하면 Response에서 tree 구조로 표현이 안되고 pk만 보임.
