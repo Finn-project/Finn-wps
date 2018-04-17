@@ -2,17 +2,12 @@ import os
 from django.conf import settings
 
 from django.contrib.auth.models import AbstractUser, UserManager as DjangoUserManager
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.db.models import Manager
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from django.utils.module_loading import import_string
 from imagekit.models import ImageSpecField, ProcessedImageField
 from pilkit.processors import ResizeToFill
-
-from utils.image.resize import clear_imagekit_cache_img_profile
 
 
 def dynamic_img_profile_path(instance, file_name):

@@ -1,8 +1,15 @@
+# import os
+#
+# SETTINGS_MODULE = os.environ.get('DJANGO_SETTINGS_MODULE')
+# if not SETTINGS_MODULE or SETTINGS_MODULE == 'config.settings':
+#     SETTINGS_MODULE = 'config.settings.local'
+
 import json
 import re
-
 import requests
-from bs4 import BeautifulSoup
+
+# from rest_framework.authtoken.models import Token
+# from house.models import House
 
 
 class AirbnbCrawler:
@@ -37,8 +44,8 @@ class AirbnbCrawler:
         source = response.text
 
         print(response.status_code)
-        # print(result)
 
+        # Beautifulsoup 결국 실
         # soup = BeautifulSoup(response.text, 'lxml')
         # soup.select_one('type')
         # soup.find('script', ='fe17d374-766e-4399-a759-c9b2ce60911c')
@@ -47,13 +54,69 @@ class AirbnbCrawler:
         # print(bootstrap_data.groups(1)[0:10])
         bootstrap_json = json.loads(bootstrap_data.group(1))
 
+        # listing 18개가 들어있는 list
         listing_list = \
         bootstrap_json['bootstrapData']['reduxData']['exploreTab']['response']['explore_tabs'][0]['sections'][0][
             'listings']
-        print(listing_list)
-        print(type(listing_list))
+
         for i in range(len(listing_list)):
-            print(listing_list[i])
+            print(listing_list[i]['listing'])
+            listing = listing_list[i]['listing']
+
+            # crawling data 로 house info 채우기
+            data = {
+                'house_type': 'HO',
+                'name': listing['name'],
+                'description': '테스트용 집입니다.',
+                'room': listing['bedrooms'],
+                'bed': listing['beds'],
+                'bathroom': listing['bathrooms'],
+                'personnel': listing['person_capacity'],
+                'amenities': [],
+                'facilities': [1, 2, 3, 4, 5],
+                'minimum_check_in_duration': 1,
+                'maximum_check_in_duration': 3,
+                'maximum_check_in_range': 90,
+                'price_per_night': 100000,
+                'country': 'default',
+                'city': 'default',
+                'district': listing['localized_city'],
+                'dong': 'default',
+                'address1': '777-1',
+                # 'address2': '희망빌라 2동 301호',
+                'latitude': listing['lat'],
+                'longitude': listing['lng'],
+                'disable_days': [
+                    '2014-01-01',
+                    '2014-02-01',
+                    '2014-03-01',
+                    '2014-04-01',
+                ],
+                # 'img_cover': '',
+                # 'house_images': [
+                #     '',
+                #     '',
+                # ],
+            }
+
+            # host_user의 Token 값 header에 넣기
+            user_data = {
+                'username': 'himanmen',
+                'password': 'zhni7a0t^^'
+            }
+            # response = requests.post('/user/login/', user_data)
+            response = requests.post('http://localhost:8000/user/login/', user_data)
+            result = json.loads(response.text)
+            token = result['token']
+
+            headers = {
+                'Authorization': 'Token ' + token,
+            }
+
+            # response = requests.post('/house/', data, headers=headers)
+            response = requests.post('http://localhost:8000/house/', data, headers=headers)
+            print(response)
+            print(i+1)
 
 
 airbnb = AirbnbCrawler()
