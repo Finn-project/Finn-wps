@@ -46,13 +46,13 @@ class AirbnbCrawler:
         # response = requests.get(url)
         # response = self.r.get(url, headers=headers)
 
-        response = requests.get(url, headers=headers)
-        print(response.status_code)
-        source = response.text
+        # response = requests.get(url, headers=headers)
+        # print(response.status_code)
+        # source = response.text
 
         # 2) local airbnb_data.html
-        # source = open('airbnb_data.html', 'rt', encoding='utf8').read()
-        # print(source)
+        source = open('airbnb_data.html', 'rt', encoding='utf8').read()
+        print(source)
 
         bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?"><!--(.*?)--></script>', source)
         # print(bootstrap_data.groups(1)[0:10])
@@ -68,8 +68,11 @@ class AirbnbCrawler:
             listing = listing_list[i]['listing']
 
             # crawling data에서 image 다운받기
+            # img_cover_binary_data = requests.get(listing['picture_url']).content
+
             response = requests.get(listing['picture_urls'][0]).content
             print(type(response))
+
             print(response)
             print(ContentFile(response))
             print(type(ContentFile(response)))
@@ -105,10 +108,8 @@ class AirbnbCrawler:
                 'dong': 'default',
                 'address1': 'default',
                 # 'address2': '희망빌라 2동 301호',
-                # 'latitude': listing['lat'],
-                'latitude': 12.1234567,
-                # 'longitude': listing['lng'],
-                'longitude': 123.1234567,
+                'latitude': listing['lat'],
+                'longitude': listing['lng'],
                 'disable_days': [
                     '2014-01-01',
                     '2014-02-01',
@@ -126,19 +127,14 @@ class AirbnbCrawler:
             # host_user의 Token 값 header에 넣기
 
             # 회원가입
-            # user_data = {
-            #     'username': listing['user']['id'] + '@gmail.com',
-            #     'password':
-            # }
-
 
             # 로그인
             user_data = {
                 'username': 'iostest@gmail.com',
                 'password': 'iostestpw'
             }
-            response = requests.post('https://www.himanmen.com/user/login/', user_data)
-            # response = requests.post('http://localhost:8000/user/login/', user_data)
+            # response = requests.post('/user/login/', user_data)
+            response = requests.post('http://localhost:8000/user/login/', user_data)
             result = json.loads(response.text)
             token = result['token']
 
@@ -146,13 +142,14 @@ class AirbnbCrawler:
                 'Authorization': 'Token ' + token,
             }
 
-            response = requests.post('https://www.himanmen.com/house/', data, headers=headers)
-            # response = requests.post('http://localhost:8000/house/', data, headers=headers)
+            # response = requests.post('/house/', data, headers=headers)
+            response = requests.post('http://localhost:8000/house/', data, headers=headers)
             print(response)
             print(i+1)
 
             img_cover.close()
             temp_file.close()
+
 
 
 airbnb = AirbnbCrawler()

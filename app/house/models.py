@@ -198,7 +198,7 @@ class House(models.Model):
         help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
 
         decimal_places=14,
-        max_digits=17
+        max_digits=16
     )
     longitude = models.DecimalField(
         verbose_name='경도',
