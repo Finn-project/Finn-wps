@@ -115,19 +115,15 @@ class ReservationAPITest(APITestCase):
         # )
 
         # Reservation 생성
-
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.token.key,
         )
-
         data = {
             'check_in_date': '2018-04-25',
             'check_out_date': '2018-04-27',
             'house': '1',
         }
-
         response = self.client.post(self.URL2, data)
-
         print(response)
 
         img_cover.close()
