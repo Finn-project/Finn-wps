@@ -67,7 +67,8 @@ class AirbnbCrawler:
             # print(listing_list[i]['listing'])
             listing = listing_list[i]['listing']
 
-            # crawling data에서 image 다운받기
+            # crawling data에서 image 다운받아서 직접 저장소에 넣으려고
+            # 아래 과정을 진행했으나, 이미지 url만 저장하는 방법을 사용함.
             # response = requests.get(listing['picture_urls'][0]).content
             # temp_file = NamedTemporaryFile(suffix='.png')
             # temp_file.seek(0)
@@ -76,11 +77,12 @@ class AirbnbCrawler:
             # img_cover = open(temp_file.name, 'rb')
             # print(type(img_cover))
 
+            # 커버이미지만 있고, 내부 이미지가 존재하지 않는 경우 예외처리가 필요
             print(f"내부 이미지 존재 여부: {len(listing['picture_urls']) > 1}")
             print(f"이미지 개수(커버포함): {len(listing['picture_urls'])}")
             # print(f"사진 개수(커버이미지포함): {listing['picture_count']}")
 
-            # host_user 회원가입 또는 회원정보 가져오기
+            # crawling data로 host_user 회원가입 또는 회원정보 가져오기
             host_user_data = {
                 'username': str(listing['user']['id']) + '@gmail.com',
                 'password': str(listing['user']['id']) + '@gmail.com',
@@ -91,6 +93,7 @@ class AirbnbCrawler:
             except:
                 user = User.objects.create_django_user(**host_user_data)
 
+            # crawling data로 house 객체 DB에 직접 생성하기
             house_data = {
                     # 'house_type': 'HO',
                     'name': listing['name'],
@@ -126,11 +129,21 @@ class AirbnbCrawler:
 
                     'host': user,
                 }
-
             house, _ = House.objects.update_or_create(
                 name=listing['name'],
                 defaults=house_data,
             )
+
+            # 만들어진 house 객체에 ForeignKey로 연결된 HouseImage 객체 생성하기
+            houseimage1 = HouseImage.objects.create(house=house)
+            houseimage2 = HouseImage.objects.create(house=house)
+            houseimage1.image = listing['picture_urls'][1] if len(listing['picture_urls']) > 1 else ''
+            houseimage2.image = listing['picture_urls'][2] if len(listing['picture_urls']) > 2 else ''
+            houseimage1.save()
+            houseimage2.save()
+
+            print(houseimage1.image.url)
+            print(houseimage2.image.url)
 
             print(f'{i+1}번째 house 생성 완료')
             # print(HouseSerializer(house))
