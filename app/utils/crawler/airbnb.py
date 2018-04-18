@@ -7,9 +7,9 @@
 import json
 import re
 import requests
-
 from django.contrib.auth import get_user_model
-
+from house.models import House, HouseImage
+from house.serializers import HouseSerializer
 
 User = get_user_model()
 
@@ -30,7 +30,7 @@ class AirbnbCrawler:
         # print(response.status_code)
 
     def get_bootstrapdata(self):
-        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=2'
+        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=3'
         headers = {
             # 'cache-control': "no-cache",
             'user-agent': 'Mozilla/5.0',
@@ -49,9 +49,10 @@ class AirbnbCrawler:
         print(response.status_code)
         source = response.text
         if not response.status_code == 200:
-            # requests를 통해 data 받는 것이 실패하면 response 값을 출력해서
-            # 해당 원인을 파악
+            # requests를 통해 data 받는 것이 실패하면 해당 원인을 파악하기 위해
+            # response 값을 출력한 뒤 종료
             print(source)
+            return
 
         bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?"><!--(.*?)--></script>', source)
         # print(bootstrap_data.groups(1)[0:10])
@@ -63,7 +64,7 @@ class AirbnbCrawler:
             'listings']
 
         for i in range(len(listing_list)):
-            print(listing_list[i]['listing'])
+            # print(listing_list[i]['listing'])
             listing = listing_list[i]['listing']
 
             # crawling data에서 image 다운받기
@@ -75,71 +76,65 @@ class AirbnbCrawler:
             # img_cover = open(temp_file.name, 'rb')
             # print(type(img_cover))
 
-            print(len(listing['picture_urls']) > 1)
-            print(len(listing['picture_urls']))
+            print(f"내부 이미지 존재 여부: {len(listing['picture_urls']) > 1}")
+            print(f"이미지 개수(커버포함): {len(listing['picture_urls'])}")
+            # print(f"사진 개수(커버이미지포함): {listing['picture_count']}")
 
-            # crawling data 로 house info 채우기
-            data = {
-                'house_type': 'HO',
-                'name': listing['name'],
-                'description': '테스트용 집입니다.',
-                'room': listing['bedrooms'],
-                'bed': listing['beds'],
-                'bathroom': listing['bathrooms'],
-                'personnel': listing['person_capacity'],
-                'amenities': [],
-                'facilities': [1, 2, 3, 4, 5],
-                'minimum_check_in_duration': 1,
-                'maximum_check_in_duration': 3,
-                'maximum_check_in_range': 90,
-                'price_per_night': 100000,
-                'country': 'default',
-                'city': 'default',
-                'district': listing['localized_city'],
-                'dong': 'default',
-                'address1': 'default',
-                # 'address2': '희망빌라 2동 301호',
-                # 'latitude': listing['lat'],
-                'latitude': 12.1234567,
-                # 'longitude': listing['lng'],
-                'longitude': 123.1234567,
-                'disable_days': [
-                    '2014-01-01',
-                    '2014-02-01',
-                    '2014-03-01',
-                    '2014-04-01',
-                ],
-                'img_cover': listing['picture_urls'][0],
-                'house_images': [
-                    listing['picture_urls'][1],
-                    listing['picture_urls'][2] if len(listing['picture_urls']) > 1 else '',
-                ],
+            # host_user 회원가입 또는 회원정보 가져오기
+            host_user_data = {
+                'username': str(listing['user']['id']) + '@gmail.com',
+                'password': str(listing['user']['id']) + '@gmail.com',
+                'first_name': listing['user']['first_name'],
             }
+            try:
+                user = User.objects.get(username=host_user_data['username'])
+            except:
+                user = User.objects.create_django_user(**host_user_data)
 
-            # 로그인
-            user_data = {
-                'username': 'iostest@gmail.com',
-                'password': 'iostestpw'
-            }
-            response = requests.post('https://www.himanmen.com/user/login/', user_data)
-            # response = requests.post('http://localhost:8000/user/login/', user_data)
-            result = json.loads(response.text)
-            token = result['token']
+            house_data = {
+                    # 'house_type': 'HO',
+                    'name': listing['name'],
+                    # 'description': 'crawling한 집입니다.',
+                    'room': listing['bedrooms'],
+                    'bed': listing['beds'],
+                    'bathroom': listing['bathrooms'],
+                    'personnel': listing['person_capacity'],
+                    # 'amenities': [],
+                    # 'facilities': [1, 2, 3, 4, 5],
+                    'minimum_check_in_duration': 1,
+                    'maximum_check_in_duration': 3,
+                    'maximum_check_in_range': 90,
+                    'price_per_night': 100000,
+                    # 'country': 'default',
+                    # 'city': 'default',
+                    'district': listing['localized_city'],
+                    # 'dong': 'default',
+                    # 'address1': 'default',
+                    'latitude': listing['lat'],
+                    'longitude': listing['lng'],
+                    # 'disable_days': [
+                    #     '2014-01-01',
+                    #     '2014-02-01',
+                    #     '2014-03-01',
+                    #     '2014-04-01',
+                    # ],
+                    'img_cover': listing['picture_urls'][0],
+                    # 'house_images': [
+                    #     listing['picture_urls'][1] if len(listing['picture_urls']) > 1 else '',
+                    #     listing['picture_urls'][2] if len(listing['picture_urls']) > 2 else '',
+                    # ],
 
-            headers = {
-                'Authorization': 'Token ' + token,
-            }
+                    'host': user,
+                }
 
-            response = requests.post('https://www.himanmen.com/house/', data, headers=headers)
-            # response = requests.post('http://localhost:8000/house/', data, headers=headers)
-            print(response)
-            print(i+1)
-            # if i == 0:
-            #     break
+            house, _ = House.objects.update_or_create(
+                name=listing['name'],
+                defaults=house_data,
+            )
 
-            # img_cover.close()
-            # temp_file.close()
+            print(f'{i+1}번째 house 생성 완료')
+            # print(HouseSerializer(house))
+            print(HouseSerializer(house).data)
 
-
-airbnb = AirbnbCrawler()
-airbnb.get_bootstrapdata()
+            if i == 2:
+                break

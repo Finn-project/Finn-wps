@@ -1,6 +1,5 @@
 from django.core.management import BaseCommand
 
-from utils.crawler.airbnb import AirbnbCrawler
 from ...models import Amenities, Facilities
 
 
@@ -11,8 +10,3 @@ class Command(BaseCommand):
 
         [Amenities.objects.get_or_create(name=name) for name in amenities_list]
         [Facilities.objects.get_or_create(name=name) for name in facilities_list]
-
-        air = AirbnbCrawler()
-        air.get_bootstrapdata()
-
-

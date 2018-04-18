@@ -20,8 +20,8 @@ class UserManager(DjangoUserManager):
             username=kwargs.get('username'),
             email=kwargs.get('username'),
             password=kwargs.get('password'),
-            first_name=kwargs.get('first_name'),
-            last_name=kwargs.get('last_name'),
+            first_name=kwargs.get('first_name', ''),
+            last_name=kwargs.get('last_name', ''),
             phone_num=kwargs.get('phone_num', ''),
             is_email_user=True,
 

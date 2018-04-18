@@ -45,7 +45,6 @@ class ReservationAPITest(APITestCase):
         # )
         # self.token2, _ = Token.objects.get_or_create(user=self.guest_user)
 
-
     def test_create_reseration(self):
 
         self.client.credentials(
