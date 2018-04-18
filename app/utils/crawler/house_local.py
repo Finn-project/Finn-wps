@@ -151,6 +151,5 @@ class AirbnbCrawler:
             temp_file.close()
 
 
-
 airbnb = AirbnbCrawler()
 airbnb.get_bootstrapdata()
