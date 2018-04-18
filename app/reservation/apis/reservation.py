@@ -58,14 +58,13 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
 
     # def partial_update(self, request, *args, **kwargs):
     #     super().partial_update(request, *args, **kwargs)
+    # -> 이 코드가 있을 때와 없을 때와 결과적으로 호출되는 프로세스는
+    #    동일(?) 한 것 같은데 왜 Response를 돌려주지 않는 오류가 나는지 의문.
 
     # def perform_destroy(self, instance):
     #     super().perform_destroy(instance)
     #     return Response(해당 예약 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
-
-    # def perform_destroy(self, instance):
-    #     self.perform_destroy(instance)
-    #     return Response('해당 예약이 삭제 되었습니다', status=status.HTTP_204_NO_CONTENT)
+    # -> perform_destroy 하단에서 Response가 있기 때문에 바로 위의 Response가 호출이 안된것.
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

@@ -197,15 +197,15 @@ class House(models.Model):
         verbose_name='위도',
         help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
 
-        decimal_places=7,
-        max_digits=9
+        decimal_places=14,
+        max_digits=16
     )
     longitude = models.DecimalField(
         verbose_name='경도',
         help_text='경도를 소수점(7자리) 입력 가능 (xxx.1234567)',
 
-        decimal_places=7,
-        max_digits=10
+        decimal_places=14,
+        max_digits=17
     )
 
     img_cover = models.ImageField(upload_to=dynamic_img_cover_path, blank=True, default='')

@@ -93,7 +93,18 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
 
     def patch(self, request, pk):
         # user = get_object_or_404(User, pk=pk)
-        user = User.objects.get(pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        # except Exception as ex:
+        #     print(ex)
+        #     print(type(ex))
+        #     print(type(ex).__name__)
+        #     print(ex.__class__.__name__)
+
+        # except DoesNotExist as exception:
+
+        except:
+            return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
 
         if request.user == user:
             serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
@@ -114,8 +125,8 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         user = User.objects.get(pk=pk)
         if request.user == user:
             request.user.delete()
-            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_200_OK)
-        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_204_NO_CONTENT)
+            return Response('해당 유저가 삭제되었습니다.', status=status.HTTP_204_NO_CONTENT)
+        return Response('일치하는 회원정보가 없습니다.', status=status.HTTP_404_NOT_FOUND)
 
 
 class UserProfileImageDeleteAPIView(APIView):
