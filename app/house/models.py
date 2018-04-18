@@ -195,14 +195,14 @@ class House(models.Model):
     # )
     latitude = models.DecimalField(
         verbose_name='위도',
-        help_text='위도를 소수점(7자리) 입력 가능 (xx.1234567)',
+        help_text='위도를 소수점(14자리) 입력 가능 (xx.12345678901234)',
 
         decimal_places=14,
         max_digits=16
     )
     longitude = models.DecimalField(
         verbose_name='경도',
-        help_text='경도를 소수점(7자리) 입력 가능 (xxx.1234567)',
+        help_text='경도를 소수점(14자리) 입력 가능 (xxx.12345678901234)',
 
         decimal_places=14,
         max_digits=17
@@ -212,7 +212,7 @@ class House(models.Model):
 
     img_cover_thumbnail = ImageSpecField(
         source='img_cover',
-        processors=[ResizeToFill(400, 300)],
+        processors=[ResizeToFill(308, 206)],
         format='png',
         options={'quality': 100}
     )
