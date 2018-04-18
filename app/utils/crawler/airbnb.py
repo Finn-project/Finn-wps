@@ -10,6 +10,8 @@ import requests
 from django.contrib.auth import get_user_model
 from house.models import House, HouseImage
 from house.serializers import HouseSerializer
+from members.models import UserProfileImages
+from members.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -30,7 +32,7 @@ class AirbnbCrawler:
         # print(response.status_code)
 
     def get_bootstrapdata(self):
-        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=3'
+        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=1'
         headers = {
             # 'cache-control': "no-cache",
             'user-agent': 'Mozilla/5.0',
@@ -77,23 +79,38 @@ class AirbnbCrawler:
             # img_cover = open(temp_file.name, 'rb')
             # print(type(img_cover))
 
-            # 커버이미지만 있고, 내부 이미지가 존재하지 않는 경우 예외처리가 필요
-            print(f"내부 이미지 존재 여부: {len(listing['picture_urls']) > 1}")
-            print(f"이미지 개수(커버포함): {len(listing['picture_urls'])}")
-            # print(f"사진 개수(커버이미지포함): {listing['picture_count']}")
-
-            # crawling data로 host_user 회원가입 또는 회원정보 가져오기
+            '''
+            1) crawling data로 host_user 회원가입 또는 회원정보 가져오기
+            '''
             host_user_data = {
-                'username': str(listing['user']['id']) + '@gmail.com',
-                'password': str(listing['user']['id']) + '@gmail.com',
+                'username': str(listing['user']['id']) + '@finn.com',
+                'password': str(listing['user']['id']) + '@finn.com',
                 'first_name': listing['user']['first_name'],
             }
+            j = 0
             try:
                 user = User.objects.get(username=host_user_data['username'])
             except:
+                j = 1
                 user = User.objects.create_django_user(**host_user_data)
 
-            # crawling data로 house 객체 DB에 직접 생성하기
+            # host_user image 생성을 위한 OneToOne model 생성(or 가져오기)
+            img, _ = UserProfileImages.objects.get_or_create(user=user)
+            if j == 1:
+                # host_user가 처음 생성될 때에만 profile image를 생성한다.
+                img.img_profile_28 = listing['user']['thumbnail_url'] if listing['user']['has_profile_pic'] is True else ''
+                img.img_profile_225 = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
+                img.img_profile = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
+                img.save()
+                print(f'{i+1}번째 host_user [생성 완료]')
+            else:
+                print(f'{i+1}번째 host_user [업데이트 완료]')
+
+            print(UserSerializer(user).data)
+
+            '''
+            2) crawling data로 house 객체 DB에 직접 생성하기
+            '''
             house_data = {
                     # 'house_type': 'HO',
                     'name': listing['name'],
@@ -122,14 +139,10 @@ class AirbnbCrawler:
                     #     '2014-04-01',
                     # ],
                     'img_cover': listing['picture_urls'][0],
-                    # 'house_images': [
-                    #     listing['picture_urls'][1] if len(listing['picture_urls']) > 1 else '',
-                    #     listing['picture_urls'][2] if len(listing['picture_urls']) > 2 else '',
-                    # ],
 
                     'host': user,
                 }
-            house, _ = House.objects.update_or_create(
+            house, house_created = House.objects.update_or_create(
                 name=listing['name'],
                 defaults=house_data,
             )
@@ -142,8 +155,18 @@ class AirbnbCrawler:
             houseimage1.save()
             houseimage2.save()
 
-            print(f'{i+1}번째 house 생성 완료')
+            if house_created is True:
+                print(f'{i+1}번째 house [생성 완료]')
+            else:
+                print(f'{i+1}번째 house [업데이트 완료]')
+
+            # 커버이미지만 있고, 내부 이미지가 존재하지 않는 경우 예외처리가 필요
+            print(f"내부 이미지 존재 여부: {len(listing['picture_urls']) > 1}")
+            print(f"이미지 개수(커버포함): {len(listing['picture_urls'])}")
+            # print(f"사진 개수(커버이미지포함): {listing['picture_count']}")
+
             print(HouseSerializer(house).data)
+            print('')
 
             if i == 2:
                 break

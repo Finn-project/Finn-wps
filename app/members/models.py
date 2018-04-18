@@ -24,8 +24,6 @@ class UserManager(DjangoUserManager):
             last_name=kwargs.get('last_name', ''),
             phone_num=kwargs.get('phone_num', ''),
             is_email_user=True,
-
-            # images=kwargs.get('images', '')
         )
         # default profile_image 생성
         # file = open('../.static/img_profile_default.png', 'rb').read()

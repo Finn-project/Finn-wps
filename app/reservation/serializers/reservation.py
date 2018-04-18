@@ -40,6 +40,7 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     def validate(self, attrs):
 
         if self.initial_data.get('house'):
+            # Put / Patch일 경우
             house_pk = self.initial_data.get('house')
             house = get_object_or_404(House, pk=house_pk)
             # house instance를 validated_data에 넣어주기
@@ -48,9 +49,10 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             # attrs에 'house' 객체를 넣어주면 def update() 에서 기존 'house'를
             # 업데이트 하게 된다.
         elif self.instance:
+            # Patch 예외처리
             house = self.instance.house
         else:
-            # Reservation create 예외처리 (1)
+            # Create 예외처리 (1)
             raise CustomException(detail='house 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
         # 숙박 인원 validation
