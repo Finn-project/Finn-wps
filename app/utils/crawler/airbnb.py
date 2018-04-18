@@ -142,11 +142,7 @@ class AirbnbCrawler:
             houseimage1.save()
             houseimage2.save()
 
-            print(houseimage1.image.url)
-            print(houseimage2.image.url)
-
             print(f'{i+1}번째 house 생성 완료')
-            # print(HouseSerializer(house))
             print(HouseSerializer(house).data)
 
             if i == 2:

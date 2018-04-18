@@ -66,5 +66,6 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         name_list = list()
         for house_image in obj.images.all():
             if house_image.image:
-                name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
+                if not 'http' in house_image.image.url:
+                    name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
         return name_list
