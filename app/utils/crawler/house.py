@@ -106,9 +106,9 @@ class AirbnbCrawler:
                 'address1': 'default',
                 # 'address2': '희망빌라 2동 301호',
                 # 'latitude': listing['lat'],
-                'latitude': 12.1234567,
+                'latitude': 12.12345670000000,
                 # 'longitude': listing['lng'],
-                'longitude': 123.1234567,
+                'longitude': 123.12345670000000,
                 'disable_days': [
                     '2014-01-01',
                     '2014-02-01',
