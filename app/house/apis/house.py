@@ -1,5 +1,6 @@
 from django.db.models import Q
 from rest_framework import permissions, generics, status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
 from utils.image.resize import clear_imagekit_cache
@@ -23,6 +24,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
+    parser_classes = (MultiPartParser, FormParser,)
 
     def get_queryset(self):
         left_top_latitude = self.request.query_params.get('ltlatitude')
@@ -54,6 +56,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
                 house.img_cover.save(img_cover.name, img_cover)
 
             for room_image in self.request.data.getlist('house_images'):
+
                 house.images.create(image=room_image)
 
         self.request.user.is_host = True
@@ -68,6 +71,7 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
+    parser_classes = (MultiPartParser, FormParser,)
 
     def perform_update(self, serializer):
         house = serializer.save(host=self.request.user)
