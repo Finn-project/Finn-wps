@@ -5,7 +5,7 @@ from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
-from house.models import House
+from house.models import House, HouseReserveDay
 from house.serializers import HouseSerializer
 from members.serializers import UserSerializer
 from utils.exception.custom_exception import CustomException
@@ -69,12 +69,12 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         # 기존 예약일 찾기
         reserved_days = []
         if self.instance:
-            reserved_days_list = house.reservation_set.filter(~Q(pk=self.instance.pk))
+            reservation_instance = house.reservation_set.filter(~Q(pk=self.instance.pk))
             # 업데이트 시 자신의 예약은 예외처리에서 제외
         else:
             # Reservation create 예외처리 (2)
-            reserved_days_list = house.reservation_set.filter()
-        for i in reserved_days_list:
+            reservation_instance = house.reservation_set.filter()
+        for i in reservation_instance:
             staying_days = i.check_out_date - i.check_in_date
             reserved_days += [i.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
 
@@ -108,8 +108,56 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
         return attrs
 
+    def create(self, validated_data):
+
+        house = validated_data.get('house')
+
+        r = super().create(validated_data)
+        staying_days = r.check_out_date - r.check_in_date
+        reserved_days = []
+        reserved_days += [r.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
+
+        for i in reserved_days:
+            date_instance, _ = HouseReserveDay.objects.get_or_create(date=i)
+            house.reserve_days.add(date_instance)
+
+        return r
+
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+
+
+        # house = validated_data.get('house')
+        # PATCH의 경우 validated_data에 house 정보가 없을 수 있음
+        house_pk = self.data.get('house').get('pk')
+        house = get_object_or_404(House, pk=house_pk)
+        house.reserve_days.clear()
+
+        r = super().update(instance, validated_data)
+
+        reserved_days = []
+        reservations = house.reservation_set.all()
+        for i in reservations:
+            staying_days = i.check_out_date - i.check_in_date
+            reserved_days += [i.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
+
+        for j in reserved_days:
+            date_instance, _ = HouseReserveDay.objects.get_or_create(date=j)
+            house.reserve_days.add(date_instance)
+
+        # 이 update 코드가 상단에 있어서 house obj에 연결된 reserve_days의 업데이트가 안된 상태로
+        # 출력이 되고, 다음번 출력 값 또는 retrieve를 통해 이전번에 한 업데이트 내용을 보게 되었던 것
+
+        # print(house.reserve_days.all())
+        # print(HouseSerializer(house).data)
+        #
+        # print(len(HouseReserveDay.objects.all()))
+        # HouseReserveDay.objects.filter(houses_with_reserve_day=None).delete()
+        # print(len(HouseReserveDay.objects.all()))
+
+        return r
 
     def get_reservation_current_state(self, obj):
         return obj.reservation_current_state
+
+    # def to_representation(self, instance):
+    #     return ReservationSerializer(instance).data

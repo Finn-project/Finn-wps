@@ -13,6 +13,7 @@ __all__ = (
     'HouseImage',
     'Amenities',
     'Facilities',
+    'HouseReserveDay',
 )
 
 

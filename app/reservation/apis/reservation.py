@@ -28,22 +28,13 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
 
-        house_pk = self.request.data.get('house')
-        house_instance = get_object_or_404(House, pk=house_pk)
+        # house_pk = self.request.data.get('house')
+        # house_instance = get_object_or_404(House, pk=house_pk)
 
-        r = serializer.save(
+        serializer.save(
             guest=self.request.user,
             # house=house_instance
         )
-
-        staying_days = r.check_out_date - r.check_in_date
-
-        reserved_days = []
-        reserved_days += [r.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
-
-        for i in reserved_days:
-            date_instance, _ = HouseReserveDay.objects.get_or_create(date=i)
-            house_instance.reserve_days.add(date_instance)
 
         # 아래 구문은 save() 두번 호출하는 중복구문.
         # super().perform_create(serializer)
@@ -65,8 +56,8 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     #     else:
     #         return ReservationSerializer
 
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
+    # def perform_update(self, serializer):
+    #     super().perform_update(serializer)
 
     # def partial_update(self, request, *args, **kwargs):
     #     super().partial_update(request, *args, **kwargs)
