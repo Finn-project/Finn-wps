@@ -44,8 +44,8 @@ class HouseDeleteTest(APITestCase):
         'dong': '행복동',
         'address1': '777-1',
         # 'address2': '희망빌라 2동 301호',
-        'latitude': '12.1234567',
-        'longitude': '123.1234567',
+        'latitude': '12.12345670000000',
+        'longitude': '123.12345670000000',
     }
 
     def setUp(self):
