@@ -3,7 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.fields import ImageField
 
+from members.serializers import UserProfileImagesSerializer
 from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
@@ -18,7 +20,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
 
-    # images = UserProfileImagesSerializer(many=True)
+    # images = UserProfileImagesSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -31,9 +33,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'phone_num',
             # 'images',
         )
-        # read_only_fields = (
-        #     'images',
-        # )
 
     def validate_username(self, username):
         # if User.objects.filter(username=username).exists():
@@ -58,6 +57,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
             raise CustomException(errors, status_code=status.HTTP_400_BAD_REQUEST)
 
         return password
+
+    # def validate(self, attrs):
+    #     if self.initial_data.get('img_profile'):
+    #         images = self.initial_data['img_profile']
+    #
+    #         # restframework 내부 이미지 검증 코드 가져옴
+    #         imf = ImageField()
+    #         images2 = imf.to_internal_value(images)
+    #
+    #         attrs['images'] = images2
 
     def create(self, validated_data):
         # test_data = self.initial_data.get('img_profile')

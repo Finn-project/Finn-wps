@@ -50,7 +50,7 @@ class APIFacebookBackend:
             # email은 기본공개정보가 아니기 때문에 유저마다 존재유무가 다름
             email = response_dict.get('email')
 
-            # get_or_created -> update_or_created로 변경
+            # get_or_create -> update_or_create로 변경
             #                -> 다시 get_or_create로 회귀
             #              ( update_or_create를 하게되면 우리 서비스에서 입력한 정보,
             #                예를들면 로그인할 수 있는 메일계정이 담긴 정보가 사라져버림.
