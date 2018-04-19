@@ -135,6 +135,16 @@ class House(models.Model):
         blank=True,
     )
 
+    reserve_days = models.ManyToManyField(
+        'HouseReserveDay',
+
+        verbose_name='예약된 날',
+        help_text='이미 예약된 날입니다.',
+
+        related_name='houses_with_reserve_day',
+        blank=True,
+    )
+
     host = models.ForeignKey(
         settings.AUTH_USER_MODEL,
 
@@ -231,6 +241,15 @@ class HouseDisableDay(models.Model):
         help_text='쉬는날을 입력해 주세요',
 
         # manytomany로 하기 때문에 같은날이 존재 x
+        unique=True,
+    )
+
+
+class HouseReserveDay(models.Model):
+    date = models.DateField(
+        verbose_name='쉬는날',
+        help_text='쉬는날을 입력해 주세요',
+
         unique=True,
     )
 
