@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from rest_framework import generics, permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from house.models import HouseReserveDay
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsGuestOrReadOnly
 from ..models import Reservation, House
@@ -25,13 +28,22 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
 
-        # house_pk = self.request.data.get('house')
-        # house_instance = get_object_or_404(House, pk=house_pk)
+        house_pk = self.request.data.get('house')
+        house_instance = get_object_or_404(House, pk=house_pk)
 
-        serializer.save(
+        r = serializer.save(
             guest=self.request.user,
             # house=house_instance
         )
+
+        staying_days = r.check_out_date - r.check_in_date
+
+        reserved_days = []
+        reserved_days += [r.check_in_date + timedelta(n) for n in range(staying_days.days + 1)]
+
+        for i in reserved_days:
+            date_instance, _ = HouseReserveDay.objects.get_or_create(date=i)
+            house_instance.reserve_days.add(date_instance)
 
         # 아래 구문은 save() 두번 호출하는 중복구문.
         # super().perform_create(serializer)

@@ -25,6 +25,7 @@ class HouseImageField(serializers.RelatedField):
 class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    reserve_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
     img_cover = serializers.ImageField(read_only=True)
     img_cover_thumbnail = serializers.ImageField(read_only=True)
     # house_images = serializers.SerializerMethodField(read_only=True)
@@ -59,6 +60,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'latitude',
             'longitude',
             'disable_days',
+            'reserve_days',
             'img_cover',
             'img_cover_thumbnail',
             'house_images',
@@ -69,6 +71,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'created_date',
             'modified_date',
             'disable_days',
+            'reserve_days',
             'img_cover',
             'img_cover_thumbnail',
             'house_images',
