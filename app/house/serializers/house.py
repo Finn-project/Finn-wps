@@ -5,11 +5,18 @@ from members.serializers import UserSerializer
 from utils.image.resize import clear_imagekit_cache
 from ..models import (
     House,
-    HouseDisableDay)
+    HouseDisableDay
+)
 
 __all__ = (
     'HouseSerializer',
 )
+
+
+class HouseImageField(serializers.RelatedField):
+    def to_representation(self, value):
+        return self.context.get('request').build_absolute_uri(value.image.url)
+        # return value.image.url
 
 
 class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
@@ -17,7 +24,8 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
     img_cover = serializers.ImageField(read_only=True)
     img_cover_thumbnail = serializers.ImageField(read_only=True)
-    house_images = serializers.SerializerMethodField(read_only=True)
+    # house_images = serializers.SerializerMethodField(read_only=True)
+    house_images = HouseImageField(many=True, read_only=True, source='images')
 
     class Meta:
         model = House
@@ -62,17 +70,6 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'img_cover_thumbnail',
             'house_images',
         )
-
-    def get_house_images(self, obj):
-        name_list = list()
-        for house_image in obj.images.all():
-            if house_image.image:
-                name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
-        return name_list
-
-    def validate(self, attrs):
-
-        return attrs
 
     def create(self, validated_data):
         request = self.context.get('request')
