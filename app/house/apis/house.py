@@ -1,6 +1,5 @@
 from django.db.models import Q
 from rest_framework import permissions, generics, status
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
 from utils.pagination.custom_generic_pagination import DefaultPagination
@@ -23,7 +22,6 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
-    parser_classes = (MultiPartParser, FormParser,)
 
     def get_queryset(self):
         left_top_latitude = self.request.query_params.get('ltlatitude')
@@ -52,7 +50,6 @@ class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
-    parser_classes = (MultiPartParser, FormParser,)
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
