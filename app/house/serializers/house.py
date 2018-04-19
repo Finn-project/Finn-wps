@@ -1,5 +1,5 @@
 from drf_dynamic_fields import DynamicFieldsMixin
-from rest_framework import serializers
+from rest_framework import serializers, request
 
 from members.serializers import UserSerializer
 from ..models import (
@@ -66,6 +66,5 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         name_list = list()
         for house_image in obj.images.all():
             if house_image.image:
-                if not 'http' in house_image.image.url:
-                    name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
+                name_list.append(self.context.get('request').build_absolute_uri(house_image.image.url))
         return name_list

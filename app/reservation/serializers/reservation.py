@@ -22,6 +22,7 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     # house를 PrimaryKeyRelatedField로 하면 Response에서 tree 구조로 표현이 안되고 pk만 보임.
     house = HouseSerializer(read_only=True)
     guest = UserSerializer(read_only=True)
+    reservation_current_state = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Reservation
@@ -31,6 +32,7 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'check_out_date',
             'guest_num',
             'reservation_status',
+            'reservation_current_state',
             'created_date',
             'modified_date',
             'guest',
@@ -108,3 +110,6 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         return super().update(instance, validated_data)
+
+    def get_reservation_current_state(self, obj):
+        return obj.reservation_current_state

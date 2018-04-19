@@ -8,6 +8,8 @@ import json
 import re
 import requests
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+
 from house.models import House, HouseImage
 from house.serializers import HouseSerializer
 from members.models import UserProfileImages
@@ -32,7 +34,7 @@ class AirbnbCrawler:
         # print(response.status_code)
 
     def get_bootstrapdata(self):
-        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=1'
+        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=2'
         headers = {
             # 'cache-control': "no-cache",
             'user-agent': 'Mozilla/5.0',
@@ -69,16 +71,6 @@ class AirbnbCrawler:
             # print(listing_list[i]['listing'])
             listing = listing_list[i]['listing']
 
-            # crawling data에서 image 다운받아서 직접 저장소에 넣으려고
-            # 아래 과정을 진행했으나, 이미지 url만 저장하는 방법을 사용함.
-            # response = requests.get(listing['picture_urls'][0]).content
-            # temp_file = NamedTemporaryFile(suffix='.png')
-            # temp_file.seek(0)
-            # temp_file.write(response)
-            # temp_file.seek(0)
-            # img_cover = open(temp_file.name, 'rb')
-            # print(type(img_cover))
-
             '''
             1) crawling data로 host_user 회원가입 또는 회원정보 가져오기
             '''
@@ -98,10 +90,16 @@ class AirbnbCrawler:
             img, _ = UserProfileImages.objects.get_or_create(user=user)
             if j == 1:
                 # host_user가 처음 생성될 때에만 profile image를 생성한다.
-                img.img_profile_28 = listing['user']['thumbnail_url'] if listing['user']['has_profile_pic'] is True else ''
-                img.img_profile_225 = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
-                img.img_profile = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
-                img.save()
+                # img.img_profile_28 = listing['user']['thumbnail_url'] if listing['user']['has_profile_pic'] is True else ''
+                # img.img_profile_225 = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
+                # img.img_profile = listing['user']['picture_url'] if listing['user']['has_profile_pic'] is True else ''
+                # img.save()
+
+                binary_data = requests.get(listing['user']['picture_url']).content
+
+                img.img_profile.save('img_prifile.png', ContentFile(binary_data))
+                img.img_profile_28.save('img_prifile_28.png', ContentFile(binary_data))
+                img.img_profile_225.save('img_prifile_225.png', ContentFile(binary_data))
                 print(f'{i+1}번째 host_user [생성 완료]')
             else:
                 print(f'{i+1}번째 host_user [업데이트 완료]')
@@ -138,7 +136,10 @@ class AirbnbCrawler:
                     #     '2014-03-01',
                     #     '2014-04-01',
                     # ],
-                    'img_cover': listing['picture_urls'][0],
+                    # 'img_cover': listing['picture_urls'][0],
+                    # -> image url 경로만 저장하는 법
+                    # 'img_cover': ContentFile(requests.get(listing['picture_urls'][0]).content) if listing.get('picture_urls') else '',
+                    # -> image 파일을 전달해서 생성하려고 했으나
 
                     'host': user,
                 }
@@ -146,14 +147,27 @@ class AirbnbCrawler:
                 name=listing['name'],
                 defaults=house_data,
             )
+            house.img_cover.save('house_crawling_cover.png', ContentFile(requests.get(listing['picture_urls'][0]).content))
 
             # 만들어진 house 객체에 ForeignKey로 연결된 HouseImage 객체 생성하기
+            # houseimage1 = HouseImage.objects.create(house=house)
+            # houseimage2 = HouseImage.objects.create(house=house)
+            # houseimage1.image = listing['picture_urls'][1] if len(listing['picture_urls']) > 1 else ''
+            # houseimage2.image = listing['picture_urls'][2] if len(listing['picture_urls']) > 2 else ''
+            # houseimage1.save()
+            # houseimage2.save()
+            response = requests.get(listing['picture_urls'][1])
+            response2 = requests.get(listing['picture_urls'][2])
+            binary_data = response.content
+            binary_data2 = response2.content
+
+            # house.images.create(image=ContentFile(binary_data))
+            # house.images.create(image=ContentFile(binary_data2))
+
             houseimage1 = HouseImage.objects.create(house=house)
             houseimage2 = HouseImage.objects.create(house=house)
-            houseimage1.image = listing['picture_urls'][1] if len(listing['picture_urls']) > 1 else ''
-            houseimage2.image = listing['picture_urls'][2] if len(listing['picture_urls']) > 2 else ''
-            houseimage1.save()
-            houseimage2.save()
+            houseimage1.image.save('house_crawling_inner1.png', ContentFile(binary_data))
+            houseimage2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
 
             if house_created is True:
                 print(f'{i+1}번째 house [생성 완료]')
@@ -168,5 +182,5 @@ class AirbnbCrawler:
             print(HouseSerializer(house).data)
             print('')
 
-            if i == 2:
+            if i == 0:
                 break
