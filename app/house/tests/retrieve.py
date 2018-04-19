@@ -191,3 +191,16 @@ class HouseRetrieveTest(APITestCase):
         self.assertTrue(upload_file_cmp(file_path=self.house_image2_path, img_name=house.images.last().image.name))
 
         clear_imagekit_test_files()
+
+    def test_retrieve_house_field_set(self):
+        response = self.client.get(self.URL + f'{self.HOUSE_PK}/', {'fields': 'pk,name,description'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['pk'], self.HOUSE_PK)
+        self.assertEqual(response.data['name'], self.DATA['name'])
+        self.assertEqual(response.data['description'], self.DATA['description'])
+
+        house = House.objects.get(pk=response.data['pk'])
+        self.assertEqual(house.pk, self.HOUSE_PK)
+        self.assertEqual(house.name, self.DATA['name'])
+        self.assertEqual(house.description, self.DATA['description'])

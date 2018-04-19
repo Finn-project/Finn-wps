@@ -208,3 +208,29 @@ class HouseListTest(APITestCase):
                     upload_file_cmp(file_path=self.house_image2_path, img_name=house.images.last().image.name))
 
         clear_imagekit_test_files()
+
+    def test_list_house_field_set(self):
+        page_num = math.ceil(self.HOUSE_COUNT / self.PAGE_SIZE)
+
+        for i in range(int(page_num)):
+            response = self.client.get(self.URL, {'page': i + 1, 'page_size': self.PAGE_SIZE, 'fields': 'pk,name'})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            self.assertIsNotNone(response.data['count'], 'count')
+            self.assertEqual(response.data['count'], self.HOUSE_COUNT)
+
+            if i < page_num - 1:
+                self.assertIsNotNone(response.data['next'], 'next')
+            if i > 0:
+                self.assertIsNotNone(response.data['previous'], 'previous')
+
+            results = response.data['results']
+
+            for j in range(len(results)):
+                house_result = results[j]
+                self.assertEqual(house_result['pk'], ((i * self.PAGE_SIZE) + j) + 1)
+                self.assertEqual(house_result['name'], self.DATA['name'])
+
+                house = House.objects.get(pk=house_result['pk'])
+                self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
+                self.assertEqual(house.name, self.DATA['name'])
