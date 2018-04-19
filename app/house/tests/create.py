@@ -131,12 +131,15 @@ class HouseCreateTest(APITestCase):
         self.assertEqual(response.data['latitude'], data['latitude'])
         self.assertEqual(response.data['longitude'], data['longitude'])
 
-        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+        self.assertIn('disable_days', response.data)
 
         for index, date in enumerate(response.data['disable_days']):
             self.assertEqual(date.strftime('%Y-%m-%d'), data['disable_days'][index])
 
         house = House.objects.get(pk=response.data['pk'])
+
+        self.assertIn('house_images', response.data)
+
         self.assertEqual(house.house_type, data['house_type'])
         self.assertEqual(house.name, data['name'])
         self.assertEqual(house.description, data['description'])
