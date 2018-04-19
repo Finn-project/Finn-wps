@@ -161,10 +161,12 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['latitude'], self.DATA['latitude'])
                 self.assertEqual(house_result['longitude'], self.DATA['longitude'])
 
-                self.assertIsNotNone(house_result['disable_days'], 'disable_days')
+                self.assertIn('disable_days', house_result)
 
                 for index, date in enumerate(house_result['disable_days']):
                     self.assertEqual(date.strftime('%Y-%m-%d'), self.DISABLE_DAYS[index])
+
+                self.assertIn('house_images', house_result)
 
                 house = House.objects.get(pk=house_result['pk'])
                 self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
