@@ -96,6 +96,7 @@ class House(models.Model):
         verbose_name='최소 체크인 기간',
         help_text='체크인 할 수 있는 최소 기간을 입력 하세요.',
     )
+
     maximum_check_in_duration = models.PositiveSmallIntegerField(
         verbose_name='최대 체크인 기간',
         help_text='체크인 할 수 있는 최대 기간을 입력 하세요.',

@@ -161,9 +161,11 @@ class HousePartialUpdateTest(APITestCase):
         self.assertEqual(response.data['latitude'], self.UPDATE_DATA['latitude'])
         self.assertEqual(response.data['longitude'], self.BASE_DATA['longitude'])
 
-        self.assertIsNotNone(response.data['disable_days'], 'disable_days')
+        self.assertIn('disable_days', response.data)
         for index, date in enumerate(response.data['disable_days']):
             self.assertEqual(date.strftime('%Y-%m-%d'), self.BASE_DISABLE_DAYS[index])
+
+        self.assertIn('house_images', response.data)
 
         house = House.objects.get(pk=response.data['pk'])
         self.assertEqual(house.house_type, self.UPDATE_DATA['house_type'])
