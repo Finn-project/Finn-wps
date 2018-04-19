@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers, request
 
@@ -15,8 +16,10 @@ __all__ = (
 
 class HouseImageField(serializers.RelatedField):
     def to_representation(self, value):
-        return self.context.get('request').build_absolute_uri(value.image.url)
-        # return value.image.url
+        if self.context.get('request'):
+            return self.context.get('request').build_absolute_uri(value.image.url)
+        else:
+            return value.image.url
 
 
 class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
