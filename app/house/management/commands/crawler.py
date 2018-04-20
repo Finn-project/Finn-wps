@@ -4,8 +4,11 @@ from utils.crawler.airbnb import AirbnbCrawler
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument('number_of_obj', type=int)
 
+    def handle(self, *args, **options):
         # crawler
-        air = AirbnbCrawler()
+        number_of_obj = options['number_of_obj']
+        air = AirbnbCrawler(number_of_obj)
         air.get_bootstrapdata()
