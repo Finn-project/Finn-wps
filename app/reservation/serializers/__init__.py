@@ -1,2 +1,2 @@
 from .reservation import *
-from .reservation_patch import *
+from .reservation_update import *

@@ -1,14 +1,11 @@
-from datetime import timedelta
-
 from rest_framework import generics, permissions, status
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from house.models import HouseReserveDay
+from reservation.serializers.reservation_update import ReservationUpdateSerializer
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsGuestOrReadOnly
-from ..models import Reservation, House
-from ..serializers import ReservationSerializer, ReservationPatchSerializer
+from ..models import Reservation
+from ..serializers import ReservationSerializer
 
 __all__ = (
     'ReservationCreateListView',
@@ -42,8 +39,8 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 
 class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reservation.objects.all()
-    serializer_class = ReservationSerializer
-    pagination_class = DefaultPagination
+    serializer_class = ReservationUpdateSerializer
+    # pagination_class = DefaultPagination
 
     permission_classes = (
         permissions.IsAuthenticated,
