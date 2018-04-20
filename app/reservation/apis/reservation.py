@@ -1,11 +1,11 @@
 from rest_framework import generics, permissions, status
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from reservation.serializers.reservation_update import ReservationUpdateSerializer
 from utils.pagination.custom_generic_pagination import DefaultPagination
 from utils.permission.custom_permission import IsGuestOrReadOnly
-from ..models import Reservation, House
-from ..serializers import ReservationSerializer, ReservationPatchSerializer
+from ..models import Reservation
+from ..serializers import ReservationSerializer
 
 __all__ = (
     'ReservationCreateListView',
@@ -39,8 +39,8 @@ class ReservationCreateListView(generics.ListCreateAPIView):
 
 class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Reservation.objects.all()
-    serializer_class = ReservationSerializer
-    pagination_class = DefaultPagination
+    serializer_class = ReservationUpdateSerializer
+    # pagination_class = DefaultPagination
 
     permission_classes = (
         permissions.IsAuthenticated,
@@ -53,8 +53,17 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     #     else:
     #         return ReservationSerializer
 
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
+    # def perform_update(self, serializer):
+    #     super().perform_update(serializer)
+
+    def update(self, request, *args, **kwargs):
+        result = super().update(request, *args, **kwargs)
+        # UpdateModelMixin에서 리턴된 return Response(serializer.data)
+        # 이 값이 왜 PUT / PATCH가 반영안된 데이터인지 의문.
+        reservation_pk = kwargs['pk']
+        reservation = Reservation.objects.get(pk=reservation_pk)
+
+        return Response(ReservationSerializer(reservation).data)
 
     # def partial_update(self, request, *args, **kwargs):
     #     super().partial_update(request, *args, **kwargs)

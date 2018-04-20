@@ -1,5 +1,7 @@
+import datetime
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from house.models import House
 
@@ -40,8 +42,6 @@ class Reservation(models.Model):
     # (message 구현여부에 따라 결정) 예약과정에서 호스트에게 보내는 메시지
     # message_to_host = models.TextField(max_length=300)
 
-    RESERVATION_FINISHED = 'FI'
-    RESERVATION_ONGOING = 'ON'
     RESERVATION_ACCEPTED_BY_HOST = 'AC'
     RESERVATION_DENIED_BY_HOST = 'DE'
     RESERVATION_CANCELED_BY_HOST = 'CH'
@@ -50,8 +50,6 @@ class Reservation(models.Model):
     RESERVATION_REQUESTED_BY_GUEST = 'RE'
 
     RESERVATION_STATUS_CHOICES = (
-        (RESERVATION_FINISHED, '숙박종료됨'),
-        (RESERVATION_ONGOING, '현재숙박중'),
         (RESERVATION_ACCEPTED_BY_HOST, '예약수락됨'),
         (RESERVATION_DENIED_BY_HOST, '예약거절됨'),
         (RESERVATION_CANCELED_BY_HOST, '예약취소됨(호스트)'),
@@ -65,6 +63,45 @@ class Reservation(models.Model):
         choices=RESERVATION_STATUS_CHOICES,
         default=RESERVATION_REQUESTED_BY_GUEST
     )
+
+    # reservation_current_state = models.CharField(max_length=2, blank=True)
+
+
+    @property
+    def reservation_current_state(self):
+
+        now = timezone.now()
+        now_date = now.strftime('%Y-%m-%d')
+        # print(now_date)
+        # print(type(now_date))
+
+        # print(now.day)
+        # print(type(now.day))
+        #
+        # now = timezone.now()
+        # now2 = timezone.timedelta()
+        # print(now)
+        # print(now2)
+        #
+        # print(type(self.check_in_date))
+        # print(type(datetime.date(now.year, now.month, now.day)))
+        # print(datetime.date(now.year, now.month, now.day))
+
+        # if self.check_in_date > now_date:
+        date_now = datetime.date(now.year, now.month, now.day)
+        # check_in_date field는 datetime.date type이라서
+        # 2018-04-19 형태로 된 값과 비교를 해야되서
+        # datetime.date를 써야되는데 현재 시점의 datetime.date를
+        # 구할 방법이 없어서 위와 같이 now.year를 활용함.
+        if self.check_in_date > date_now:
+            return 'BE'
+            # Before reservation
+        elif self.check_out_date < date_now:
+            return 'AF'
+            # After reservation
+        else:
+            return 'ON'
+            # Ongoing reservation
 
     class Meta:
         verbose_name_plural = '예약'
