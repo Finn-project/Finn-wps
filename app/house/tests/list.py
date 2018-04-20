@@ -251,12 +251,6 @@ class HouseListTest(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             self.assertIsNotNone(response.data['count'], 'count')
-            self.assertEqual(response.data['count'], self.HOUSE_COUNT)
-
-            if i < page_num - 1:
-                self.assertIsNotNone(response.data['next'], 'next')
-            if i > 0:
-                self.assertIsNotNone(response.data['previous'], 'previous')
 
             results = response.data['results']
 
@@ -264,7 +258,11 @@ class HouseListTest(APITestCase):
                 house_result = results[j]
                 self.assertEqual(house_result['pk'], ((i * self.PAGE_SIZE) + j) + 1)
                 self.assertEqual(house_result['name'], self.DATA['name'])
+                self.assertEqual(house_result['latitude'], self.DATA['latitude'])
+                self.assertEqual(house_result['longitude'], self.DATA['longitude'])
 
                 house = House.objects.get(pk=house_result['pk'])
                 self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
                 self.assertEqual(house.name, self.DATA['name'])
+                self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
+                self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))

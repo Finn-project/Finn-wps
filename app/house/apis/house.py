@@ -38,7 +38,8 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
                 Q(latitude__lte=left_top_latitude), Q(latitude__gte=right_bottom_latitude),
                 Q(longitude__gte=left_top_longitude), Q(longitude__lte=right_bottom_longitude),
             )
-            return houses
+            if houses:
+                return houses
         return House.objects.all()
 
 

@@ -40,9 +40,6 @@ class HouseImage(models.Model):
     def __str__(self):
         return f'{self.image.name}'
 
-    def __unicode__(self):
-        return f'{self.image.name}'
-
 
 @receiver(pre_delete, sender=HouseImage)
 def remove_house_image_s3storage(sender, instance, **kwargs):

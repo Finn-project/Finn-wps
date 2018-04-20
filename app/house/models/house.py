@@ -1,13 +1,10 @@
-from PIL import Image
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill
-from rest_framework import status
 
-from utils.exception.custom_exception import CustomException
 from ..models import dynamic_img_cover_path
 from utils.image.resize import clear_imagekit_cache
 
@@ -188,14 +185,6 @@ class House(models.Model):
 
         blank=True,
     )
-    # address2 = models.CharField(
-    #     verbose_name='상세 주소2',
-    #     help_text='상세 주소2를 입력 하세요 (희망빌라 2차 201호)',
-    #
-    #     max_length=100,
-    #
-    #     blank=True,
-    # )
     latitude = models.DecimalField(
         verbose_name='위도',
         help_text='위도를 소수점(14자리) 입력 가능 (xx.12345678901234)',
@@ -217,18 +206,8 @@ class House(models.Model):
         source='img_cover',
         processors=[ResizeToFill(308, 206)],
         format='png',
-        options={'quality': 100}
+        options={'quality': 100},
     )
-
-    def save(self, *args, **kwargs):
-        if getattr(self, 'img_cover'):
-            image = self.img_cover
-            try:
-                Image.open(self.img_cover).verify()
-            except OSError:
-                raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
-
-        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = '숙소'
