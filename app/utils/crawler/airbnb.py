@@ -62,6 +62,7 @@ class AirbnbCrawler:
         print(source)
         bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?"><!--(.*?)--></script>', source)
         # print(bootstrap_data.groups(1)[0:10])
+
         bootstrap_json = json.loads(bootstrap_data.group(1))
 
         # listing 18개가 들어있는 list

@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend, filters
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
@@ -13,6 +14,14 @@ __all__ = (
 )
 
 
+# class ReservationFilter(django_filters.rest_framework.FilterSet):
+#     house = django_filters.CharFilter(host="house__host")
+#
+#     class Meta:
+#         model = Reservation
+#         fields = ['guest', 'house']
+
+
 class ReservationCreateListView(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
@@ -22,6 +31,15 @@ class ReservationCreateListView(generics.ListCreateAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsGuestOrReadOnly,
     )
+
+    filter_backends = (DjangoFilterBackend,)
+    # filter_backends = (filters.OrderingFilter,)
+    # filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+
+    filter_fields = ('guest', 'house')
+    # filter_fields = ('guest', 'house')
+    # ordering_fields = ('pk', 'guest')
+    # ordering = ('pk',)
 
     def perform_create(self, serializer):
 
@@ -46,6 +64,9 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
         permissions.IsAuthenticated,
         IsGuestOrReadOnly,
     )
+
+
+
 
     # def get_serializer_class(self):
     #     if self.request.method == 'PATCH':
