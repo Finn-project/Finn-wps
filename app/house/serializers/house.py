@@ -6,7 +6,7 @@ from members.serializers import UserSerializer
 from utils.image.resize import clear_imagekit_cache
 from ..models import (
     House,
-    HouseDisableDay
+    HouseDisableDay,
 )
 
 __all__ = (
@@ -92,7 +92,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
                 house.img_cover.save(img_cover.name, img_cover)
 
             for room_image in request.data.getlist('house_images'):
-                house.images.create(image=room_image)
+                house.images.create_image(image=room_image)
 
         request.user.is_host = True
         request.user.save()
@@ -122,6 +122,5 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
                     house.images.all().delete()
 
                 for room_image in request.data.getlist('house_images'):
-                    house.images.create(image=room_image)
-
+                    house.images.create_image(image=room_image)
         return house
