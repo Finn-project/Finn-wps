@@ -56,6 +56,15 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
     # def perform_update(self, serializer):
     #     super().perform_update(serializer)
 
+    def update(self, request, *args, **kwargs):
+        result = super().update(request, *args, **kwargs)
+        # UpdateModelMixin에서 리턴된 return Response(serializer.data)
+        # 이 값이 왜 PUT / PATCH가 반영안된 데이터인지 의문.
+        reservation_pk = kwargs['pk']
+        reservation = Reservation.objects.get(pk=reservation_pk)
+
+        return Response(ReservationSerializer(reservation).data)
+
     # def partial_update(self, request, *args, **kwargs):
     #     super().partial_update(request, *args, **kwargs)
     # -> 이 코드가 있을 때와 없을 때와 결과적으로 호출되는 프로세스는
