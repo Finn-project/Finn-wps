@@ -1,28 +1,19 @@
+from PIL import Image
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import post_delete, pre_delete
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from imagekit.models import ImageSpecField
 from pilkit.processors import ResizeToFill
+from rest_framework import status
 
+from utils.exception.custom_exception import CustomException
+from ..models import dynamic_img_cover_path
 from utils.image.resize import clear_imagekit_cache
 
 __all__ = (
     'House',
-    'HouseDisableDay',
-    'HouseImage',
-    'Amenities',
-    'Facilities',
-    'HouseReserveDay',
 )
-
-
-def dynamic_img_cover_path(instance, file_name):
-    return f'house/user_{instance.host.id}/house_{instance.pk}/{file_name}'
-
-
-def dynamic_img_house_path(instance, file_name):
-    return f'house/user_{instance.house.host.id}/house_{instance.house.pk}/images/{file_name}'
 
 
 class House(models.Model):
@@ -229,94 +220,18 @@ class House(models.Model):
         options={'quality': 100}
     )
 
+    def save(self, *args, **kwargs):
+        if getattr(self, 'img_cover'):
+            image = self.img_cover
+            try:
+                Image.open(self.img_cover).verify()
+            except OSError:
+                raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
+
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = '숙소'
-
-    def __str__(self):
-        return self.name
-
-
-class HouseDisableDay(models.Model):
-    date = models.DateField(
-        verbose_name='쉬는날',
-        help_text='쉬는날을 입력해 주세요',
-
-        # manytomany로 하기 때문에 같은날이 존재 x
-        unique=True,
-    )
-
-
-class HouseReserveDay(models.Model):
-    date = models.DateField(
-        verbose_name='쉬는날',
-        help_text='쉬는날을 입력해 주세요',
-
-        unique=True,
-    )
-
-
-class HouseImage(models.Model):
-    """
-    HouseImage모델은  House모델을 참조 하며
-    House모델이 지워지면 연결된 HouseImage모델도 지워 진다.
-    """
-    image = models.ImageField(
-        verbose_name='숙소 이미지',
-        help_text='숙소와 연결된 이미지를 저장합니다.',
-
-        upload_to=dynamic_img_house_path,
-    )
-    house = models.ForeignKey(
-        House,
-
-        verbose_name='숙소',
-        help_text='이미지와 연결된 숙소를 저장합니다.',
-
-        related_name='images',
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        verbose_name_plural = '숙소 이미지들'
-
-    def __str__(self):
-        return f'{self.image.name}'
-
-    def __unicode__(self):
-        return f'{self.image.name}'
-
-
-class Amenities(models.Model):
-    """
-    House와 연결된 편의 물품
-    """
-    name = models.CharField(
-        help_text='100자 까지의 물건의 이름을 저장 합니다.',
-
-        max_length=100,
-        unique=True,
-    )
-
-    class Meta:
-        verbose_name_plural = '편의 물품'
-
-    def __str__(self):
-        return self.name
-
-
-class Facilities(models.Model):
-    """
-    House와 연결된 편의 시설
-    """
-    name = models.CharField(
-        help_text='100자 까지의 물건의 이름을 저장 합니다.',
-
-        max_length=100,
-        unique=True,
-    )
-
-    class Meta:
-        verbose_name_plural = '편의 시설'
 
     def __str__(self):
         return self.name
@@ -327,9 +242,3 @@ def remove_house_cover_s3storage(sender, instance, **kwargs):
     clear_imagekit_cache()
     if instance.img_cover:
         instance.img_cover.delete()
-
-
-@receiver(pre_delete, sender=HouseImage)
-def remove_house_iage_s3storage(sender, instance, **kwargs):
-    if instance.image:
-        instance.image.delete()
