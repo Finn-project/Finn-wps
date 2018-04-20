@@ -21,9 +21,9 @@ User = get_user_model()
 class AirbnbCrawler:
     r = None
 
-    def __init__(self):
+    def __init__(self, number_of_obj):
         self.r = requests.Session()
-
+        self.number_of_obj = number_of_obj
         # url = 'https://www.airbnb.co.kr/s/homes?query=서울&section_offset=3&s_tag=ki-GoRvU&allow_override%5B%5D=&refinement_paths%5B%5D=%2Fhomes'
         # headers = {
         #     'User-agent': 'Mozilla/5.0',
@@ -182,5 +182,5 @@ class AirbnbCrawler:
             print(HouseSerializer(house).data)
             print('')
 
-            if i == 0:
+            if i == self.number_of_obj:
                 break
