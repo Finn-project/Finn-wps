@@ -55,8 +55,8 @@ class HouseListTest(APITestCase):
         'dong': '행복동',
         'address1': '777-1',
         # 'address2': '희망빌라 2동 301호',
-        'latitude': '12.12345670000000',
-        'longitude': '123.12345670000000',
+        'latitude': '37.55824700000000',
+        'longitude': '126.92224100000000',
     }
 
     def setUp(self):
@@ -84,6 +84,9 @@ class HouseListTest(APITestCase):
 
         for i in range(self.HOUSE_COUNT):
             self.DATA['host'] = self.user1 if i % 2 else self.user2
+            if i > 0:
+                self.DATA['latitude'] = 35.21389421799400
+                self.DATA['longitude'] = 129.07717830846500
 
             house = House.objects.create(**self.DATA)
 
@@ -236,33 +239,29 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house.name, self.DATA['name'])
 
     def test_list_house_field_set_gps(self):
-        page_num = math.ceil(self.HOUSE_COUNT / self.PAGE_SIZE)
+        response = self.client.get(self.URL, {
+            'fields': 'pk,name,latitude,longitude',
+            'ne_lat': 37.580976691182734,
+            'ne_lng': 127.01328490704668,
+            'sw_lat': 37.502343388016456,
+            'sw_lng': 126.93020080060137,
+            'ordering': '-pk',
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        for i in range(int(page_num)):
-            response = self.client.get(self.URL, {
-                'page': i + 1,
-                'page_size': self.PAGE_SIZE,
-                'fields': 'pk,name,latitude,longitude',
-                'ltlatitude': 12.1234567,
-                'ltlongitude': 123.1234567,
-                'rblatitude': 12.1234567,
-                'rblongitude': 123.123456,
-            })
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data['count'], 'count')
 
-            self.assertIsNotNone(response.data['count'], 'count')
+        results = response.data['results']
 
-            results = response.data['results']
+        for j in range(len(results)):
+            house_result = results[j]
+            self.assertEqual(house_result['pk'], 1)
+            self.assertEqual(house_result['name'], self.DATA['name'])
+            self.assertNotEqual(house_result['latitude'], self.DATA['latitude'])
+            self.assertNotEqual(house_result['longitude'], self.DATA['longitude'])
 
-            for j in range(len(results)):
-                house_result = results[j]
-                self.assertEqual(house_result['pk'], ((i * self.PAGE_SIZE) + j) + 1)
-                self.assertEqual(house_result['name'], self.DATA['name'])
-                self.assertEqual(house_result['latitude'], self.DATA['latitude'])
-                self.assertEqual(house_result['longitude'], self.DATA['longitude'])
-
-                house = House.objects.get(pk=house_result['pk'])
-                self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
-                self.assertEqual(house.name, self.DATA['name'])
-                self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
-                self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
+            house = House.objects.get(pk=house_result['pk'])
+            self.assertEqual(house.pk, 1)
+            self.assertEqual(house.name, self.DATA['name'])
+            self.assertNotEqual(house.latitude, Decimal(self.DATA['latitude']))
+            self.assertNotEqual(house.longitude, Decimal(self.DATA['longitude']))

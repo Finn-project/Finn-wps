@@ -34,7 +34,7 @@ class AirbnbCrawler:
         # print(response.status_code)
 
     def get_bootstrapdata(self):
-        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=2'
+        url = 'https://www.airbnb.co.kr/s/homes?query=부산광역시&section_offset=2'
         headers = {
             # 'cache-control': "no-cache",
             'user-agent': 'Mozilla/5.0',
@@ -182,5 +182,6 @@ class AirbnbCrawler:
             print(HouseSerializer(house).data)
             print('')
 
-            if i == self.number_of_obj:
-                break
+            if self.number_of_obj > 0:
+                if i == self.number_of_obj:
+                    break

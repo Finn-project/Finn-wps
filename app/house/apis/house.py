@@ -1,4 +1,5 @@
-from django.db.models import Q
+from rest_framework.filters import OrderingFilter
+from django_filters import rest_framework as filters
 from rest_framework import permissions, generics, status
 from rest_framework.response import Response
 
@@ -13,34 +14,37 @@ __all__ = (
 )
 
 
+class GpsFilter(filters.FilterSet):
+    ne_lat = filters.NumberFilter(name='latitude', lookup_expr='lte')
+    ne_lng = filters.NumberFilter(name='longitude', lookup_expr='lte')
+    sw_lat = filters.NumberFilter(name='latitude', lookup_expr='gte')
+    sw_lng = filters.NumberFilter(name='longitude', lookup_expr='gte')
+
+    class Meta:
+        model = House
+        fields = (
+            'ne_lat',
+            'ne_lng',
+            'sw_lat',
+            'sw_lng',
+        )
+
+
 class HouseListCreateAPIView(generics.ListCreateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
     pagination_class = DefaultPagination
 
+    filter_class = GpsFilter
+
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
+    ordering_fields = ('pk', 'name',)
+    ordering = ('created_date',)
+
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
         IsHostOrReadOnly
     )
-
-    def get_queryset(self):
-        left_top_latitude = self.request.query_params.get('ltlatitude')
-        left_top_longitude = self.request.query_params.get('ltlongitude')
-        right_bottom_latitude = self.request.query_params.get('rblatitude')
-        right_bottom_longitude = self.request.query_params.get('rblongitude')
-
-        # 위도는 작고(lte) 크고(gte)
-        # latitude <= left_top_latitude && latitude >= right_bottom_latitude
-        # 경도는 크고(gte) 작고(lte)
-        # longitude >= left_top_longitude && longitude <= right_bottom_longitude
-        if left_top_latitude and left_top_longitude and right_bottom_latitude and right_bottom_longitude:
-            houses = House.objects.filter(
-                Q(latitude__lte=left_top_latitude), Q(latitude__gte=right_bottom_latitude),
-                Q(longitude__gte=left_top_longitude), Q(longitude__lte=right_bottom_longitude),
-            )
-            if houses:
-                return houses
-        return House.objects.all()
 
 
 class HouseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
