@@ -221,12 +221,12 @@ class House(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if getattr(self, 'img_cover'):
-            image = self.img_cover
-            try:
-                Image.open(self.img_cover).verify()
-            except OSError:
-                raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
+        # if getattr(self, 'img_cover'):
+        #     image = self.img_cover
+        #     try:
+        #         Image.open(self.img_cover).verify()
+        #     except OSError:
+        #         raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
 
         return super().save(*args, **kwargs)
 
