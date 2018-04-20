@@ -21,9 +21,9 @@ if not SETTINGS_MODULE or SETTINGS_MODULE == 'config.settings':
 class AirbnbCrawler:
     r = None
 
-    def __init__(self):
+    def __init__(self, number_of_obj):
         self.r = requests.Session()
-
+        self.number_of_obj = number_of_obj
         # url = 'https://www.airbnb.co.kr/s/homes?query=서울&section_offset=3&s_tag=ki-GoRvU&allow_override%5B%5D=&refinement_paths%5B%5D=%2Fhomes'
         # headers = {
         #     'User-agent': 'Mozilla/5.0',
@@ -34,7 +34,7 @@ class AirbnbCrawler:
         # print(response.status_code)
 
     def get_bootstrapdata(self):
-        url = 'https://www.airbnb.co.kr/s/homes?query=서울특별시&section_offset=3'
+        url = 'https://www.airbnb.co.kr/s/homes?query=부산광역시&section_offset=2'
         headers = {
             # 'cache-control': "no-cache",
             'user-agent': 'Mozilla/5.0',
@@ -186,5 +186,6 @@ class AirbnbCrawler:
             print(HouseSerializer(house).data)
             print('')
 
-            if i == 0:
-                break
+            if self.number_of_obj > 0:
+                if i == self.number_of_obj:
+                    break

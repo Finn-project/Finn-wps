@@ -1,4 +1,7 @@
-from django_filters.rest_framework import DjangoFilterBackend, filters
+from django_filters.rest_framework import DjangoFilterBackend, OrderingFilter
+from rest_framework.filters import OrderingFilter
+# from django_filters.rest_framework import OrderingFilter
+# -> 에러나는 import문
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
@@ -32,14 +35,13 @@ class ReservationCreateListView(generics.ListCreateAPIView):
         IsGuestOrReadOnly,
     )
 
-    filter_backends = (DjangoFilterBackend,)
-    # filter_backends = (filters.OrderingFilter,)
-    # filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
 
-    filter_fields = ('guest', 'house')
-    # filter_fields = ('guest', 'house')
-    # ordering_fields = ('pk', 'guest')
-    # ordering = ('pk',)
+    filter_fields = ('guest', 'house',)
+    ordering_fields = ('pk', 'check_in_date',)
+    ordering = ('check_in_date',)
+    # 역순으로 하고 싶다면.
+    # ordering = ('-check_in_date',)
 
     def perform_create(self, serializer):
 
@@ -64,9 +66,6 @@ class ReservationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView
         permissions.IsAuthenticated,
         IsGuestOrReadOnly,
     )
-
-
-
 
     # def get_serializer_class(self):
     #     if self.request.method == 'PATCH':

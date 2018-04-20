@@ -69,6 +69,15 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise CustomException(detail='비밀번호가 일치하지 않습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
+        # Patch 예외처리
+        if self.initial_data.get('username'):
+            username = self.initial_data.get('username')
+        else:
+            username = self.instance.username
+
+        if password.lower() in username.lower() or username.lower() in password.lower():
+            raise CustomException(detail='아이디와 비밀번호는 유사하게 설정할 수 없습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
         try:
             validate_password(password=password)
         except ValidationError as e:

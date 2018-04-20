@@ -1,6 +1,5 @@
-from django.http import HttpRequest
 from drf_dynamic_fields import DynamicFieldsMixin
-from rest_framework import serializers, request
+from rest_framework import serializers
 
 from members.serializers import UserSerializer
 from utils.image.resize import clear_imagekit_cache
@@ -16,19 +15,21 @@ __all__ = (
 
 class HouseImageField(serializers.RelatedField):
     def to_representation(self, value):
-        if self.context.get('request'):
-            return self.context.get('request').build_absolute_uri(value.image.url)
-        else:
-            return value.image.url
+        if hasattr(value, 'image'):
+            if self.context.get('request'):
+                return self.context.get('request').build_absolute_uri(value.image.url)
+            else:
+                # crawling 직후 HouseSerializer(house).data로 결과를 출력할 때
+                # 이곳에서 self.context안에 request가 들어있지 않기 때문에 예외처리 추가
+                return value.image.url
 
 
 class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
     reserve_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
-    img_cover = serializers.ImageField(read_only=True)
+    img_cover = serializers.ImageField(required=False)
     img_cover_thumbnail = serializers.ImageField(read_only=True)
-    # house_images = serializers.SerializerMethodField(read_only=True)
     house_images = HouseImageField(many=True, read_only=True, source='images')
 
     class Meta:
@@ -56,7 +57,6 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'district',
             'dong',
             'address1',
-            # 'address2',
             'latitude',
             'longitude',
             'disable_days',
@@ -65,19 +65,10 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'img_cover_thumbnail',
             'house_images',
         )
-        read_only_fields = (
-            'pk',
-            'host',
-            'created_date',
-            'modified_date',
-            'disable_days',
-            'reserve_days',
-            'img_cover',
-            'img_cover_thumbnail',
-            'house_images',
-        )
 
     def create(self, validated_data):
+        validated_data.pop('img_cover', None)
+
         request = self.context.get('request')
 
         validated_data['host'] = request.user
@@ -100,6 +91,8 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         return house
 
     def update(self, instance, validated_data):
+        validated_data.pop('img_cover', None)
+
         request = self.context.get('request')
         house = super().update(instance, validated_data)
 

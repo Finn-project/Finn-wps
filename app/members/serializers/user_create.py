@@ -50,6 +50,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise CustomException(detail='비밀번호가 일치하지 않습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
+        if password.lower() in self.initial_data['username'].lower() or self.initial_data['username'].lower() in password.lower():
+            raise CustomException(detail='아이디와 비밀번호는 유사하게 설정할 수 없습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
         try:
             validate_password(password=password)
         except ValidationError as e:

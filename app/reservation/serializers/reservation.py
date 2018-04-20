@@ -74,7 +74,7 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         # check_in_date & check_out_date 기본 validation
         check_in_date = attrs.get('check_in_date')
         check_out_date = attrs.get('check_out_date')
-        # Reservation create 예외처리 (2)
+        # # Reservation create 예외처리 (2)
         if not check_in_date:
             raise CustomException(detail='check-in 정보가 입력되지 않았습니다.', status_code=status.HTTP_400_BAD_REQUEST)
         elif not check_out_date:
