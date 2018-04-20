@@ -1,6 +1,5 @@
-from django.http import HttpRequest
 from drf_dynamic_fields import DynamicFieldsMixin
-from rest_framework import serializers, request
+from rest_framework import serializers
 
 from members.serializers import UserSerializer
 from utils.image.resize import clear_imagekit_cache
