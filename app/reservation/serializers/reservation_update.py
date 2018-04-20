@@ -103,6 +103,11 @@ class ReservationUpdateSerializer(ReservationSerializer):
             date_instance, _ = HouseReserveDay.objects.get_or_create(date=j)
             house.reserve_days.add(date_instance)
 
+        print(len(HouseReserveDay.objects.all()))
+        HouseReserveDay.objects.filter(houses_with_reserve_day=None).delete()
+        # .clear()로 ManyToMany 연결이 해제된 뒤 다시 연결되지 않은 object는 삭제
+        print(len(HouseReserveDay.objects.all()))
+
         return r
 
     # def to_representation(self, instance):
