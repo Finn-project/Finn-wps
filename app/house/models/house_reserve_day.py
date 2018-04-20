@@ -7,8 +7,8 @@ __all__ = (
 
 class HouseReserveDay(models.Model):
     date = models.DateField(
-        verbose_name='쉬는날',
-        help_text='쉬는날을 입력해 주세요',
+        verbose_name='예약된 날',
+        help_text='예약된 날 입니다.',
 
         unique=True,
     )

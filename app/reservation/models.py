@@ -70,7 +70,7 @@ class Reservation(models.Model):
     @property
     def reservation_current_state(self):
 
-        now = datetime.datetime.now()
+        now = timezone.now()
         now_date = now.strftime('%Y-%m-%d')
         # print(now_date)
         # print(type(now_date))
@@ -95,10 +95,13 @@ class Reservation(models.Model):
         # 구할 방법이 없어서 위와 같이 now.year를 활용함.
         if self.check_in_date > date_now:
             return 'BE'
+            # Before reservation
         elif self.check_out_date < date_now:
             return 'AF'
+            # After reservation
         else:
             return 'ON'
+            # Ongoing reservation
 
     class Meta:
         verbose_name_plural = '예약'

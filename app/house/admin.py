@@ -5,7 +5,8 @@ from .models import (
     HouseImage,
     Amenities,
     Facilities,
-    HouseDisableDay
+    HouseDisableDay,
+    HouseReserveDay,
 )
 
 admin.site.register(House)
@@ -13,3 +14,4 @@ admin.site.register(HouseImage)
 admin.site.register(Amenities)
 admin.site.register(Facilities)
 admin.site.register(HouseDisableDay)
+admin.site.register(HouseReserveDay)
