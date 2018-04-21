@@ -19,6 +19,8 @@ class HouseImageField(serializers.RelatedField):
             if self.context.get('request'):
                 return self.context.get('request').build_absolute_uri(value.image.url)
             else:
+                # crawling 직후 HouseSerializer(house).data로 결과를 출력할 때
+                # 이곳에서 self.context안에 request가 들어있지 않기 때문에 예외처리 추가
                 return value.image.url
 
 

@@ -63,26 +63,6 @@ class ReservationUpdateSerializer(ReservationSerializer):
 
         return attrs
 
-    # def update(self, instance, validated_data):
-    #
-    #     check_in_date = validated_data.get('check_in_date', instance.check_in_date)
-    #     check_out_date = validated_data.get('check_out_date', instance.check_out_date)
-    #     guest_num = validated_data.get('guest_num', instance.guest_num)
-    #     house = validated_data.get('house', instance.house)
-    #     guest = validated_data.get('guest', instance.guest)
-    #     payment_type = validated_data.get('payment_type')
-    #     reservation_status = validated_data.get('reservation_status')
-    #
-    #     instance.check_in_date = check_in_date
-    #     instance.check_out_date = check_out_date
-    #     instance.guest_num = guest_num
-    #     instance.houst = house
-    #     instance.guest = guest
-    #     instance.payment_type = payment_type
-    #     instance.reservation_status = reservation_status
-    #
-    #     return instance
-
     def update(self, instance, validated_data):
 
         # house = validated_data.get('house')

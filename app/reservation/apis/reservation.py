@@ -1,3 +1,7 @@
+from django_filters.rest_framework import DjangoFilterBackend, OrderingFilter
+from rest_framework.filters import OrderingFilter
+# from django_filters.rest_framework import OrderingFilter
+# -> 에러나는 import문
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
@@ -8,12 +12,20 @@ from ..models import Reservation
 from ..serializers import ReservationSerializer
 
 __all__ = (
-    'ReservationCreateListView',
+    'ReservationListCreateView',
     'ReservationRetrieveUpdateDestroyView',
 )
 
 
-class ReservationCreateListView(generics.ListCreateAPIView):
+# class ReservationFilter(django_filters.rest_framework.FilterSet):
+#     house = django_filters.CharFilter(host="house__host")
+#
+#     class Meta:
+#         model = Reservation
+#         fields = ['guest', 'house']
+
+
+class ReservationListCreateView(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
     pagination_class = DefaultPagination
@@ -22,6 +34,14 @@ class ReservationCreateListView(generics.ListCreateAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsGuestOrReadOnly,
     )
+
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+
+    filter_fields = ('guest', 'house',)
+    ordering_fields = ('pk', 'check_in_date',)
+    ordering = ('check_in_date',)
+    # 역순으로 하고 싶다면.
+    # ordering = ('-check_in_date',)
 
     def perform_create(self, serializer):
 
