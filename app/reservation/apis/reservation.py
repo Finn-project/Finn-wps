@@ -12,7 +12,7 @@ from ..models import Reservation
 from ..serializers import ReservationSerializer
 
 __all__ = (
-    'ReservationCreateListView',
+    'ReservationListCreateView',
     'ReservationRetrieveUpdateDestroyView',
 )
 
@@ -25,7 +25,7 @@ __all__ = (
 #         fields = ['guest', 'house']
 
 
-class ReservationCreateListView(generics.ListCreateAPIView):
+class ReservationListCreateView(generics.ListCreateAPIView):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
     pagination_class = DefaultPagination
