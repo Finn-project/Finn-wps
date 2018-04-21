@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.authtoken.models import Token
 from rest_framework.fields import ImageField
 
-from members.serializers import UserProfileImagesSerializer
+from members.serializers import UserProfileImagesSerializer, UserSerializer
 from ..models import UserProfileImages
 from utils.exception.custom_exception import CustomException
 
@@ -183,3 +184,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # img.img_profile.save('img_profile.png', data)
 
         return user
+
+    def to_representation(self, instance):
+        # ret = super().to_representation(instance)
+
+        token, _ = Token.objects.get_or_create(user=instance)
+        return UserSerializer(instance).data
