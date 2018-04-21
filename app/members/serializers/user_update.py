@@ -39,6 +39,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # 이 부분이 바뀌었는지 확인하기 위해서 위에 read_only 옵션을 주고 출력되도록 함.
     # img_profile_thumbnail = serializers.ImageField(read_only=True)
     images = UserProfileImagesSerializer(read_only=True)
+    img_profile = serializers.ImageField(write_only=True)
 
     class Meta:
         model = User
@@ -54,6 +55,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'is_facebook_user',
 
             'images',
+            'img_profile',
         )
 
     def validate_email(self, email):
@@ -87,15 +89,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         return password
 
+    def validate_img_profile(self, img_profile):
+        return img_profile
+
     def validate(self, attrs):
-        if self.initial_data.get('img_profile'):
-            images = self.initial_data['img_profile']
-
-            # restframework 내부 이미지 검증 코드 가져옴
-            imf = ImageField()
-            images2 = imf.to_internal_value(images)
-
-            attrs['images'] = images2
+        # if self.initial_data.get('img_profile'):
+        #     images = self.initial_data['img_profile']
+        #
+        #     # restframework 내부 이미지 검증 코드 가져옴
+        #     imf = ImageField()
+        #     images2 = imf.to_internal_value(images)
+        #
+        #     attrs['images'] = images2
 
         return attrs
 
@@ -107,7 +112,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         first_name = validated_data.get('first_name', user.first_name)
         last_name = validated_data.get('last_name', user.last_name)
         phone_num = validated_data.get('phone_num', user.phone_num)
-        img_profile = validated_data.get('images')
+        img_profile = validated_data.get('img_profile')
 
         # Facebook user의 경우에는 username과 email을 다르게 설정해야함.
         if user.is_facebook_user:
@@ -164,15 +169,31 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # user.images에 접근할 수 없다.
             # Q. 기존 Foreignkey에서는 모든 연결된 객체가 삭제되었는데
             # user.images로 접근할 때 에러가 안난 이유는?
-
             # clear_imagekit_cache_img_profile(user, user.pk)
             # clear_imagekit_cache_img_profile(user.pk)
-            if user.images.img_profile:
-                user.images.img_profile.delete()
-                user.images.img_profile_28.delete()
-                user.images.img_profile_225.delete()
+
+            # 이미지 삭제 방법 1 - 위에서 img 인스턴스를 뽑고 이렇게 한 이유는 잘 모르겠지만
+            #                  아무튼 이 방식으로 이미지를 지우게 되면
+            #                  원인은 모르지만 아래서 save한 결과가 Response에서
+            #                  출력되지 않는다.
+            #
+            # if user.images.img_profile:
+            #     user.images.img_profile.delete()
+            #     user.images.img_profile_28.delete()
+            #     user.images.img_profile_225.delete()
+
+            # 이미지 삭제 방법 2 - img 인스턴스에서 사진 필드에서 직접 접근
+            # if img.img_profile:
+            #     img.img_profile.delete()
+            #     img.img_profile_28.delete()
+            #     img.img_profile_225.delete()
+
+            # 이미지 삭제 방법 3 - img 인스턴스를 삭제 (post_delete로 이미지 삭제됨)
+            img.delete()
 
             # 1) 먼저 생각난 방법
+            img, _ = UserProfileImages.objects.get_or_create(user=user)
+
             img.img_profile_28.save('img_profile_28.png', img_profile)
             img.img_profile_225.save('img_profile_225.png', img_profile)
             img.img_profile.save('img_profile.png', img_profile)
@@ -183,10 +204,15 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             # img.img_profile_225.save('img_profile_225.png', data)
             # img.img_profile.save('img_profile.png', data)
 
+            # 이미지 저장 확인
+            # print(UserSerializer(user).data)
+            # print(user.images.img_profile)
+            # print(user.images.img_profile.name)
+
         return user
 
     def to_representation(self, instance):
         # ret = super().to_representation(instance)
 
-        token, _ = Token.objects.get_or_create(user=instance)
-        return UserSerializer(instance).data
+        data = UserSerializer(instance).data
+        return data
