@@ -66,7 +66,7 @@ class AirbnbCrawler:
                 break
                 # '정확한 위치는 예약 완료 후에 표시됩니다'를 제외하기 위한 예외처리
         description = ''.join(description_list)
-        print(description)
+        # print(description)
 
         # 3) 4) 5) 6) room, bed, bathroom, personnel
         span_list = soup.select('div._1thk0tsb > span._y8ard79')
@@ -125,52 +125,57 @@ class AirbnbCrawler:
 
         # 8) minimum_check_in_duration = 1,
         minimum_check_in_duration = listing_dict['min_nights']
-        print(minimum_check_in_duration)
+        # print(minimum_check_in_duration)
 
         # 9) 10) 11) 12) 13)
         address_list = listing_dict['location_title'].split(', ')
-        print(address_list)
+        # print(address_list)
         length = len(address_list)
+
         # 9) country
         country = address_list[length-1]
-        print(country)
+        # print(country)
+
         # 10) city
         city = address_list[length-2]
-        print(city)
+        # print(city)
+
         # 11) district
         district = listing_dict['localized_city']
         # district = address_list[length-3]
-        print(district)
+        # print(district)
+
         # 12) dong = ''
+
         # 13) address1
         address1 = address_list[0] if length > 3 else ''
         # 주소 명칭이 4개 있을 경우 가장 첫번째 단어를 상세주소(address1)에 할당
-        print(address1)
+        # print(address1)
 
         # 14) latitude
         lat = listing_dict['lat']
-        print(lat)
+        # print(lat)
 
         # 15) longitude
         lng = listing_dict['lng']
-        print(lng)
+        # print(lng)
 
         # 16) img_cover
         img_cover_url = listing_dict['photos'][0]['large']
-        print(img_cover_url)
+        # print(img_cover_url)
 
         # 17) inner
         # inner images 존재 x 경우 예외처리(1)
         if len(listing_dict['photos']) > 1:
             inner_img_url_1 = listing_dict['photos'][1]['large']
-            print(inner_img_url_1)
+            # print(inner_img_url_1)
         else:
             inner_img_url_1 = ''
 
         # inner images 존재 x 경우 예외처리(2)
         if len(listing_dict['photos']) > 2:
             inner_img_url_2 = listing_dict['photos'][2]['large']
-            print(inner_img_url_2)
+            # print(inner_img_url_2)
         else:
             inner_img_url_2 = ''
 
@@ -229,15 +234,15 @@ class AirbnbCrawler:
 
         # 1) username
         username = str(listing_dict['user']['id']) + '@finn.com'
-        print(username)
+        # print(username)
 
         # 2) first_name
-        first_name = username
-        print(first_name)
+        first_name = listing_dict['user']['host_name']
+        # print(first_name)
 
         # 3) img_profile path
         img_profile_url = listing_dict['user']['profile_pic_path']
-        print(img_profile_url)
+        # print(img_profile_url)
 
         host_user_data = {
             'username': username,
@@ -267,18 +272,18 @@ class AirbnbCrawler:
         #              '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
         #              '경기도', '강원도', '충청북도', '충청남도', '전라북도',
         #              '전라남도', '경상북도', '경상남도', '제주특별자치도']
-        city_list = ['서울특별시']
+        city_list = ['서울특별시', '부산광역시', '대구광역시']
+        print(f'다음 지역의 숙소들을 크롤링 합니다.')
+        print(f'{city for city in city_list}')
 
         for city in city_list:
-
-            print('---------------------------------------------------------------')
-            print(f'{city} 지역의 숙소를 크롤링 시작')
+            print('')
+            print(f'[1단계] {city} 지역의 숙소 {self.num_of_obj}개 크롤링 시작')
             print('---------------------------------------------------------------')
 
             for num in range(num_of_pages):
-
-                print('---------------------------------------------------------------')
-                print(f'{city} 지역의 숙소 검색결과 목록 중 "{num+1}" 페이지를 크롤링 중입니다..')
+                print('')
+                print(f'[2단계] {city} 지역의 숙소목록 중 "{num+1}" 페이지를 크롤링 중..')
                 print('---------------------------------------------------------------')
 
                 url = f'https://www.airbnb.co.kr/s/homes?query={city}&section_offset={num+1}'
@@ -290,16 +295,25 @@ class AirbnbCrawler:
                 # with open('test1.html', 'wt', encoding='utf8') as f:
                 #     f.write(html)
 
-                house_info = {}
                 itemListElement_list = soup.find('div', class_='_fhph4u').find_all('div', class_='_gig1e7')
                 house_num = len(itemListElement_list)
-                for i in itemListElement_list:
-                    house_id_str = i.select_one('div > div > div').get('id')
+                print(f'현 페이지 하우스 개수: {house_num}')
+                for i, item in enumerate(itemListElement_list):
+                    house_id_str = item.select_one('div > div > div').get('id')
                     house_id = house_id_str.split('-')[1]
 
-                    print(f'숙소 {house_id}를 크롤링합니다.')
+                    print(f'[3단계] 숙소 {house_id} 크롤링 시작')
+                    print('---------------------------------------------------------------')
+
                     self.house_detail_crawling(house_id)
-                    break
+
+                    # 현재 페이지가 크롤링 해야하는 마지막 페이지이고,
+                    if num + 1 == num_of_pages:
+                        # 방금 크롤링한 숙소가 크롤링 해야하는 마지막 숙소이면,
+                        if i + 1 == num_of_obj_in_the_last_page:
+                            # "for i in itemListElement_list" 반복문 탈출
+                            # (* for num in range(num_of_pages)는 자동 종료된다.)
+                            break
 
     def create_host_user_and_house(self, **kwargs):
         host_user_data = {
@@ -313,6 +327,8 @@ class AirbnbCrawler:
         except:
             j = 1
             user = User.objects.create_django_user(**host_user_data)
+            user.is_host = True
+            user.save()
 
         # host_user image 생성을 위한 OneToOne model 생성(or 가져오기)
         img, _ = UserProfileImages.objects.get_or_create(user=user)
@@ -326,10 +342,9 @@ class AirbnbCrawler:
         else:
             print(f'host_user({kwargs["username"]}) [업데이트 완료]')
 
-        print('크롤링 결과 데이터')
-        print('================================================')
+        print('[ 크롤링 결과 데이터 ]')
         print(UserSerializer(user).data)
-        print('================================================')
+        print('===============================================================')
 
         house_data = {
             # 'house_type': 'HO',
@@ -384,14 +399,15 @@ class AirbnbCrawler:
         else:
             print(f"house({kwargs['house_id']}) [업데이트 완료]")
 
-        print('크롤링 결과 데이터')
-        print('================================================')
+        print('[ 크롤링 결과 데이터 ]')
         print(HouseSerializer(house).data)
-        print('================================================')
+        print('===============================================================')
 
 
 if __name__ == '__main__':
-    air = AirbnbCrawler(3)
+    air = AirbnbCrawler(18)
     # air.house_page_crawling()
     # air.house_detail_crawling(17563112)
-    air.house_detail_crawling(19350356)
+    # air.house_detail_crawling(19350356)
+    # air.house_detail_crawling(23810665)
+    air.house_detail_crawling(15977440)
