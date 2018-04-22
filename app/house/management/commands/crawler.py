@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from utils.crawler.airbnb import AirbnbCrawler
+from utils.crawler.airbnb_json import AirbnbCrawler
 
 
 class Command(BaseCommand):

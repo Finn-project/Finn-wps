@@ -36,3 +36,6 @@ termcolor==1.1.0
 uWSGI==2.0.17
 wcwidth==0.1.7
 websocket-client==0.47.0
+beautifulsoup4==4.6.0
+lxml==4.2.1
+selenium==3.11.0

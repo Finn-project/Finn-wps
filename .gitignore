@@ -3,6 +3,8 @@
 /.static
 /.secrets
 aws.md
+house_detail_server_log.html
+house_page_server_log.html
 
 # Gitignore for deploy test server
 deploy2.sh
