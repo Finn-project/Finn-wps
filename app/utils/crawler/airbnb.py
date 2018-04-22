@@ -3,6 +3,7 @@ import re
 import requests
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from selenium import webdriver
 
 from house.models import House, HouseImage
 from house.serializers import HouseSerializer
@@ -24,6 +25,10 @@ class AirbnbCrawler:
     def __init__(self, num_of_obj):
         self.r = requests.Session()
         self.num_of_obj = num_of_obj
+
+        self.driver = webdriver.Chrome('/Users/smallbee/Downloads/chromedriver')
+        self.driver.implicitly_wait(3)
+
         # url = 'https://www.airbnb.co.kr/s/homes?query=서울&section_offset=3&s_tag=ki-GoRvU&allow_override%5B%5D=&refinement_paths%5B%5D=%2Fhomes'
         # headers = {
         #     'User-agent': 'Mozilla/5.0',
@@ -40,11 +45,11 @@ class AirbnbCrawler:
         #              '경기도', '강원도', '충청북도', '충청남도', '전라북도',
         #              '전라남도', '경상북도', '경상남도', '제주특별자치도']
 
-        city_list = ['제주특별자치도']
+        city_list = ['부산광역시']
 
         # 페이지 횟수 계산 (최대 개수 : 18(한 페이지 숙소수) x 17(최대 페이지 수) = 306)
 
-        # # 최대 크롤링 개수 예외처리
+        # # (각 도시별) 최대 크롤링 개수 예외처리
         if self.num_of_obj > 306:
             self.num_of_obj = 306
 
@@ -79,29 +84,34 @@ class AirbnbCrawler:
 
                 # response = requests.get(url)
                 # response = self.r.get(url, headers=headers)
-                response = requests.get(url, headers=headers)
+                # response = requests.get(url, headers=headers)
 
-                print(response.status_code)
-                source = response.text
-                if not response.status_code == 200:
-                    # requests를 통해 data 받는 것이 실패하면 해당 원인을 파악하기 위해
-                    # response 값을 출력한 뒤 종료
-                    print(source)
-                    return
+                # print(response.status_code)
+                # html = response.text
+                # if not response.status_code == 200:
+                #     # requests를 통해 data 받는 것이 실패하면 해당 원인을 파악하기 위해
+                #     # response 값을 출력한 뒤 종료
+                #     print(html)
+                #     return
 
-                # print(source)
-                bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?"><!--(.*?)--></script>', source)
+                self.driver.get(url)
+                html = self.driver.page_source
+
+                with open('test.html', 'wt', encoding='utf8') as f:
+                    f.write(html)
+
+                bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?">&lt;!--(.*?)--&gt;', html)
                 # print(bootstrap_data.groups(1)[0:10])
 
                 bootstrap_json = json.loads(bootstrap_data.group(1))
-
+                print(bootstrap_json)
                 # listing 18개가 들어있는 list
                 listing_list = \
                 bootstrap_json['bootstrapData']['reduxData']['exploreTab']['response']['explore_tabs'][0]['sections'][0][
                     'listings']
 
                 for i in range(len(listing_list)):
-                    # print(listing_list[i]['listing'])
+                    print(listing_list[i]['listing'])
                     listing = listing_list[i]['listing']
 
                     '''
