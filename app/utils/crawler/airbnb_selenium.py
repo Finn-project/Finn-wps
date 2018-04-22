@@ -274,7 +274,7 @@ class AirbnbCrawler:
         #              '전라남도', '경상북도', '경상남도', '제주특별자치도']
         city_list = ['서울특별시', '부산광역시', '대구광역시']
         print(f'다음 지역의 숙소들을 크롤링 합니다.')
-        print(f'{city for city in city_list}')
+        print(f'{[city for city in city_list]}')
 
         for city in city_list:
             print('')
