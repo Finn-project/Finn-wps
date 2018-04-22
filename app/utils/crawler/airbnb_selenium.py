@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -11,6 +12,11 @@ import django
 django.setup()
 
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from members.models import UserProfileImages
+from members.serializers import UserSerializer
+from house.models import House, HouseImage
+from house.serializers import HouseSerializer
 
 
 User = get_user_model()
@@ -239,6 +245,7 @@ class AirbnbCrawler:
             'first_name': first_name,
             'img_profile_url': img_profile_url,
         }
+        self.create_host_user_and_house(**house_data, **host_user_data)
 
     def house_page_crawling(self):
 
@@ -293,6 +300,94 @@ class AirbnbCrawler:
                     print(f'숙소 {house_id}를 크롤링합니다.')
                     self.house_detail_crawling(house_id)
                     break
+
+    def create_host_user_and_house(self, **kwargs):
+        host_user_data = {
+            'username': kwargs['username'],
+            'password': kwargs['password'],
+            'first_name': kwargs['first_name'],
+        }
+        j = 0
+        try:
+            user = User.objects.get(username=host_user_data['username'])
+        except:
+            j = 1
+            user = User.objects.create_django_user(**host_user_data)
+
+        # host_user image 생성을 위한 OneToOne model 생성(or 가져오기)
+        img, _ = UserProfileImages.objects.get_or_create(user=user)
+        if j == 1:
+            # host_user가 처음 생성될 때에만 profile image를 생성한다.
+            binary_data = requests.get(kwargs['img_profile_url']).content
+            img.img_profile.save('img_prifile.png', ContentFile(binary_data))
+            img.img_profile_28.save('img_prifile_28.png', ContentFile(binary_data))
+            img.img_profile_225.save('img_prifile_225.png', ContentFile(binary_data))
+            print(f'host_user({kwargs["username"]}) [생성 완료]')
+        else:
+            print(f'host_user({kwargs["username"]}) [업데이트 완료]')
+
+        print('크롤링 결과 데이터')
+        print('================================================')
+        print(UserSerializer(user).data)
+        print('================================================')
+
+        house_data = {
+            # 'house_type': 'HO',
+            'name': kwargs['name'],
+            'description': kwargs['description'],
+            'room': kwargs['room'],
+            'bed': kwargs['bed'],
+            'bathroom': kwargs['bathroom'],
+            'personnel': kwargs['personnel'],
+            # 'amenities': [],
+            # 'facilities': [1, 2, 3, 4, 5],
+            'minimum_check_in_duration': kwargs['minimum_check_in_duration'],
+            'maximum_check_in_duration': 5,
+            'maximum_check_in_range': 90,
+            'price_per_night': kwargs['price_per_night'],
+            'country': kwargs['country'],
+            'city': kwargs['city'],
+            'district': kwargs['district'],
+            # 'dong': 'default',
+            'address1': kwargs['address1'],
+            'latitude': kwargs['lat'],
+            'longitude': kwargs['lng'],
+            # 'disable_days': [
+            #     '2014-01-01',
+            #     '2014-02-01',
+            #     '2014-03-01',
+            #     '2014-04-01',
+            # ],
+
+            'host': user,
+        }
+
+        # img_cover 저장 (cover)
+        house, house_created = House.objects.update_or_create(
+            name=kwargs['name'],
+            defaults=house_data,
+        )
+        house.img_cover.save('house_crawling_cover.png', ContentFile(requests.get(kwargs['img_cover_url']).content))
+
+        # house_images 저장 (inner)
+        if kwargs.get('inner_img_url_1'):
+            binary_data1 = requests.get(kwargs['inner_img_url_1']).content
+            house_image_1 = HouseImage.objects.create(house=house)
+            house_image_1.image.save('house_crawling_inner1.png', ContentFile(binary_data1))
+        if kwargs.get('inner_img_url_2'):
+            binary_data2 = requests.get(kwargs['inner_img_url_2']).content
+            house_image_2 = HouseImage.objects.create(house=house)
+            house_image_2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
+
+        if house_created is True:
+            print(f"house({kwargs['house_id']}) [생성 완료]")
+        else:
+            print(f"house({kwargs['house_id']}) [업데이트 완료]")
+
+        print('크롤링 결과 데이터')
+        print('================================================')
+        print(HouseSerializer(house).data)
+        print('================================================')
 
 
 if __name__ == '__main__':
