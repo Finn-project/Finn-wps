@@ -31,6 +31,14 @@ class AirbnbCrawler:
         html = self.driver.page_source
         soup = BeautifulSoup(html, 'lxml')
 
+        if soup.select_one('span._13nd2f7d > h1._1xu9tpch') is None:
+            with open('test2.html', 'wt', encoding='utf8') as f:
+                f.write(html)
+            print(f'**서버 통신 이상** | {len(html)}')
+            return
+        else:
+            print(f'-서버 통신 정상- | {len(html)}')
+
         # (1) Regulation + BeautifulSoup 이용한 crawling
 
         # 1) name
