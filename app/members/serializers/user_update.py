@@ -214,5 +214,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         # ret = super().to_representation(instance)
 
-        data = UserSerializer(instance).data
-        return data
+        return UserSerializer(instance).data

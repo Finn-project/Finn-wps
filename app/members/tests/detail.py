@@ -35,11 +35,14 @@ class UserDetailTest(APITestCase):
         response = self.client.get(self.URL + '7/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertIsNotNone(response.data['user'], 'user')
-        user_data = response.data['user']
+        user_data = response.data
 
+        self.assertEqual(user_data['pk'], 7)
         self.assertEqual(user_data['username'], '7' + self.USERNAME)
         self.assertEqual(user_data['email'], '7' + self.USERNAME)
         self.assertEqual(user_data['first_name'], self.FIRST_NAME)
         self.assertEqual(user_data['last_name'], self.LAST_NAME)
         self.assertEqual(user_data['phone_num'], self.PHONE_NUM)
+        self.assertEqual(user_data['is_host'], False)
+        self.assertEqual(user_data['is_email_user'], True)
+        self.assertEqual(user_data['is_facebook_user'], False)
