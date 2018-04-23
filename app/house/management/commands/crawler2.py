@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from utils.crawler.airbnb import AirbnbCrawler
+from utils.crawler.airbnb_selenium import AirbnbCrawler
 
 
 class Command(BaseCommand):
@@ -8,7 +8,6 @@ class Command(BaseCommand):
         parser.add_argument('num_of_obj', type=int)
 
     def handle(self, *args, **options):
-        # crawler
         number_of_obj = options['num_of_obj']
         air = AirbnbCrawler(number_of_obj)
-        air.get_bootstrapdata()
+        air.house_page_crawling()
