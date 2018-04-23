@@ -7,7 +7,6 @@ from utils.permission.custom_permission import IsOwnerOrReadOnly
 
 User = get_user_model()
 
-
 __all__ = (
     'UserListCreateView',
     'UserRetrieveUpdateDestroyView',
@@ -33,4 +32,3 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsOwnerOrReadOnly,
     )
-
