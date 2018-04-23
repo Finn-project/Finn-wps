@@ -16,4 +16,7 @@ class HouseDisableDay(models.Model):
         unique=True,
     )
 
+    def __str__(self):
+        return f'{[self.pk]} {self.date}'
+
     objects = HouseDisableDayManager()

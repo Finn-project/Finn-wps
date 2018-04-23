@@ -107,9 +107,12 @@ class Reservation(models.Model):
         verbose_name_plural = '예약'
 
     def __str__(self):
-        return '{} 님의 예약 (기간: {} ~ {}) | 호스트: {}'.format(
-            self.guest,
+        return '{} {}(pk|{}) 님의 예약 (기간: {} ~ {}) | 호스트: {}(pk|{})'.format(
+            [self.pk],
+            self.guest.username,
+            self.guest.pk,
             self.check_in_date,
             self.check_out_date,
-            self.house.host,
+            self.house.host.username,
+            self.house.host.pk,
         )

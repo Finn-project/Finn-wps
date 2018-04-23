@@ -52,6 +52,9 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    def __str__(self):
+        return f'{[self.pk]} {self.username}'
+
 
 class HostManager(Manager):
     def get_queryset(self):

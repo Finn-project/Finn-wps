@@ -213,7 +213,7 @@ class House(models.Model):
         verbose_name_plural = '숙소'
 
     def __str__(self):
-        return self.name
+        return f'{[self.pk]} {self.name}'
 
 
 @receiver(pre_delete, sender=House)
