@@ -27,7 +27,10 @@ class AirbnbCrawler:
     def __init__(self, num_of_obj):
         self.num_of_obj = num_of_obj
 
-        self.driver = webdriver.Chrome('/Users/smallbee/Downloads/chromedriver')
+        # sumin
+        self.driver = webdriver.Chrome('/home/sumin/Downloads/chromedriver')
+
+        # self.driver = webdriver.Chrome('/Users/smallbee/Downloads/chromedriver')
         self.driver.implicitly_wait(3)
 
     def house_detail_crawling(self, house_id):

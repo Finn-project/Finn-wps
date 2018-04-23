@@ -37,6 +37,10 @@ class HouseListTest(APITestCase):
         '2014-03-01',
         '2014-04-01',
     ]
+    BASE_GPS = {
+        'latitude': '37.55824700000000',
+        'longitude': '126.92224100000000',
+    }
     DATA = {
         'house_type': House.HOUSE_TYPE_HOUSING,
         'name': '우리집',
@@ -55,8 +59,8 @@ class HouseListTest(APITestCase):
         'dong': '행복동',
         'address1': '777-1',
         # 'address2': '희망빌라 2동 301호',
-        'latitude': '37.55824700000000',
-        'longitude': '126.92224100000000',
+        'latitude': BASE_GPS['latitude'],
+        'longitude': BASE_GPS['longitude'],
     }
 
     def setUp(self):
@@ -85,8 +89,8 @@ class HouseListTest(APITestCase):
         for i in range(self.HOUSE_COUNT):
             self.DATA['host'] = self.user1 if i % 2 else self.user2
             if i > 0:
-                self.DATA['latitude'] = 35.21389421799400
-                self.DATA['longitude'] = 129.07717830846500
+                self.DATA['latitude'] = '35.21389421799400'
+                self.DATA['longitude'] = '129.07717830846500'
 
             house = House.objects.create(**self.DATA)
 
@@ -160,9 +164,8 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['district'], self.DATA['district'])
                 self.assertEqual(house_result['dong'], self.DATA['dong'])
                 self.assertEqual(house_result['address1'], self.DATA['address1'])
-                # self.assertEqual(house_result['address2'], self.DATA['address2'])
-                self.assertEqual(house_result['latitude'], self.DATA['latitude'])
-                self.assertEqual(house_result['longitude'], self.DATA['longitude'])
+                self.assertEqual(house_result['latitude'], self.BASE_GPS['latitude'] if i + j == 0 else self.DATA['latitude'])
+                self.assertEqual(house_result['longitude'], self.BASE_GPS['longitude'] if i + j == 0 else self.DATA['longitude'])
 
                 self.assertIn('disable_days', house_result)
 
@@ -196,8 +199,10 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house.dong, self.DATA['dong'])
                 self.assertEqual(house.address1, self.DATA['address1'])
                 # self.assertEqual(house.address2, self.DATA['address2'])
-                self.assertEqual(house.latitude, Decimal(self.DATA['latitude']))
-                self.assertEqual(house.longitude, Decimal(self.DATA['longitude']))
+                self.assertEqual(house.latitude,
+                                 Decimal(self.BASE_GPS['latitude']) if i + j == 0 else Decimal(self.DATA['latitude']))
+                self.assertEqual(house.longitude,
+                                 Decimal(self.BASE_GPS['longitude']) if i + j == 0 else Decimal(self.DATA['longitude']))
 
                 self.assertEqual(house.disable_days.count(), len(self.DISABLE_DAYS))
                 disable_day_list = list(house.disable_days.values_list('date', flat=True))
@@ -255,13 +260,15 @@ class HouseListTest(APITestCase):
 
         for j in range(len(results)):
             house_result = results[j]
+
             self.assertEqual(house_result['pk'], 1)
             self.assertEqual(house_result['name'], self.DATA['name'])
-            self.assertNotEqual(house_result['latitude'], self.DATA['latitude'])
-            self.assertNotEqual(house_result['longitude'], self.DATA['longitude'])
+
+            self.assertEqual(house_result['latitude'], self.BASE_GPS['latitude'])
+            self.assertEqual(house_result['longitude'], self.BASE_GPS['longitude'])
 
             house = House.objects.get(pk=house_result['pk'])
             self.assertEqual(house.pk, 1)
             self.assertEqual(house.name, self.DATA['name'])
-            self.assertNotEqual(house.latitude, Decimal(self.DATA['latitude']))
-            self.assertNotEqual(house.longitude, Decimal(self.DATA['longitude']))
+            self.assertEqual(house.latitude, Decimal(self.BASE_GPS['latitude']))
+            self.assertEqual(house.longitude, Decimal(self.BASE_GPS['longitude']))
