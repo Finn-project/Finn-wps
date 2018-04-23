@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import re
 import requests
 import time
@@ -417,13 +418,29 @@ class AirbnbCrawler:
             house_image_2 = HouseImage.objects.create(house=house)
             house_image_2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
 
+        def make_random_choice_list(list_data):
+            random_num = random.randint(1, len(list_data))
+            # print(f'random_num: {random_num}')
+
+            random_choice_list = []
+            for i in range(random_num):
+                random_choice = random.choice(list_data)
+                random_choice_list.append(random_choice)
+                list_data.remove(random_choice)
+                # print(f'{random_choice}| {len(list_data)}개 남음')
+                # print(list_data)
+            # print(random_choice_list)
+            return random_choice_list
+
         # amenities 저장
-        amenities_list = [2, 3, 4, 5, 6]
-        house.amenities.set(amenities_list)
+        amenities_list = [1, 2, 3, 4, 5, 6]
+        random_choice_list = make_random_choice_list(amenities_list)
+        house.amenities.set(random_choice_list)
 
         # facilities 저장
-        facilities_list = [1, 2, 3, 5]
-        house.facilities.set(facilities_list)
+        facilities_list = [1, 2, 3, 4, 5, 6]
+        random_choice_list = make_random_choice_list(facilities_list)
+        house.facilities.set(random_choice_list)
 
         # disaable_day 저장
         # disable_days_list = []

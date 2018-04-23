@@ -73,6 +73,7 @@ class ReservationUpdateSerializer(ReservationSerializer):
 
         # house = validated_data.get('house')
         # PATCH의 경우 validated_data에 house 정보가 없을 수 있음
+        # (Patch와 Put을 한 Serializer에서 사용하기에 발생하는 사항)
         house_pk = self.data.get('house').get('pk')
         house = get_object_or_404(House, pk=house_pk)
         house.reserve_days.clear()
