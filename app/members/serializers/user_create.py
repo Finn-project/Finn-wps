@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from rest_framework import serializers, status
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.authtoken.models import Token
 from rest_framework.fields import ImageField
 
-from members.serializers import UserProfileImagesSerializer
+from members.serializers import UserProfileImagesSerializer, UserSerializer
 from utils.exception.custom_exception import CustomException
 
 User = get_user_model()
@@ -50,6 +51,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise CustomException(detail='비밀번호가 일치하지 않습니다.', status_code=status.HTTP_400_BAD_REQUEST)
 
+        if password.lower() in self.initial_data['username'].lower() or self.initial_data['username'].lower() in password.lower():
+            raise CustomException(detail='아이디와 비밀번호는 유사하게 설정할 수 없습니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
         try:
             validate_password(password=password)
         except ValidationError as e:
@@ -81,3 +85,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         #      getlist를 할 경우 에러 발생 (get으로 하면 에러가 발생x, 'form-data'형식으로 보내도 에러x 원인은 모름)
 
         return User.objects.create_django_user(**validated_data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # print(ret)
+
+        token, _ = Token.objects.get_or_create(user=instance)
+        data = {
+            "token": token.key,
+            "user": UserSerializer(instance).data,
+        }
+        return data
