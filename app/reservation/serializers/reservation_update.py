@@ -65,13 +65,17 @@ class ReservationUpdateSerializer(ReservationSerializer):
 
     def update(self, instance, validated_data):
 
+        r = super().update(instance, validated_data)
+
+        # 위의 super().update() 구문이 바로 아래 3줄보다 위에 있으니
+        # 바로 update 반영안되는 이슈 해결됨...
+        # 원인은?!
+
         # house = validated_data.get('house')
         # PATCH의 경우 validated_data에 house 정보가 없을 수 있음
         house_pk = self.data.get('house').get('pk')
         house = get_object_or_404(House, pk=house_pk)
         house.reserve_days.clear()
-
-        r = super().update(instance, validated_data)
 
         reserved_days = []
         reservations = house.reservation_set.all()
@@ -83,10 +87,10 @@ class ReservationUpdateSerializer(ReservationSerializer):
             date_instance, _ = HouseReserveDay.objects.get_or_create(date=j)
             house.reserve_days.add(date_instance)
 
-        print(len(HouseReserveDay.objects.all()))
+        # print(len(HouseReserveDay.objects.all()))
         HouseReserveDay.objects.filter(houses_with_reserve_day=None).delete()
         # .clear()로 ManyToMany 연결이 해제된 뒤 다시 연결되지 않은 object는 삭제
-        print(len(HouseReserveDay.objects.all()))
+        # print(len(HouseReserveDay.objects.all()))
 
         return r
 
