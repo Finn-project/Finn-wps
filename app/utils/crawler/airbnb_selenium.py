@@ -29,9 +29,12 @@ class AirbnbCrawler:
         self.num_of_obj = num_of_obj
 
         # sumin
-        self.driver = webdriver.Chrome('/home/sumin/Downloads/chromedriver')
+        # self.driver = webdriver.Chrome('/home/sumin/Downloads/chromedriver')
 
-        # self.driver = webdriver.Chrome('/Users/smallbee/Downloads/chromedriver')
+        # vi ~/.zshrc에 하단 내용 추가해서 상대경로로 불러올 수 있도록 수정
+        # export PATH=${PATH}:~/Project/Downloads
+        self.driver = webdriver.Chrome('chromedriver')
+
         self.driver.implicitly_wait(3)
 
     def house_detail_crawling(self, house_id):
