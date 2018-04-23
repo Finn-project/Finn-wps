@@ -2,6 +2,7 @@ import json
 import os
 import re
 import requests
+import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -34,7 +35,7 @@ class AirbnbCrawler:
 
         house_url = f'https://www.airbnb.co.kr/rooms/{house_id}'
         self.driver.get(house_url)
-        self.driver.implicitly_wait(4)
+        self.driver.implicitly_wait(5)
         html = self.driver.page_source
         # self.driver.implicitly_wait(5)
         soup = BeautifulSoup(html, 'lxml')
@@ -296,7 +297,8 @@ class AirbnbCrawler:
                 self.driver.get(url)
                 # self.driver.implicitly_wait(5)
                 html = self.driver.page_source
-                self.driver.implicitly_wait(4)
+                self.driver.implicitly_wait(5)
+                time.sleep(1)
                 soup = BeautifulSoup(html, 'lxml')
 
                 try:
@@ -410,12 +412,12 @@ class AirbnbCrawler:
             house_image_2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
 
         # amenities 저장
-        # amenities_list = [1, 2, 3, 4, 5, 6]
-        # house.amenities.set(amenities_list)
+        amenities_list = [2, 3, 4, 5, 6]
+        house.amenities.set(amenities_list)
 
         # facilities 저장
-        # facilities_list = [1, 2, 3, 4, 5, 6]
-        # house.amenities.set(amenities_list)
+        facilities_list = [1, 2, 3, 5]
+        house.facilities.set(facilities_list)
 
         # disaable_day 저장
         # disable_days_list = []
