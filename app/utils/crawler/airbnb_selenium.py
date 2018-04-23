@@ -2,13 +2,15 @@ import json
 import os
 import random
 import re
+
+import datetime
 import requests
 import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
 # 한줄로 처리
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 
 import django
 django.setup()
@@ -17,8 +19,9 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from members.models import UserProfileImages
 from members.serializers import UserSerializer
-from house.models import House, HouseImage
+from house.models import House, HouseImage, HouseDisableDay
 from house.serializers import HouseSerializer
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -303,9 +306,9 @@ class AirbnbCrawler:
 
                 self.driver.get(url)
                 # self.driver.implicitly_wait(5)
+                time.sleep(1)
                 html = self.driver.page_source
                 self.driver.implicitly_wait(5)
-                time.sleep(1)
                 soup = BeautifulSoup(html, 'lxml')
 
                 try:
@@ -442,9 +445,29 @@ class AirbnbCrawler:
         random_choice_list = make_random_choice_list(facilities_list)
         house.facilities.set(random_choice_list)
 
-        # disaable_day 저장
-        # disable_days_list = []
-        # house.disable_days.set()
+        # disable_day 저장
+        now = timezone.now()
+        date_now = datetime.date(now.year, now.month, now.day)
+
+        disable_days_random_list = []
+        random_num_for_disable_days = random.randint(1, 15)
+
+        for i in range(random_num_for_disable_days):
+            n = random.randint(1, 90)
+            result = date_now + datetime.timedelta(n)
+            disable_days_random_list.append(date_now + datetime.timedelta(n))
+        print(disable_days_random_list)
+        # print(f'{set(disable_days_random_list)}')
+        disable_days_random_list = list(set(disable_days_random_list))
+        disable_days_random_list.sort()
+        print(disable_days_random_list)
+        # 1) set() 하면 중복만 제거
+        # 2) sort() 하면 순서만 정렬
+
+        for date in disable_days_random_list:
+            date_instance, _ = HouseDisableDay.objects.get_or_create(date=str(date))
+            house.disable_days.add(date_instance)
+        # house.disable_days.set(disable_days_random_list)
 
         print('')
         print(f'[ house 크롤링 결과 데이터 ]')
@@ -462,4 +485,5 @@ if __name__ == '__main__':
     # air.house_detail_crawling(17563112)
     # air.house_detail_crawling(19350356)
     # air.house_detail_crawling(23810665)
-    air.house_detail_crawling(15977440)
+    # air.house_detail_crawling(15977440)
+    air.house_detail_crawling(15512655)
