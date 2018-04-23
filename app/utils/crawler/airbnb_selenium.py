@@ -409,6 +409,18 @@ class AirbnbCrawler:
             house_image_2 = HouseImage.objects.create(house=house)
             house_image_2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
 
+        # amenities 저장
+        # amenities_list = [1, 2, 3, 4, 5, 6]
+        # house.amenities.set(amenities_list)
+
+        # facilities 저장
+        # facilities_list = [1, 2, 3, 4, 5, 6]
+        # house.amenities.set(amenities_list)
+
+        # disaable_day 저장
+        # disable_days_list = []
+        # house.disable_days.set()
+
         print('')
         print(f'[ house 크롤링 결과 데이터 ]')
         if house_created is True:
