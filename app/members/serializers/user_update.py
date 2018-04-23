@@ -39,7 +39,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     # 이 부분이 바뀌었는지 확인하기 위해서 위에 read_only 옵션을 주고 출력되도록 함.
     # img_profile_thumbnail = serializers.ImageField(read_only=True)
     images = UserProfileImagesSerializer(read_only=True)
-    img_profile = serializers.ImageField(write_only=True)
+    img_profile = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -214,5 +214,4 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         # ret = super().to_representation(instance)
 
-        data = UserSerializer(instance).data
-        return data
+        return UserSerializer(instance).data

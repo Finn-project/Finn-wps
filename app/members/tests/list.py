@@ -43,6 +43,14 @@ class UserListTest(APITestCase):
             response = self.client.get(self.URL, {'page': i + 1, 'page_size': self.PAGE_SIZE})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-            self.assertEqual(response.data,
+            self.assertIsNotNone(response.data['count'], 'count')
+            self.assertEqual(response.data['count'], self.USER_COUNT)
+
+            if i < page_num - 1:
+                self.assertIsNotNone(response.data['next'], 'next')
+            if i > 0:
+                self.assertIsNotNone(response.data['previous'], 'previous')
+
+            self.assertEqual(response.data['results'],
                              UserSerializer(User.objects.all()[i * self.PAGE_SIZE:(i + 1) * self.PAGE_SIZE],
                                             many=True).data, )
