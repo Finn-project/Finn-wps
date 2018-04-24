@@ -85,6 +85,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     'localhost:3000',
     'localhost:4200',
+    '.dothome.co.kr',
 )
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
