@@ -16,4 +16,10 @@ class HouseDisableDay(models.Model):
         unique=True,
     )
 
+    class Meta:
+        ordering = ['date']
+
+    def __str__(self):
+        return f'{[self.pk]} {self.date}'
+
     objects = HouseDisableDayManager()

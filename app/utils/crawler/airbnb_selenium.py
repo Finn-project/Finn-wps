@@ -1,12 +1,18 @@
 import json
 import os
+import random
 import re
+
+import datetime
 import requests
+import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
 # 한줄로 처리
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
+from selenium.common.exceptions import NoSuchWindowException
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 
 import django
 django.setup()
@@ -15,8 +21,9 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from members.models import UserProfileImages
 from members.serializers import UserSerializer
-from house.models import House, HouseImage
+from house.models import House, HouseImage, HouseDisableDay
 from house.serializers import HouseSerializer
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -28,18 +35,22 @@ class AirbnbCrawler:
         self.num_of_obj = num_of_obj
 
         # sumin
-        self.driver = webdriver.Chrome('/home/sumin/Downloads/chromedriver')
+        # self.driver = webdriver.Chrome('/home/sumin/Downloads/chromedriver')
 
-        # self.driver = webdriver.Chrome('/Users/smallbee/Downloads/chromedriver')
+        # vi ~/.zshrc에 하단 내용 추가해서 상대경로로 불러올 수 있도록 수정
+        # export PATH=${PATH}:~/Project/Downloads
+        self.driver = webdriver.Chrome('chromedriver')
+
         self.driver.implicitly_wait(3)
 
     def house_detail_crawling(self, house_id):
 
         house_url = f'https://www.airbnb.co.kr/rooms/{house_id}'
         self.driver.get(house_url)
-        self.driver.implicitly_wait(4)
-        html = self.driver.page_source
+        time.sleep(1)
         # self.driver.implicitly_wait(5)
+        html = self.driver.page_source
+        self.driver.implicitly_wait(5)
         soup = BeautifulSoup(html, 'lxml')
 
         # (1) Regulation + BeautifulSoup 이용한 crawling
@@ -249,11 +260,12 @@ class AirbnbCrawler:
                 'img_profile_url': img_profile_url,
             }
             self.create_host_user_and_house(**house_data, **host_user_data)
-        except AttributeError:
+        except (AttributeError, NoSuchWindowException) as e:
             print(f'#################################')
             with open('house_detail_server_log.html', 'wt', encoding='utf8') as f:
                 f.write(html)
             print(f'* 서버 통신 이상 * | {len(html)}')
+            print(f'exception: {e}')
             print(f'house_detail_sever_log.html 기록')
             print(f'#################################')
             pass
@@ -274,11 +286,12 @@ class AirbnbCrawler:
         if num_of_obj_in_the_last_page != 0:
             num_of_pages += 1
 
-        city_list = ['서울특별시', '부산광역시', '대구광역시', '인천광역시',
-                     '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
-                     '경기도', '강원도', '충청북도', '충청남도', '전라북도',
+        # city_list = ['서울특별시', '부산광역시', '대구광역시', '인천광역시',
+        #              '광주광역시', '대전광역시', '울산광역시', '세종특별자치시',
+        #              '경기도', '강원도', '충청북도', '충청남도', '전라북도',
+        #              '전라남도', '경상북도', '경상남도', '제주특별자치도']
+        city_list = ['충청남도', '전라북도',
                      '전라남도', '경상북도', '경상남도', '제주특별자치도']
-        # city_list = ['부산광역시', '대구광역시']
         print('')
         print(f'다음 지역의 숙소들을 크롤링 합니다.')
         print(f'{[city for city in city_list]}')
@@ -298,8 +311,9 @@ class AirbnbCrawler:
 
                 self.driver.get(url)
                 # self.driver.implicitly_wait(5)
+                time.sleep(1)
                 html = self.driver.page_source
-                self.driver.implicitly_wait(4)
+                self.driver.implicitly_wait(5)
                 soup = BeautifulSoup(html, 'lxml')
 
                 try:
@@ -323,11 +337,12 @@ class AirbnbCrawler:
                                 # "for i in itemListElement_list" 반복문 탈출
                                 # (* for num in range(num_of_pages)는 자동 종료된다.)
                                 break
-                except AttributeError:
+                except (AttributeError, NoSuchWindowException) as e:
                     print(f'#################################')
                     with open('house_page_server_log.html', 'wt', encoding='utf8') as f:
                         f.write(html)
                     print(f'* 서버 통신 이상 * | {len(html)}')
+                    print(f'exception: {e}')
                     print(f'house_page_server_log.html 기록')
                     print(f'#################################')
                     continue
@@ -412,6 +427,68 @@ class AirbnbCrawler:
             house_image_2 = HouseImage.objects.create(house=house)
             house_image_2.image.save('house_crawling_inner2.png', ContentFile(binary_data2))
 
+        def make_random_choice_list(list_data):
+            random_num = random.randint(1, len(list_data))
+            # print(f'random_num: {random_num}')
+
+            random_choice_list = []
+            for i in range(random_num):
+                random_choice = random.choice(list_data)
+                random_choice_list.append(random_choice)
+                list_data.remove(random_choice)
+                # print(f'{random_choice}| {len(list_data)}개 남음')
+                # print(list_data)
+            # print(random_choice_list)
+            return random_choice_list
+
+        # amenities 저장
+        amenities_list = [1, 2, 3, 4, 5, 6]
+        random_choice_list = make_random_choice_list(amenities_list)
+        house.amenities.set(random_choice_list)
+
+        # facilities 저장
+        facilities_list = [1, 2, 3, 4, 5, 6]
+        random_choice_list = make_random_choice_list(facilities_list)
+        house.facilities.set(random_choice_list)
+
+        # disable_day 저장
+        # (기존 house에 등록된 disable_day가 10일 미만일 때만 난수값을 생성해서 넣어준다.)
+        if house.disable_days.all().count() < 10:
+            now = timezone.now()
+            date_now = datetime.date(now.year, now.month, now.day)
+
+            disable_days_random_list = []
+            random_num_for_disable_days = random.randint(1, 10)
+
+            for i in range(random_num_for_disable_days):
+                n = random.randint(1, 90)
+                result = date_now + datetime.timedelta(n)
+                disable_days_random_list.append(date_now + datetime.timedelta(n))
+
+            # 1) set() 하면 중복만 제거
+            # 2) sort() 하면 순서만 정렬
+            # -> 여기서 sort()는 하나마나 의미가 없음.
+            #    1. 열심히 sort()해서 날짜순으로 만들어봤자. get_or_create할 때
+            #       기존에 있는 date를 그냥 가져오기때문에 어차피 날짜는 꼬임
+            #    2. 실질적으로 front에게 전달되는 HouseSerializer(house).data에서
+            #       실제로 json형태로 보여지는 출력값은
+            #       house.disable_days.add(date_instance)를 하는 순서가 어떻든 간에
+            #       pk순(더 정확하게는 created_date로 되어있음)으로 되어있어서 무조건 그것을 따른다.
+            #       (예를들면 amenities와 facilities는 위에서 넣는 순서가 제멋대로인데
+            #        실제 출력되는 json 값은 항상 sort()가 되어있는 것 처럼 보인다.
+            #        amenities와 facilities는 db구성시 최초 생성될 때 순서대로 생성되었기 때문)
+
+            # print(disable_days_random_list)
+            disable_days_random_list = list(set(disable_days_random_list))
+            # disable_days_random_list.sort()
+            # 의미없어서 .sort() 주석처리
+            # print(disable_days_random_list)
+
+            for date in disable_days_random_list:
+                # print(date)
+                date_instance, _ = HouseDisableDay.objects.get_or_create(date=str(date))
+                house.disable_days.add(date_instance)
+
         print('')
         print(f'[ house 크롤링 결과 데이터 ]')
         if house_created is True:
@@ -428,4 +505,5 @@ if __name__ == '__main__':
     # air.house_detail_crawling(17563112)
     # air.house_detail_crawling(19350356)
     # air.house_detail_crawling(23810665)
-    air.house_detail_crawling(15977440)
+    # air.house_detail_crawling(15977440)
+    air.house_detail_crawling(15512655)

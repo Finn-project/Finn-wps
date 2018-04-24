@@ -1,5 +1,5 @@
-FROM            himanmen/airbnb:base
-MAINTAINER      study.himanmen@gmail.com
+FROM            smallbee3/finn:base
+MAINTAINER      smallbee3@gmail.com
 
 ENV         BUILD_MODE production
 ENV         DJANGO_SETTINGS_MODULE config.settings.${BUILD_MODE}

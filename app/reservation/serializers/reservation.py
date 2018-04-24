@@ -21,7 +21,7 @@ class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     # house = serializers.PrimaryKeyRelatedField(read_only=True)
     # house를 PrimaryKeyRelatedField로 하면 Response에서 tree 구조로 표현이 안되고 pk만 보임.
     house = HouseSerializer(read_only=True)
-    guest = UserSerializer(read_only=True)
+    guest = UserSerializer(read_only= True)
     reservation_current_state = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

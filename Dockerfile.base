@@ -1,5 +1,5 @@
 FROM            python:3.6.4-slim
-MAINTAINER      study.himanmen@gmail.com
+MAINTAINER      smallbee3@gmail.com
 
 ENV             LANG    C.UTF-8
 
