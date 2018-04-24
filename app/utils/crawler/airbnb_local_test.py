@@ -51,7 +51,7 @@ class AirbnbCrawler:
         # source = response.text
 
         # 2) local airbnb_data.html
-        source = open('airbnb_data.html', 'rt', encoding='utf8').read()
+        source = open('airbnb_local_data.html', 'rt', encoding='utf8').read()
         print(source)
 
         bootstrap_data = re.search(r'data-hypernova-key="spaspabundlejs" data-hypernova-id=".*?"><!--(.*?)--></script>', source)

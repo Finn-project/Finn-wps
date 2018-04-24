@@ -4,7 +4,7 @@ from rest_framework import serializers, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
-from ..serializers import UserProfileImagesSerializer
+from ..serializers.user_image import UserProfileImagesSerializer
 
 User = get_user_model()
 
@@ -39,9 +39,14 @@ class UserSerializer(serializers.ModelSerializer):
     #     ret = super().to_representation(instance)
     #     print(ret)
     #
-    #     token, _ = Token.objects.get_or_create(user=instance)
-    #     data = {
-    #         "token": token.key,
-    #         "user": UserSerializer(instance).data,
-    #     }
-    #     return data
+    #     # token, _ = Token.objects.get_or_create(user=instance)
+    #     # data = {
+    #     #     "token": token.key,
+    #     #     "user": UserSerializer(instance).data,
+    #     # }
+    #     # return data
+    #     # -> UserSerializer(instance) 부분에서 위 부분 시리얼라이져를
+    #     #    호출하고 또 다시 위의 Serializer를 호출해서
+    #     #     무한 반복 문제가 발생
+    #
+    #     return ret

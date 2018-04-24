@@ -38,7 +38,7 @@ class HouseImage(models.Model):
         verbose_name_plural = '숙소 이미지들'
 
     def __str__(self):
-        return f'{self.image.name}'
+        return f'[house|{self.house.pk}] {self.image.name}'
 
 
 @receiver(pre_delete, sender=HouseImage)
