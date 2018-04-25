@@ -74,7 +74,9 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         validated_data['host'] = request.user
         house = super().create(validated_data)
 
-        for date in request.data.getlist('disable_days'):
+        disable_day_dict = request.data.get('disable_days')
+
+        for date in request.data.get('disable_days'):
             date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
             house.disable_days.add(date_instance)
 
