@@ -223,21 +223,26 @@ FROM <사용자명>/<저장소명>:base
 * Python 3.6
 * Django 2.0
 * Facebook
-* AWS 
-* Elastic Beanstalk
-* Rds
-* S3
-* Route53
+  - Login (web)
+  - Login (iOS)
+* DRF (Django REST framework)
+  - django-filter
+  - drf-dynamic-fields
+* Git
+  - Git Organization
+  - Git Fork Repository
 * Docker, Dockerhub
 * Database 
-    * Local(sqlite3)
-    * Production&Dev(postgresql)
-* Git
+  - Local(sqlite3)
+  - Production&Dev(postgresql)
+* AWS
+  - Elastic Beanstalk
+  - RDS(Relational Database Service)
+  - S3
+  - Route53
+  - ACM (AWS Certificate Manager)
+
 * Sentry
-* django-filter
-* django-imagekit
-* django-restframework
-* drf-dynamic-fields
 
 ~추가 중~
 
@@ -245,15 +250,15 @@ FROM <사용자명>/<저장소명>:base
 
 ***숙소***
 
-![숙소](./asset/house.png)
+![숙소](./assets/house.png)
 
 ***유저***
 
-![유저](./asset/members.png)
+![유저](./assets/members.png)
 
 ***예약***
 
-![예약](./asset/reservation.png)
+![예약](./assets/reservation.png)
 
 ## 향후 개선점
 
@@ -270,3 +275,24 @@ FROM <사용자명>/<저장소명>:base
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
+
+
+
+
+### 1) Front-end에서 작업한 결과물을 API server안에서 Serving 하기
+    ![숙소](./assets/https.png)
+
+
+ 1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
+ 2. 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
+    $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
+    $ sudo chmod 757 srv
+    $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
+
+ 3. /etc/nginx/sites-available/nginx-app.conf
+    ![숙소](./assets/nginx_setting.png)
+
+
+### 2) APIView에서 Custom Pagination 만들기
+
+ 1.
