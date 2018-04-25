@@ -19,6 +19,15 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 2. 호스트의 숙소 등록
 3. 등록된 숙소를 예약
 
+
+### 기능 및 특징
+* 회원 가입후 숙소를 등록하여 호스트가 되거나 숙소를 예약할 수 있는 시스템
+* 숙소 검색의 경우 구글맵의 주소검색을 통해 받아온 구글/애플 맵의 bounding box의 위경도 값(우상단 좌하단)안에 있는 숙소의 리스트﻿를 보여줌
+* 숙소와 유저 정보를 가져 올 때 다양한 쿼리 스트링을 통해 필요 한 정보와 순서로 획득 가능
+* 숙소의 커버이미지를 등록하면 작은 썸네일 이미지가 자동 생성.
+* 여러장의 숙소 이미지 등록 가능.
+등등..
+
 # 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
 
@@ -203,6 +212,55 @@ FROM <사용자명>/<저장소명>:base
 #### reservation
 
 
-## 사용된 도구
+## 사용된 도구 및 기술
 
+* Python 3.6
+* Django 2.0
+* Facebook
+* AWS 
+* Elastic Beanstalk
+* Rds
+* S3
+* Route53
+* Docker, Dockerhub
+* Database 
+    * Local(sqlite3)
+    * Production&Dev(postgresql)
+* Git
+* Sentry
+* django-filter
+* django-imagekit
+* django-restframework
+* drf-dynamic-fields
 
+~추가 중~
+
+### App별 Database erd
+
+***숙소***
+
+![숙소](./asset/house.png)
+
+***유저***
+
+![유저](./asset/members.png)
+
+***예약***
+
+![예약](./asset/reservation.png)
+
+## 향후 개선점
+
+* 각 숙소마다 리뷰를 등록할 수 있게 하기.
+* 평점 매기기
+* 호스트와 게스트간의 다이렉트 메세지 기능 추가
+* 카카오톡 로그인 추가
+* 숙소 관련 시리얼라이즈를 분리하여 좀 더 확장성 있게 리팩토링 해보기
+* 많은 데이터가 있을 경우의 ORM 최적화
+* Django Debug tool 사용하여 최적화 해보기
+* 결제 모듈
+* 위시 리스트
+* 추천
+* Django Template를 이용하여 사이트 만들어 보기.
+* 숙소 썸 네일 이미지 S3 저장 로직 변경
+등등..
