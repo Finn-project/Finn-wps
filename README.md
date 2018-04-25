@@ -34,6 +34,15 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
+### 애플리케이션 화면 
+<스크린샷>
+
+### 애플리케이션 영상 링크
+<링크>
+
+### API 문서 링크
+https://legacy.gitbook.com/book/himanmengit/airbnb/details
+
 # 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
 
@@ -228,7 +237,7 @@ FROM <사용자명>/<저장소명>:base
 * Rds
 * S3
 * Route53
-* Docker, Dockerhub
+* Docker, DockerHub
 * Database 
     * Local(sqlite3)
     * Production&Dev(postgresql)
@@ -238,8 +247,9 @@ FROM <사용자명>/<저장소명>:base
 * django-imagekit
 * django-restframework
 * drf-dynamic-fields
+* selenium (for crawling)
 
-~추가 중~
+등등
 
 ### App별 Database erd
 
@@ -254,6 +264,251 @@ FROM <사용자명>/<저장소명>:base
 ***예약***
 
 ![예약](./asset/reservation.png)
+
+## Code Review(박수민, 송영기)
+ 
+### by 박수민
+#### members (signup, list, retrieve)
+
+처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업. 
+이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
+유저를 만드는 `UserCreateSerializer`와 유저데이터를 직렬화를 해주는 `UserSerializer`를 분리 하여 사용
+이후 유저 관련 모든 기능은 다시 `GerericView`로 수정
+
+[소스코드](./app/members/apis/user_api.py)
+
+```python 
+class UserListCreateAPIView(APIView):
+    def post(self, request):
+        serializer = UserCreateSerializer(data=request.data)
+        ....
+        return Response(data, status=status.HTTP_201_CREATED)
+        
+
+    def get(self, request):
+        user_list = User.objects.filter(Q(is_superuser=False), Q(is_staff=False))
+        users = UserSerializer(user_list, many=True).data
+        pagination = CustomPagination(users, request)
+        return Response(pagination.object_list, status=status.HTTP_200_OK)
+
+
+class UserRetrieveUpdateDestroyAPIView(APIView):
+    def get(self, request, pk):
+        data = {
+            'user': UserSerializer(get_object_or_404(User, pk=pk)).data
+        }
+        return Response(data, status=status.HTTP_200_OK)        
+    ....
+```
+
+유저를 만들때는 `User`모델에 `UserManager`를 새로 만들어 `create_django_user`로 유저 생성.
+이유는 유저 생성과 `UserCreateSeializer`의 약한 결합을 위한 분리.
+
+[소스코드](./app/members/models.py)
+
+```python
+class UserManager(DjangoUserManager):
+    def create_django_user(self, *args, **kwargs):
+        ....
+        return user
+``` 
+
+`APIView`로 만들고 보니 `Pagination` 기능이 없어 직접 만들어 사용.
+
+[소스코드](./app/utils/pagination/custom_pagination.py)
+
+```python
+class CustomPagination():
+    DEFAULT_PAGE_SIZE = 25
+    MAX_PAGE_SIZE = 50
+
+    def __init__(self, users, request):
+        self.users = users
+        self.page = request.GET.get('page', 1)
+        self.page_size = min(int(request.GET.get('page_size', self.DEFAULT_PAGE_SIZE)), self.MAX_PAGE_SIZE)
+
+    @property
+    def object_list(self):
+        paginator = Paginator(self.users, self.page_size)
+
+        return paginator.get_page(self.page).object_list
+```
+
+게스트와 호스트의 기능 분리를 위해 `proxyModel`을 이용.
+그리고 분리된 유저 속성을 따로 가져오기 위해 매니저를 재정의 후 `get_queryset`을 오버라이딩 함.
+
+[소스코드](./app/members/models.py)
+
+```python
+class HostManager(Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_host=True)
+
+
+class Host(User):
+    objects = HostManager()
+
+    class Meta:
+        proxy = True
+
+# 게스트도 동일 함.
+```
+
+유저 관련 생성 관련 하여 `username`과 `password`의 `validate`를 따로 작업 후 `CustomException`을 만들어 발생 시킴
+
+[소스코드](./app/utils/exception/custom_exception.py)
+
+```python
+class CustomException(APIException):
+    detail = 'Invalid'
+    status_code = status.HTTP_400_BAD_REQUEST
+
+    def __init__(self, detail=None, status_code=None):
+      
+        if isinstance(detail, list):
+            detail = [detail]
+
+        CustomException.status_code = status_code
+        CustomException.detail = detail
+```
+
+[소스코드](./app/members/serializers/user_create.py)
+
+```python
+def validate_username(self, username):
+    if User.objects.filter(Q(username=username) | Q(email=username)).exists():
+        raise CustomException(detail='이미 존재하는 메일주소 입니다.', status_code=status.HTTP_409_CONFLICT)
+    return username
+```
+
+#### house
+숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
+숙소의 기본정보와 호스트 이미지 등이 포함.
+
+썸네일 이미지는 `django-imagekit` 패키지를 이용하여 리사이징된 썸네일 이미지를 자동 생성되게 함.
+`S3`에 리사이징된 썸네일 이미지가 삭제 되지 않는 문제 발생.
+`image-kit`으로 `aws s3`에 이미지 업로드시 알수 없는 `I/O`에러 발생 
+해당 패키지의 GitHub 이슈 페이지에서 해결 방법을 찾음.
+
+[소스코드](./app/house/models/house.py)
+
+```python
+img_cover = models.ImageField(upload_to=dynamic_img_cover_path, blank=True, default='')
+
+img_cover_thumbnail = ImageSpecField(
+    source='img_cover',
+    ....
+    )
+```
+
+그리고 숙소와 관련된 이미지들의 경로는 숙소의 `pk`를 사용하기 때문에 숙소를 만들고 난후 이미지들을 생성함.
+
+[소스코드](./app/house/serializers/house.py)
+
+```python
+    def create(self, validated_data):
+        validated_data.pop('img_cover', None)
+
+        request = self.context.get('request')
+
+        validated_data['host'] = request.user
+        house = super().create(validated_data)
+
+        for date in request.data.getlist('disable_days'):
+            date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+            house.disable_days.add(date_instance)
+
+        if request.FILES:
+            for img_cover in request.data.getlist('img_cover'):
+                house.img_cover.save(img_cover.name, img_cover)
+
+            for room_image in request.data.getlist('house_images'):
+                house.images.create_image(image=room_image)
+
+        request.user.is_host = True
+        request.user.save()
+
+        return house
+```
+또한 커버이미지는 `DRF serializer`의 `ImageField`를 사용하여 자동 `validation`을 하게 하였고
+ `foreignkey` 로 연결된 내부 이미지는 매니저를 재정의 하여 `validation`을 함
+`disable_days`필드도 마찬가지로 매니저를 재정의 하여 `validation`함.
+
+[소스코드](./app/house/models/managers.py)
+
+```python
+class HouseDisableDayManager(models.Manager):
+    def get_or_create(self, date):
+        try:
+            datetime.datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            raise CustomException(f'올바른 날짜 형식이 아닙니다 ({date})', status_code=status.HTTP_400_BAD_REQUEST)
+
+        return super().get_or_create(date=date)
+
+
+class HouseImageManager(models.Manager):
+    def create_image(self, image):
+        try:
+            Image.open(image).verify()
+        except OSError:
+            raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
+
+        return self.create(image=image)
+``` 
+
+그리고 숙소 리스트 조회시 필요한 `field`들만 가져오고 싶어서 `drf-dynamic-fields` 패키지를 사용함.
+`Serializer`에 `DynamicFieldsMixin`을 `Mixin`을 사용함.
+사용방법은 `GET /house/?fields=pk,username`의 형식으로 사용 가능
+
+[소스코드](./app/house/serializers/house.py)
+
+```
+class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    ....
+```
+
+또한 리스트 조회시 프론트/IOS 에서 보내주는 우상/좌하 단의 gps(위경도)를 받아 해당 위경도 안의 숙소 리스트를 반환.
+`django-filter` 패키지를 사용함.
+`ordering`기능도 같이 추가 함.
+
+사용방법은 `GET /house/?ordering=-pk&ne_lat=12.123123&ne_lng=123.1231231&sw_lat=12.123123&sw_lng=123.123123`의 형식으로 사용 가능
+
+[소스코드](./app/house/apis/house.py)
+
+```python
+class GpsFilter(filters.FilterSet):
+    ne_lat = filters.NumberFilter(name='latitude', lookup_expr='lte')
+    ne_lng = filters.NumberFilter(name='longitude', lookup_expr='lte')
+    sw_lat = filters.NumberFilter(name='latitude', lookup_expr='gte')
+    sw_lng = filters.NumberFilter(name='longitude', lookup_expr='gte')
+
+    class Meta:
+        model = House
+        fields = (
+            'ne_lat',
+            'ne_lng',
+            'sw_lat',
+            'sw_lng',
+        )
+
+
+class HouseListCreateAPIView(generics.ListCreateAPIView):
+    queryset = House.objects.all()
+    serializer_class = HouseSerializer
+    pagination_class = DefaultPagination
+
+    filter_class = GpsFilter
+
+    filter_backends = (filters.DjangoFilterBackend, OrderingFilter)
+    ordering_fields = ('pk', 'name',)
+    ordering = ('created_date',)
+
+    ...
+```
+
+### by 송영기
+<코드>
 
 ## 향후 개선점
 
