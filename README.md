@@ -507,6 +507,33 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     ...
 ```
 
+받는 형식과 보내주는 형식을 최대한 마추기위해 다양한 필드를 사용
+`SlugRelatedField`를 사용하여 `disable_days`의 `date`필드만 리스트에 넣어서 보내줌.
+`HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때 
+해당 이미지의 `url`만을 뽑아 리스트에 넣어 보내줌.
+
+[소스코드](./app/house/serializers/house.py)
+
+```python
+class HouseImageField(serializers.RelatedField):
+    def to_representation(self, value):
+        if hasattr(value, 'image'):
+            if self.context.get('request'):
+                return self.context.get('request').build_absolute_uri(value.image.url)
+            else:
+                return value.image.url
+                
+class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    host = UserSerializer(read_only=True)
+    disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    reserve_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    img_cover = serializers.ImageField(required=False)
+    img_cover_thumbnail = serializers.ImageField(read_only=True)
+    house_images = HouseImageField(many=True, read_only=True, source='images')
+    
+    ...
+```
+
 ### by 송영기
 <코드>
 
