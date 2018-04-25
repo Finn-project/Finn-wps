@@ -39,14 +39,14 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 ## Installation (Django runserver)
 
 #### 로컬 환경
-```python
+```
 pip install -r .requirements/local.txt
 python manage.py runserver
 ```
 
 #### AWS 환경
 
-```python
+```
 export DJANGO_SETTINGS_MODULE=config.settings.dev
 pip install -r .requirements./dev.txt
 python manage.py runserver
@@ -54,7 +54,7 @@ python manage.py runserver
 
 #### 배포 환경
 
-```python
+```
 export DJANGO_SETTINGS_MODULE=config.settings.production
 pip install -r .requirements./dev.txt
 python manage.py runserver
@@ -65,20 +65,20 @@ python manage.py runserver
 #### 로컬 환경
 
 `localhost:8000` 에서 확인
-```python
+```
 docker build -t airbnb:local -f Dockerfile.local
 docker run --rm -it 8000:80 airbnb:local
 ```
 
 #### AWS 환경 (개발 모드)
 
-```python
+```
 docker build -t airbnb:dev -f Dockerfile.dev
 docker run --rm -it 8000:80 airbnb:dev
 ```
 #### AWS 환경 (배포 모드)
 
-```python
+```
 docker build -t airbnb:production -f Dockerfile.production
 docker run --rm -it 8000:80 airbnb:production
 ```    
@@ -86,14 +86,14 @@ docker run --rm -it 8000:80 airbnb:production
 ## DockerHub 관련
 
 apt, pip 관련 내용을 미리 빌드해서 DockerHub 저장소에 미리 업로드 하여 사용
-```python
+```
 # DockerFile 위치에 가서
 docker build -t airbnb:base -f Dockerfile.base . 
 docker tag airbnb:base <자신의 사용자명>/<저장소명>:base
 docker push <사용자명>/<저장소명>:base
 ```
 이후 ElasticBeanstalk을 사용한 배포시, 해당 이미지를 사용한다.
-```python
+```
 FROM <사용자명>/<저장소명>:base
 ...
 ```
@@ -143,41 +143,66 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
+## 배포
+
+`deploy.sh`파일을 사용
+```
+./deploy.sh
+```
+
 ## 테스트 실행하기
 
-```python
+```
 ./manage.py test
 ```
 
 ### End-to-End 테스트
 
-`UserSignupTest`
+#### members
 
-> 회원 가입 정보를 `POST /user/`하여 회원 가입되어 토큰값과 회원정보가 잘 저장되는지 확인.
+* `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
+* `UserListTest` - 회원 리스트 조회 테스트
+* `UserDetailTest` - 회원 개별 조회 테스트
+* `UserUpdateTest` - 회원 수정 테스트 
+* `UserDeleteTest` - 회원 삭제 테스트
+* `UserLoginLogoutTest` - 로그인/로그아웃 테스트
 
 ```
 ./manage.py test members.tests.signup
+./manage.py test members.tests.list
+./manage.py test members.tests.detail
+./manage.py test members.tests.update
+./manage.py test members.tests.delete
+./manage.py test members.tests.login_logout
+
+# 일괄 테스트
+./manage.py test members
 ```
 
-### 코딩 스타일 테스트
+#### house
 
-이 단위 테스트가 테스트하는 항목을 설명하고 테스트를 하는 이유를 적어주세요.
+* `HouseCreateTest` - 숙소 등록 테스트
+* `HouseListTest` - 숙소 리스트 조회 테스트 
+* `HouseRetrieveTest` - 숙소 개별 조회 테스트
+* `HouseUpdateTest` - 숙소 수정 테스트
+* `HousePartialUpdateTest` - 숙소 부분 수정 테스트
+* `HouseDeleteTest` - 숙소 삭제 테스트
 
 ```
-예시도 재공하세요
+./manage.py test house.tests.create
+./manage.py test house.tests.list
+./manage.py test house.tests.retrieve
+./manage.py test house.tests.update
+./manage.py test house.tests.update_partial
+./manage.py test house.tests.delete
+
+# 일괄 테스트
+./manage.py test house
 ```
 
+#### reservation
 
-## 배포
-
-`deploy.sh`파일을 사용
-```python
-./deploy.sh
-```
 
 ## 사용된 도구
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - 웹 프레임워크
-* [Maven](https://maven.apache.org/) - 의존성 관리 프로그램
-* [ROME](https://rometools.github.io/rome/) - RSS 피드 생성기
 
