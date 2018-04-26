@@ -4,8 +4,6 @@
 
 인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
 
-역할 - AWS 배포 및 환경 설정, 유저모델링, 이메일 회원가입, 사용자 GET list/retrieve, 숙소 모델링, 숙소 등록 관련 기능 일체
-
 Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
 
 ### 주제 선정 이유
@@ -35,10 +33,14 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 등등..
 
 ### 애플리케이션 화면 
-<스크린샷>
+**IOS**
+
+**WEb**
 
 ### 애플리케이션 영상 링크
-<링크>
+**IOS**
+
+**WEB**
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
@@ -249,6 +251,8 @@ FROM <사용자명>/<저장소명>:base
 * drf-dynamic-fields
 * selenium (for crawling)
 
+<추가 내용>
+
 등등
 
 ### App별 Database erd
@@ -273,6 +277,7 @@ FROM <사용자명>/<저장소명>:base
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업. 
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
 유저를 만드는 `UserCreateSerializer`와 유저데이터를 직렬화를 해주는 `UserSerializer`를 분리 하여 사용
+
 이후 유저 관련 모든 기능은 다시 `GerericView`로 수정
 
 [소스코드](./app/members/apis/user_api.py)
@@ -534,6 +539,55 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ```
 
+#### 배포
+`ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
+```yaml
+files:
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/01_migrate.sh":
+    mode: "000755"
+    owner: root
+    group: root
+    content: |
+      #!/usr/bin/env bash
+      if [ -f /tmp/migrate ]
+      then
+        rm /tmp/migrate
+        sudo docker exec `sudo docker ps -q` /srv/project/app/manage.py migrate --noinput
+      fi
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/02_collectstatic.sh":
+    ...
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/03_createsu.sh":
+    ...
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/04_createservice.sh":
+    ...
+```
+
+그리고 `container_commands`를 이용하여 해당 커맨드들을 실행 시킴.<br>
+S3를 사용하지 않도록 설정하였으므로 모든 EC2에 정적파일이 존재할 수 있도록 leader_only 옵션 해제.
+
+```yaml
+container_commands:
+  01_migrate:
+    command:  "touch /tmp/migrate"
+    leader_only: true
+  02_collectstatic:
+    command:  "touch /tmp/collectstatic"
+  03_createsu:
+    command:  "touch /tmp/createsu"
+    leader_only: true
+  04_createservice:
+    command:  "touch /tmp/createservice"
+    leader_only: true
+``` 
+
+`deploy`시 `.secrets`폴더를 `git`의 `stage`영역에 추가 한 후 작업 완료 후 다시 삭제
+
+```yaml
+git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
+```
 ### by 송영기
 <코드>
 
@@ -552,3 +606,40 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
+
+## 스크럼 보드 
+
+***박수민***
+
+#### Sprint1
+
+![Sprint1](./asset/Scrum-Board-1.png)
+
+#### Sprint2
+
+![Sprint2](./asset/Scrum-Board-2.png)
+
+#### Sprint3
+
+![Sprint3](./asset/Scrum-Board-3.png)
+
+#### Sprint4
+
+![Sprint4](./asset/Scrum-Board-4.png)
+
+***송영기***
+
+
+## 트렐로
+
+#### Sprint1
+![Sprint4](./asset/trello_01.png)
+
+#### Sprint2
+![Sprint4](./asset/trello_02.png)
+
+#### Sprint3
+![Sprint4](./asset/trello_03.png)
+
+#### Sprint4
+![Sprint4](./asset/trello_04.png)
