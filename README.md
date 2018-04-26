@@ -247,6 +247,8 @@ FROM <사용자명>/<저장소명>:base
 * drf-dynamic-fields
 * selenium (for crawling)
 
+<추가 내용>
+
 등등
 
 ### App별 Database erd
@@ -271,6 +273,7 @@ FROM <사용자명>/<저장소명>:base
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업. 
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
 유저를 만드는 `UserCreateSerializer`와 유저데이터를 직렬화를 해주는 `UserSerializer`를 분리 하여 사용
+
 이후 유저 관련 모든 기능은 다시 `GerericView`로 수정
 
 [소스코드](./app/members/apis/user_api.py)
@@ -532,6 +535,55 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ```
 
+#### 배포
+`ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
+```yaml
+files:
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/01_migrate.sh":
+    mode: "000755"
+    owner: root
+    group: root
+    content: |
+      #!/usr/bin/env bash
+      if [ -f /tmp/migrate ]
+      then
+        rm /tmp/migrate
+        sudo docker exec `sudo docker ps -q` /srv/project/app/manage.py migrate --noinput
+      fi
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/02_collectstatic.sh":
+    ...
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/03_createsu.sh":
+    ...
+
+  "/opt/elasticbeanstalk/hooks/appdeploy/post/04_createservice.sh":
+    ...
+```
+
+그리고 `container_commands`를 이용하여 해당 커맨드들을 실행 시킴.<br>
+S3를 사용하지 않도록 설정하였으므로 모든 EC2에 정적파일이 존재할 수 있도록 leader_only 옵션 해제.
+
+```yaml
+container_commands:
+  01_migrate:
+    command:  "touch /tmp/migrate"
+    leader_only: true
+  02_collectstatic:
+    command:  "touch /tmp/collectstatic"
+  03_createsu:
+    command:  "touch /tmp/createsu"
+    leader_only: true
+  04_createservice:
+    command:  "touch /tmp/createservice"
+    leader_only: true
+``` 
+
+`deploy`시 `.secrets`폴더를 `git`의 `stage`영역에 추가 한 후 작업 완료 후 다시 삭제
+
+```yaml
+git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
+```
 ### by 송영기
 <코드>
 
