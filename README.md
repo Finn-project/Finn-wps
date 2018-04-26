@@ -611,20 +611,35 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 ***박수민***
 
-#### 1주차
+#### Sprint1
 
-![스크럼보드](./asset/Scrum-Board-1.png)
+![Sprint1](./asset/Scrum-Board-1.png)
 
-#### 2주차
+#### Sprint2
 
-![스크럼보드](./asset/Scrum-Board-2.png)
+![Sprint2](./asset/Scrum-Board-2.png)
 
-#### 3주차
+#### Sprint3
 
-![스크럼보드](./asset/Scrum-Board-3.png)
+![Sprint3](./asset/Scrum-Board-3.png)
 
-#### 4주차
+#### Sprint4
 
-![스크럼보드](./asset/Scrum-Board-4.png)
+![Sprint4](./asset/Scrum-Board-4.png)
 
 ***송영기***
+
+
+## 트렐로
+
+#### Sprint1
+![Sprint4](./asset/trello_01.png)
+
+#### Sprint2
+![Sprint4](./asset/trello_02.png)
+
+#### Sprint3
+![Sprint4](./asset/trello_03.png)
+
+#### Sprint4
+![Sprint4](./asset/trello_04.png)
