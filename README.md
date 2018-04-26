@@ -4,8 +4,6 @@
 
 인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
 
-역할 - AWS 배포 및 환경 설정, 유저모델링, 이메일 회원가입, 사용자 GET list/retrieve, 숙소 모델링, 숙소 등록 관련 기능 일체
-
 Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
 
 ### 주제 선정 이유
@@ -504,6 +502,33 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     ordering_fields = ('pk', 'name',)
     ordering = ('created_date',)
 
+    ...
+```
+
+받는 형식과 보내주는 형식을 최대한 마추기위해 다양한 필드를 사용
+`SlugRelatedField`를 사용하여 `disable_days`의 `date`필드만 리스트에 넣어서 보내줌.
+`HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때 
+해당 이미지의 `url`만을 뽑아 리스트에 넣어 보내줌.
+
+[소스코드](./app/house/serializers/house.py)
+
+```python
+class HouseImageField(serializers.RelatedField):
+    def to_representation(self, value):
+        if hasattr(value, 'image'):
+            if self.context.get('request'):
+                return self.context.get('request').build_absolute_uri(value.image.url)
+            else:
+                return value.image.url
+                
+class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    host = UserSerializer(read_only=True)
+    disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    reserve_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
+    img_cover = serializers.ImageField(required=False)
+    img_cover_thumbnail = serializers.ImageField(read_only=True)
+    house_images = HouseImageField(many=True, read_only=True, source='images')
+    
     ...
 ```
 
