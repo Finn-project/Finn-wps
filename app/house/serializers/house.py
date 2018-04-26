@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from drf_dynamic_fields import DynamicFieldsMixin
 from rest_framework import serializers
 
@@ -74,7 +75,28 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
         validated_data['host'] = request.user
         house = super().create(validated_data)
 
-        for date in request.data.getlist('disable_days'):
+        # * iOS에서 data 전송 시 QueryDict가 아닌 Dict 형태로 전달되어서
+        #   .getlist에서 계속 AttributeError가 발생하는 문제
+
+        # 1) 하드코딩 try ~ except 사용
+        # try:
+        #     for date in request.data.getlist('disable_days'):
+        #         date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+        #         house.disable_days.add(date_instance)
+        # except AttributeError:
+        #     for date in request.data.get('disable_days'):
+        #         date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
+        #         house.disable_days.add(date_instance)
+
+        # 2) Type 체크 후 예외처리
+
+        # if type(request.data) == QueryDict:
+        if isinstance(request.data, QueryDict):
+            disable_days_list = request.data.getlist('disable_days')
+        else:
+            disable_days_list = request.data.get('disable_days')
+
+        for date in disable_days_list:
             date_instance, created = HouseDisableDay.objects.get_or_create(date=date)
             house.disable_days.add(date_instance)
 
