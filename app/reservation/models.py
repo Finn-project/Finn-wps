@@ -11,8 +11,8 @@ __all__ = (
 
 
 class Reservation(models.Model):
-    check_in_date = models.DateField(unique=True)
-    check_out_date = models.DateField(unique=True)
+    check_in_date = models.DateField(blank=False)
+    check_out_date = models.DateField(blank=False)
     guest_num = models.PositiveSmallIntegerField(blank=True, default=1)
     # bank_account = models.CharField(max_length=30)
 
