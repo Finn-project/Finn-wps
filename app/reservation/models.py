@@ -66,12 +66,13 @@ class Reservation(models.Model):
 
     # reservation_current_state = models.CharField(max_length=2, blank=True)
 
-
     @property
     def reservation_current_state(self):
 
         now = timezone.now()
         now_date = now.strftime('%Y-%m-%d')
+        # -> type이 str이기 때문에 사용할 수 없음.
+
         # print(now_date)
         # print(type(now_date))
 

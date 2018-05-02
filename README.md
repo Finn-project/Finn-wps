@@ -16,10 +16,10 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 다양한 체험을 할 수 있는 트립, 레스토랑에 대한 정보와 이용 중개 서비스
 
 * 직접 (ex) 본인의 집) 숙박 서비스를 제공할 수 있는 호스팅 서비스
-	
+
 ### MVP 3 (3가지 주요 기능)
 
-1. 회원가입 
+1. 회원가입
 2. 호스트의 숙소 등록
 3. 등록된 숙소를 예약
 
@@ -32,15 +32,14 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 화면 
-**IOS**
-
-**WEb**
-
 ### 애플리케이션 영상 링크
 **IOS**
 
+[![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
+
 **WEB**
+
+[![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
@@ -107,14 +106,14 @@ docker run --rm -it 8000:80 airbnb:dev
 ```
 docker build -t airbnb:production -f Dockerfile.production
 docker run --rm -it 8000:80 airbnb:production
-```    
+```
 
 ## DockerHub 관련
 
 apt, pip 관련 내용을 미리 빌드해서 DockerHub 저장소에 미리 업로드 하여 사용
 ```
 # DockerFile 위치에 가서
-docker build -t airbnb:base -f Dockerfile.base . 
+docker build -t airbnb:base -f Dockerfile.base .
 docker tag airbnb:base <자신의 사용자명>/<저장소명>:base
 docker push <사용자명>/<저장소명>:base
 ```
@@ -145,7 +144,7 @@ FROM <사용자명>/<저장소명>:base
   "AWS_ACCESS_KEY_ID": "<AWS access key (Permission: S3)>",
   "AWS_SECRET_ACCESS_KEY": "<AWS secret access key>",
   "AWS_STORAGE_BUCKET_NAME": "<AWS S3 Bucket name>",
- 
+
   "AWS_DEFAULT_ACL": "private",
   "AWS_S3_REGION_NAME": "<AWS Bucket region>",
   "AWS_S3_SIGNATURE_VERSION": "s3v4",
@@ -189,7 +188,7 @@ FROM <사용자명>/<저장소명>:base
 * `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
 * `UserListTest` - 회원 리스트 조회 테스트
 * `UserDetailTest` - 회원 개별 조회 테스트
-* `UserUpdateTest` - 회원 수정 테스트 
+* `UserUpdateTest` - 회원 수정 테스트
 * `UserDeleteTest` - 회원 삭제 테스트
 * `UserLoginLogoutTest` - 로그인/로그아웃 테스트
 
@@ -208,7 +207,7 @@ FROM <사용자명>/<저장소명>:base
 #### house
 
 * `HouseCreateTest` - 숙소 등록 테스트
-* `HouseListTest` - 숙소 리스트 조회 테스트 
+* `HouseListTest` - 숙소 리스트 조회 테스트
 * `HouseRetrieveTest` - 숙소 개별 조회 테스트
 * `HouseUpdateTest` - 숙소 수정 테스트
 * `HousePartialUpdateTest` - 숙소 부분 수정 테스트
@@ -234,9 +233,8 @@ FROM <사용자명>/<저장소명>:base
 * Python 3.6
 * Django 2.0
 * django-imagekit
-* Facebook
-  - Login (web)
-  - Login (iOS)
+* OAuth
+  - Facebook Login (Web, iOS)
 * DRF (Django REST framework)
   - django-filter
   - Dynamic Fields Mixin
@@ -253,12 +251,11 @@ FROM <사용자명>/<저장소명>:base
   - S3
   - Route53
   - ACM (AWS Certificate Manager)
-* Sentry
-* selenium (for crawling)
+* Crawling
+  - Selenium
+  - Beautifulsoup4
+  - lxml
 
-<추가 내용>
-
-등등
 
 ### App별 Database erd
 
@@ -275,11 +272,11 @@ FROM <사용자명>/<저장소명>:base
 ![예약](./asset/reservation.png)
 
 ## Code Review(박수민, 송영기)
- 
+
 ### by 박수민
 #### members (signup, list, retrieve)
 
-처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업. 
+처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
 유저를 만드는 `UserCreateSerializer`와 유저데이터를 직렬화를 해주는 `UserSerializer`를 분리 하여 사용
 
@@ -287,13 +284,13 @@ FROM <사용자명>/<저장소명>:base
 
 [소스코드](./app/members/apis/user_api.py)
 
-```python 
+```python
 class UserListCreateAPIView(APIView):
     def post(self, request):
         serializer = UserCreateSerializer(data=request.data)
         ....
         return Response(data, status=status.HTTP_201_CREATED)
-        
+
 
     def get(self, request):
         user_list = User.objects.filter(Q(is_superuser=False), Q(is_staff=False))
@@ -307,7 +304,7 @@ class UserRetrieveUpdateDestroyAPIView(APIView):
         data = {
             'user': UserSerializer(get_object_or_404(User, pk=pk)).data
         }
-        return Response(data, status=status.HTTP_200_OK)        
+        return Response(data, status=status.HTTP_200_OK)
     ....
 ```
 
@@ -321,7 +318,7 @@ class UserManager(DjangoUserManager):
     def create_django_user(self, *args, **kwargs):
         ....
         return user
-``` 
+```
 
 `APIView`로 만들고 보니 `Pagination` 기능이 없어 직접 만들어 사용.
 
@@ -374,7 +371,7 @@ class CustomException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
 
     def __init__(self, detail=None, status_code=None):
-      
+
         if isinstance(detail, list):
             detail = [detail]
 
@@ -397,7 +394,7 @@ def validate_username(self, username):
 
 썸네일 이미지는 `django-imagekit` 패키지를 이용하여 리사이징된 썸네일 이미지를 자동 생성되게 함.
 `S3`에 리사이징된 썸네일 이미지가 삭제 되지 않는 문제 발생.
-`image-kit`으로 `aws s3`에 이미지 업로드시 알수 없는 `I/O`에러 발생 
+`image-kit`으로 `aws s3`에 이미지 업로드시 알수 없는 `I/O`에러 발생
 해당 패키지의 GitHub 이슈 페이지에서 해결 방법을 찾음.
 
 [소스코드](./app/house/models/house.py)
@@ -465,7 +462,7 @@ class HouseImageManager(models.Manager):
             raise CustomException(f'올바른 이미지 파일 형식이 아닙니다. ({image.name})', status_code=status.HTTP_400_BAD_REQUEST)
 
         return self.create(image=image)
-``` 
+```
 
 그리고 숙소 리스트 조회시 필요한 `field`들만 가져오고 싶어서 `drf-dynamic-fields` 패키지를 사용함.
 `Serializer`에 `DynamicFieldsMixin`을 `Mixin`을 사용함.
@@ -519,7 +516,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
 
 받는 형식과 보내주는 형식을 최대한 마추기위해 다양한 필드를 사용
 `SlugRelatedField`를 사용하여 `disable_days`의 `date`필드만 리스트에 넣어서 보내줌.
-`HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때 
+`HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때
 해당 이미지의 `url`만을 뽑아 리스트에 넣어 보내줌.
 
 [소스코드](./app/house/serializers/house.py)
@@ -532,7 +529,7 @@ class HouseImageField(serializers.RelatedField):
                 return self.context.get('request').build_absolute_uri(value.image.url)
             else:
                 return value.image.url
-                
+
 class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     host = UserSerializer(read_only=True)
     disable_days = serializers.SlugRelatedField(many=True, read_only=True, slug_field='date')
@@ -540,7 +537,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     img_cover = serializers.ImageField(required=False)
     img_cover_thumbnail = serializers.ImageField(read_only=True)
     house_images = HouseImageField(many=True, read_only=True, source='images')
-    
+
     ...
 ```
 
@@ -586,15 +583,104 @@ container_commands:
   04_createservice:
     command:  "touch /tmp/createservice"
     leader_only: true
-``` 
+```
 
 `deploy`시 `.secrets`폴더를 `git`의 `stage`영역에 추가 한 후 작업 완료 후 다시 삭제
 
 ```yaml
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
+
 ### by 송영기
-<코드>
+
+#### 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+
+
+
+**(코드작성 이유)**
+예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를
+알려주는 지표가 필요함.
+
+**(단계 1)**
+기존에 정의한 reservation_status라는 Character field와는
+별도로 reservation_current_state라는 함수를 정의하고 이 함수를 property 선언
+
+```python
+    @property
+    def reservation_current_state(self):
+
+        now = timezone.now()
+
+        date_now = datetime.date(now.year, now.month, now.day)
+        # check_in_date field는 datetime.date type이기 때문에
+        # 2018-04-19 형태로 된 값과 비교를 해야함.
+        # datetime.date 형태로 현재 시점의 값을 구하기 위해서
+        # 위와 같이 now.year, now.month, now.day를 활용함.
+
+        if self.check_in_date > date_now:
+            return 'BE'
+            # Before reservation
+        elif self.check_out_date < date_now:
+            return 'AF'
+            # After reservation
+        else:
+            return 'ON'
+            # Ongoing reservation
+```
+
+
+**(단계 2)**
+
+Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
+Dynamic Fields Mixin을 활용.
+
+```python
+    class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+
+        ...
+        reservation_current_state = serializers.SerializerMethodField(read_only=True)
+```
+
+```python
+    def get_reservation_current_state(self, obj):
+        return obj.reservation_current_state
+```
+
+
+**(단계 3)**
+
+아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있음.
+
+{
+    "count": 30,
+    "next": "https://dlighter.com/reservation/?page=2",
+    "previous": null,
+    "results": [
+        {
+            [...]
+            "reservation_current_state": "AF",
+        }
+     ]
+}
+
+
+
+
+
+#### Email / Facebook / 및 타 계정 로그인 호
+
+
+```python
+추가예정
+```
+
+
+#### AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
+
+```python
+추가예정
+```
+
 
 ## 향후 개선점
 
@@ -611,10 +697,8 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
-<<<<<<< HEAD
-=======
 
-## 스크럼 보드 
+## 스크럼 보드
 
 ***박수민***
 
@@ -650,4 +734,3 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 #### Sprint4
 ![Sprint4](./asset/trello_04.png)
->>>>>>> upstream/dev
