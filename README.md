@@ -32,15 +32,14 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 화면 
-**IOS**
-
-**WEb**
-
 ### 애플리케이션 영상 링크
 **IOS**
 
+[![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
+
 **WEB**
+
+[![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
@@ -588,8 +587,6 @@ container_commands:
 ```yaml
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
-### by 송영기
-<코드>
 
 ## 향후 개선점
 
