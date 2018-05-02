@@ -34,10 +34,12 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 
 ### 애플리케이션 영상 링크
 **IOS**
-https://www.youtube.com/watch?v=DakKUIPhBV8&t=139s
+
+[![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
 
 **WEB**
-https://www.youtube.com/embed/z0QJ7pLDDSE
+
+[![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
