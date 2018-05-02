@@ -587,8 +587,6 @@ container_commands:
 ```yaml
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
-### by 송영기
-<코드>
 
 ## 향후 개선점
 
