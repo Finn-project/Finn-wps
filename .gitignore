@@ -3,16 +3,18 @@
 /.static
 /.secrets
 aws.md
-house_detail_server_log.html
-house_page_server_log.html
+*.html
 
-# Gitignore for deploy test server
+
+# Gitignore for deploying the second server
 deploy2.sh
+
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
 
 # Created by https://www.gitignore.io/api/git,linux,macos,django,python,pycharm+all
 

@@ -8,7 +8,10 @@ class CustomPagination():
     def __init__(self, users, request):
         self.users = users
         self.page = request.GET.get('page', 1)
-        self.page_size = min(int(request.GET.get('page_size', self.DEFAULT_PAGE_SIZE)), self.MAX_PAGE_SIZE)
+        self.page_size = min(
+            int(request.GET.get('page_size', self.DEFAULT_PAGE_SIZE)),
+            self.MAX_PAGE_SIZE
+        )
 
     @property
     def object_list(self):
