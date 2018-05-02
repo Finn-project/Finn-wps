@@ -85,8 +85,10 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:8000',
     'localhost:3000',
     'localhost:4200',
-    'rxd119.dothome.co.kr',
-    'fc-finn-front.s3-website.ap-northeast-2.amazonaws.com',
+    # 'rxd119.dothome.co.kr',
+    # 'fc-finn-front.s3-website.ap-northeast-2.amazonaws.com',
+    # 'ec2-52-78-196-254.ap-northeast-2.compute.amazonaws.com',
+    'finn.dlighter.com',
 )
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

@@ -233,22 +233,27 @@ FROM <사용자명>/<저장소명>:base
 
 * Python 3.6
 * Django 2.0
-* Facebook
-* AWS 
-* Elastic Beanstalk
-* Rds
-* S3
-* Route53
-* Docker, DockerHub
-* Database 
-    * Local(sqlite3)
-    * Production&Dev(postgresql)
-* Git
-* Sentry
-* django-filter
 * django-imagekit
-* django-restframework
-* drf-dynamic-fields
+* Facebook
+  - Login (web)
+  - Login (iOS)
+* DRF (Django REST framework)
+  - django-filter
+  - Dynamic Fields Mixin
+* Git
+  - Git Organization
+  - Git Fork Repository
+* Docker, Dockerhub
+* Database
+  - Local(sqlite3)
+  - Production & Dev(postgresql)
+* AWS
+  - Elastic Beanstalk
+  - RDS(Relational Database Service)
+  - S3
+  - Route53
+  - ACM (AWS Certificate Manager)
+* Sentry
 * selenium (for crawling)
 
 <추가 내용>
@@ -606,6 +611,8 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
+<<<<<<< HEAD
+=======
 
 ## 스크럼 보드 
 
@@ -643,3 +650,4 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 #### Sprint4
 ![Sprint4](./asset/trello_04.png)
+>>>>>>> upstream/dev
