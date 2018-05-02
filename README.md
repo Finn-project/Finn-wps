@@ -32,15 +32,14 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 화면 
-**IOS**
-
-**WEb**
-
 ### 애플리케이션 영상 링크
 **IOS**
 
+[![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
+
 **WEB**
+
+[![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
@@ -233,27 +232,22 @@ FROM <사용자명>/<저장소명>:base
 
 * Python 3.6
 * Django 2.0
-* django-imagekit
 * Facebook
-  - Login (web)
-  - Login (iOS)
-* DRF (Django REST framework)
-  - django-filter
-  - Dynamic Fields Mixin
+* AWS 
+* Elastic Beanstalk
+* Rds
+* S3
+* Route53
+* Docker, DockerHub
+* Database 
+    * Local(sqlite3)
+    * Production&Dev(postgresql)
 * Git
-  - Git Organization
-  - Git Fork Repository
-* Docker, Dockerhub
-* Database
-  - Local(sqlite3)
-  - Production & Dev(postgresql)
-* AWS
-  - Elastic Beanstalk
-  - RDS(Relational Database Service)
-  - S3
-  - Route53
-  - ACM (AWS Certificate Manager)
 * Sentry
+* django-filter
+* django-imagekit
+* django-restframework
+* drf-dynamic-fields
 * selenium (for crawling)
 
 <추가 내용>
@@ -593,8 +587,6 @@ container_commands:
 ```yaml
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
-### by 송영기
-<코드>
 
 ## 향후 개선점
 
@@ -611,8 +603,6 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
-<<<<<<< HEAD
-=======
 
 ## 스크럼 보드 
 
@@ -650,4 +640,3 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 #### Sprint4
 ![Sprint4](./asset/trello_04.png)
->>>>>>> upstream/dev
