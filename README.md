@@ -32,15 +32,12 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 화면 
-**IOS**
-
-**WEb**
-
 ### 애플리케이션 영상 링크
 **IOS**
+https://www.youtube.com/watch?v=DakKUIPhBV8&t=139s
 
 **WEB**
+https://www.youtube.com/embed/z0QJ7pLDDSE
 
 ### API 문서 링크
 https://legacy.gitbook.com/book/himanmengit/airbnb/details
