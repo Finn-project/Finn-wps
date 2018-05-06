@@ -227,6 +227,17 @@ FROM <사용자명>/<저장소명>:base
 
 #### reservation
 
+* `ReservationCreateTest` - 숙소 등록 테스트
+* `ReservationListTest` - 숙소 리스트 조회 테스트
+
+```
+./manage.py test reservation.tests.create
+./manage.py test reservation.tests.list
+
+
+# 일괄 테스트
+./manage.py test reservation
+```
 
 ## 사용된 도구 및 기술
 
@@ -593,7 +604,7 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 ### by 송영기
 
-#### 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+#### (1) MethodField - 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
 
 
 
@@ -630,7 +641,6 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 
 **(단계 2)**
-
 Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
 Dynamic Fields Mixin을 활용.
 
@@ -648,7 +658,6 @@ Dynamic Fields Mixin을 활용.
 
 
 **(단계 3)**
-
 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있음.
 
 {
@@ -664,22 +673,77 @@ Dynamic Fields Mixin을 활용.
 }
 
 
+#### (2) AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
+
+
+**(단계 1)**
+AWS Route53의 Alias 기능 활용 - S3에는 업로드된 정적 웹 페이지를 호스팅하는 기능이 있는데
+별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있는 장점이 있어서 이 S3 웹 호스팅을 Route53에 연결시키는 방법을 먼저 시도.
+
+![s3](./asset/s3_hosting.png)
+
+![route53](./asset/route53.png)
+Route53에서 S3 정적페이지에 연결하고자 하는 도메인을 선택한 후 Alias를 설정 후
+Alias Target에서 '-- S3 website endpoints --'을 선택함.
+(Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
+
+
+* **문제점**
+
+> 1. 저장소의 권한은 '퍼블릭'하게 설정해야함 (AWS Documentation 참고) -> 모든 사용자에 노출되어 있어 공격에 취약
+> 2. https 액세스 지원 x -> 보안에 취약
+> 3. 정적파일의 크기가 클 경우 S3에 주기적으로 업로드하는 과정에서 많은 비용 발생
 
 
 
-#### Email / Facebook / 및 타 계정 로그인 호
+**(단계 2)**
+ElasticBeanstalk의 EC2 활용 - ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving
 
 
-```python
-추가예정
-```
+1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
+
+2. 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
+
+    ````
+    $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
+
+    $ sudo chmod 757 srv
+
+    $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
+
+3. nginx 설정 변경
+/etc/nginx/sites-available/nginx-app.conf
+![nginx-setting](./asset/nginx_setting_1.png)
 
 
-#### AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
+* **문제점**
 
-```python
-추가예정
-```
+> 1. AWS Route53에서 Alias 옵션 설정 불가
+> 2. AWS Route53에서 IPv4 address / CNAME (Canonical name) 으로 설정 불가
+> 3. https 액세스 불가
+
+
+
+**(단계 3)**
+ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.elasticbeanstalk.com 로 Serving
+
+1. index.html 파일의 권한(permission) 변경
+    $ sudo chmod 757 srv
+
+2. nginx 설정 변경
+![nginx-setting2](./nginx_setting_2.png)
+
+
+* **문제점**
+> 1. ElasticBeanstalk은 Loadbalancer를 통해 서버의 개수를 늘였다 줄였다 하는
+    Auto-scaling을 지원함
+
+    -> 위에서 scp 명령어를 통해 업로드한 파일이 언제든지 삭제될 수 있다는 의미
+
+**(단계 4)**
+Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
+
+(추가예정)
 
 
 ## 향후 개선점
