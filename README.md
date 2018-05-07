@@ -604,7 +604,7 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 ### by 송영기
 
-#### (1) MethodField - 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+### (1) MethodField - 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
 
 
 
@@ -673,7 +673,7 @@ Dynamic Fields Mixin을 활용.
 }
 
 
-#### (2) AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
+### (2) AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
 
 
 **(단계 1)**
@@ -683,6 +683,7 @@ AWS Route53의 Alias 기능 활용 - S3에는 업로드된 정적 웹 페이지�
 ![s3](./asset/s3_hosting.png)
 
 ![route53](./asset/route53.png)
+
 Route53에서 S3 정적페이지에 연결하고자 하는 도메인을 선택한 후 Alias를 설정 후
 Alias Target에서 '-- S3 website endpoints --'을 선택함.
 (Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
@@ -746,6 +747,11 @@ Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 (추가예정)
 
 
+
+### (3) 동적으로 구성되는 웹페이지
+
+
+
 ## 향후 개선점
 
 * 각 숙소마다 리뷰를 등록할 수 있게 하기.
@@ -784,6 +790,21 @@ Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 
 ***송영기***
 
+#### Sprint1
+
+![Sprint1](./asset/Scrum-Board-5.png)
+
+#### Sprint2
+
+![Sprint2](./asset/Scrum-Board-6.png)
+
+#### Sprint3
+
+![Sprint3](./asset/Scrum-Board-7.png)
+
+#### Sprint4
+
+![Sprint4](./asset/Scrum-Board-8.png)
 
 ## 트렐로
 
