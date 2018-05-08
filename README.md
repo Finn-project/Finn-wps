@@ -266,6 +266,7 @@ FROM <사용자명>/<저장소명>:base
   - Selenium
   - Beautifulsoup4
   - lxml
+* Sentry
 
 
 ### App별 Database erd
@@ -602,6 +603,7 @@ container_commands:
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
 
+
 ### by 송영기
 
 ### (1) MethodField - 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
@@ -745,10 +747,6 @@ ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.e
 Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 
 (추가예정)
-
-
-
-### (3) 동적으로 구성되는 웹페이지
 
 
 
