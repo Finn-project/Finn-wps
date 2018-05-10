@@ -262,6 +262,8 @@ class HouseListTest(APITestCase):
 
         results = response.data['results']
 
+        # 아래 test code 작동 안된다고 함. (원인은 아직 파악중)
+
         for j in range(len(results)):
             house_result = results[j]
 
