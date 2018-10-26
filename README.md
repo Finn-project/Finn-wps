@@ -662,7 +662,7 @@ Dynamic Fields Mixin을 활용.
 
 {
     "count": 30,
-    "next": "https://dlighter.com/reservation/?page=2",
+    "next": "https://smallbee.me/reservation/?page=2",
     "previous": null,
     "results": [
         {
