@@ -732,7 +732,7 @@ ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.e
     $ sudo chmod 757 srv
 
 2. nginx 설정 변경
-![nginx-setting2](./nginx_setting_2.png)
+![nginx-setting2](./asset/nginx_setting_2.png)
 
 
 * **문제점**
