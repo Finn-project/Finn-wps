@@ -1,5 +1,7 @@
 # Finn-Project Airbnb v1.0
 
+![screenshot](https://github.com/Finn-project/Finn-front/blob/dev/preview.gif)
+
 기간 - 2018-04-02 ~ 2018-04-27
 
 인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
