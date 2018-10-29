@@ -1,6 +1,8 @@
 # Finn-Project Airbnb v1.0
 
 ![screenshot](https://github.com/Finn-project/Finn-front/blob/dev/preview.gif)
+웹 서비스 주소 : https://airbnb.smallbee.me
+
 
 기간 - 2018-04-02 ~ 2018-04-27
 
