@@ -3,32 +3,28 @@
 ![screenshot](https://github.com/Finn-project/Finn-front/blob/dev/preview.gif)
 웹 서비스 주소 : https://airbnb.smallbee.me
 
+<br>
 
-기간 - 2018-04-02 ~ 2018-04-27
+#### 기간 - 2018-04-02 ~ 2018-04-27
+#### 인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
+#### 목표 - Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
 
-인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
+<br>
 
-Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
-
-### 주제 선정 이유
-
+## 주제 선정 이유
 * 에어비앤비는 한 플랫폼 내에 아래와 같은 상품검색, 예약, 메시지전달 등의 다양한 형태의
 서비스가 존재하므로, 프로젝트 과정에서 더욱 다양한 경험을 할 수 있겠다 생각함.
-
 * 여행할 지역의 다양한 형태의 숙소 정보를 얻고 예약
-
 * 다양한 체험을 할 수 있는 트립, 레스토랑에 대한 정보와 이용 중개 서비스
-
 * 직접 (ex) 본인의 집) 숙박 서비스를 제공할 수 있는 호스팅 서비스
 
-### MVP 3 (3가지 주요 기능)
-
+## MVP 3 (3가지 주요 기능)
 1. 회원가입
 2. 호스트의 숙소 등록
 3. 등록된 숙소를 예약
 
 
-### 기능 및 특징
+## 기능 및 특징
 * 회원 가입후 숙소를 등록하여 호스트가 되거나 숙소를 예약할 수 있는 시스템
 * 숙소 검색의 경우 구글맵의 주소검색을 통해 받아온 구글/애플 맵의 bounding box의 위경도 값(우상단 좌하단)안에 있는 숙소의 리스트﻿를 보여줌
 * 숙소와 유저 정보를 가져 올 때 다양한 쿼리 스트링을 통해 필요 한 정보와 순서로 획득 가능
@@ -36,7 +32,7 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 영상 링크
+## 애플리케이션 영상 링크
 **IOS**
 
 [![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
@@ -45,8 +41,13 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
-### API 문서 링크
+## API 문서 링크
 https://smallbee3.gitbooks.io/airbnb/content/
+
+<br>
+<br>
+
+---
 
 # 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
@@ -89,6 +90,10 @@ pip install -r .requirements./dev.txt
 python manage.py runserver
 ```
 
+<br>
+
+---
+
 ## Installation (Docker)
 
 #### 로컬 환경
@@ -112,6 +117,8 @@ docker build -t airbnb:production -f Dockerfile.production
 docker run --rm -it 8000:80 airbnb:production
 ```
 
+<br>
+
 ## DockerHub 관련
 
 apt, pip 관련 내용을 미리 빌드해서 DockerHub 저장소에 미리 업로드 하여 사용
@@ -126,6 +133,8 @@ docker push <사용자명>/<저장소명>:base
 FROM <사용자명>/<저장소명>:base
 ...
 ```
+
+<br>
 
 ## .secrets
 
@@ -172,12 +181,16 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
+<br>
+
 ## 배포
 
 `deploy.sh`파일을 사용
 ```
 ./deploy.sh
 ```
+
+<br>
 
 ## 테스트 실행하기
 
@@ -243,6 +256,8 @@ FROM <사용자명>/<저장소명>:base
 ./manage.py test reservation
 ```
 
+<br>
+
 ## 사용된 도구 및 기술
 
 * Python 3.6
@@ -271,8 +286,9 @@ FROM <사용자명>/<저장소명>:base
   - Beautifulsoup4
   - lxml
 
+<br>
 
-### App별 Database erd
+## App별 Database erd
 
 ***숙소***
 
@@ -286,10 +302,15 @@ FROM <사용자명>/<저장소명>:base
 
 ![예약](./asset/reservation.png)
 
-## Code Review(박수민, 송영기)
+<br>
+<br>
+
+---
+
+# Code Review(박수민, 송영기)
 
 ### by 박수민
-#### members (signup, list, retrieve)
+## members (signup, list, retrieve)
 
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
@@ -403,7 +424,9 @@ def validate_username(self, username):
     return username
 ```
 
-#### house
+<br>
+
+## house
 숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
 숙소의 기본정보와 호스트 이미지 등이 포함.
 
@@ -556,7 +579,9 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ```
 
-#### 배포
+<br>
+
+## 배포
 `ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
 ```yaml
 files:
@@ -613,30 +638,35 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 ### by 송영기
 
-### (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
-#### : AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 \n TLS 통신으로 보안 프로토콜(https) 사용
+## (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
+AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통신으로 보안 프로토콜(https) 사용
 
 <br>
 
-**(구현 이유)**
+### 구현 이유
 Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을 하기 위해
 
 <br>
 
-#### **(방법 1)** S3의 정적 웹 사이트 호스팅 이용
+### 시도 1) S3의 정적 웹 사이트 호스팅 이용
 S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있음.
 별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴함.
 
+```
 1. 아래와 같이 S3 설정 페이지에서 정적 웹 사이트 호스팅 옵션 선택
 2. 인덱스문서에는 보여줄 메인 페이지, 오류문서는 에러가 발생했을 때 보여줄 페이지를 입력
+```
+
 ![s3](./asset/s3_hosting.png)
 
 <br>
 
+```
 3. AWS Route53로 원하는 도메인의 Create Record Set 클릭
 4. Alias 선택 시 나타나는 목록에 '-- S3 website endpoints --' 아래 있는 옵션을 선택
 (Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
 5. S3에서 설정한 웹 호스팅 페이지에 잘 접속되는 것을 볼 수 있음.
+```
 
 ![route53](./asset/route53.png)
 
@@ -650,8 +680,8 @@ S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일
 
 <br>
 
-#### **(방법 2)** ElasticBeanstalk 내부 EC2의 Nginx 활용한 정적페이지 호스팅
-ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving
+### 시도 2) ElasticBeanstalk 내부 EC2의 Nginx의 라우팅을 활용한 정적페이지 호스팅
+ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving하도록 Nginx 설정
 
 
 1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
@@ -671,7 +701,6 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
     $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
     $ sudo chmod 757 srv
     $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
-    ```
 
 
 3. Nginx 설정 변경
@@ -686,12 +715,12 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
        "sudo service nginx restart"
        (service는 linux deamon을 실행, 중지, 재시작할 수 있는 명령어)
     6. 이제부터 EC2 안의 nginx가 자신을 거쳐 들어가는 접속 중에 .amazonaws.com으로
-       들어오는 요청은 하단 root 폴더에 있는 index.html 파일을 실행시킨다.
+       들어오는 요청은 하단 root 폴더에 있는 index.html 파일로 라우팅시킨다.
     7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있다.
     ```
 
 
-/etc/nginx/sites-available/nginx-app.conf
+파일 위치 : /etc/nginx/sites-available/nginx-app.conf
 ![nginx-setting](./asset/nginx_setting_1.png)
 
 
@@ -703,7 +732,7 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 
 <br>
 
-#### **(방법 3)** nginx 옵션을 서브도메인 주소로 설정
+### 시도 3) Nginx의 라우팅 대상을 서브 도메인 주소로 변경
 
 
 1. Nginx 설정 재변경
@@ -717,10 +746,10 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 
 ![nginx-setting2](./asset/nginx_setting_2.png)
 
-    ```
+
     3. Route53의 Record set 설정 화면에서 Alias 목록의 ELB를 선택 할 수 있다.
     4. Route53 설정을 완료하고 AWS Certificate Manager를 통해 인증을 받고 TLS프로토콜을 사용할 수 있다.
-    ```
+
 
 ![route53](./asset/route53.png)
 
@@ -732,53 +761,56 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 
 <br>
 
-#### **(해결책)**
+## 근본적인 해결책에 대한 고민 (발표 뒤)
 
-#### 1안) 2 Docker with each Server (2 Servers)
-: 가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
+### 1안)  2 Dockers with each Server (2 Servers)
+#### 가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
 
-**단점**
-1 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
-2 비용 부담이 1 Server의 2배
+> **단점**
+> 1. 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
+> 2. 비용 부담이 Server 한 대를 운영하는것의 2배가
 
+<br>
 
-#### 2안) 2 Docker in 1 Server
-: Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
+### 2안)  2 Dockers in 1 Server
+#### Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
 
-**단점**
-1 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
-사용자가 많지 않은 서비스 초기 상황을 고려하면 별도로 2개의 Nginx(Docker 내부)를 돌릴 필요는 없다고 판단됨
-2 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
+> **단점**
+> 1. 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
+> 사용자가 많지 않은 서비스 초기 상황을 고려하면 별도로 2개의 Nginx(Docker 내부)를 돌릴 필요는 없다고 판단됨
+> 2. 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
 
+<br>
 
-#### 3안) 1 Docker with 1 Server
-: 기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+### 3안)  1 Docker with 1 Server
+#### 기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
 
-**단점**
-1 서비스 규모가 확대될 경우 하나의 서버로 Multy-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
-2 ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
+> **단점**
+> 1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
+> 2. ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
 
+<br>
 
-#### 결론)
-서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
+### 결론)
+#### 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
 
 
 
 
 <br>
 
-### (2) Field에 동적으로 value 표현하기
-#### : 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+## (2) Field에 동적으로 value 표현하기
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
 
 <br>
 
-**(구현 이유)**
+### 구현 이유
 예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를
 알려주는 지표가 필요함.
 
 <br>
 
-**(단계 1)**
+### 단계 1)
 기존에 정의한 reservation_status라는 Character field와는
 별도로 reservation_current_state라는 함수를 정의하고 이 함수를 property 선언
 
@@ -806,8 +838,9 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 ```
 [소스코드](./app/reservation/models.py)
 
+<br>
 
-**(단계 2)**
+### 단계 2)
 Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
 Dynamic Fields Mixin을 활용.
 
@@ -824,11 +857,12 @@ Dynamic Fields Mixin을 활용.
 ```
 [소스코드](./app/reservation/serializers/reservation.py)
 
+<br>
 
-**(단계 3)**
+### 단계 3)
 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있음.
 
-```
+```json
 {
     "count": 30,
     "next": "https://smallbee.me/reservation/?page=2",
@@ -843,7 +877,6 @@ Dynamic Fields Mixin을 활용.
 ```
 
 <br>
-
 
 
 ## 향후 개선점
@@ -861,6 +894,13 @@ Dynamic Fields Mixin을 활용.
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
+
+<br>
+
+--
+
+<br>
+
 
 ## 스크럼 보드
 
@@ -882,6 +922,10 @@ Dynamic Fields Mixin을 활용.
 
 ![Sprint4](./asset/Scrum-Board-4.png)
 
+<br>
+
+--
+
 ***송영기***
 
 #### Sprint1
@@ -899,6 +943,10 @@ Dynamic Fields Mixin을 활용.
 #### Sprint4
 
 ![Sprint4](./asset/Scrum-Board-8.png)
+
+<br>
+
+--
 
 ## 트렐로
 
