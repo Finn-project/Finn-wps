@@ -623,18 +623,23 @@ Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을
 
 <br>
 
-#### **(방법 1)**
-S3에는 업로드된 정적 웹 페이지를 호스팅하는 기능이 있는데
-별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있는 장점이 있음
-이 S3 웹 호스팅을 Route53의 Alias 기능을 통해 연결시키는 방법
+#### **(방법 1)** S3의 정적 웹 사이트 호스팅 이용
+S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있음.
+별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴함.
 
+1. 아래와 같이 S3 설정 페이지에서 정적 웹 사이트 호스팅 옵션 선택
+2. 인덱스문서에는 보여줄 메인 페이지, 오류문서는 에러가 발생했을 때 보여줄 페이지를 입력
 ![s3](./asset/s3_hosting.png)
+
+<br>
+
+3. AWS Route53로 원하는 도메인의 Create Record Set 클릭
+4. Alias 선택 시 나타나는 목록에 '-- S3 website endpoints --' 아래 있는 옵션을 선택
+(Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
+5. S3에서 설정한 웹 호스팅 페이지에 잘 접속되는 것을 볼 수 있음.
 
 ![route53](./asset/route53.png)
 
-Route53에서 S3 정적페이지에 연결하고자 하는 도메인을 선택한 후 Alias를 설정 후
-Alias Target에서 '-- S3 website endpoints --'을 선택함.
-(Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
 
 
 * **문제점**
@@ -645,8 +650,8 @@ Alias Target에서 '-- S3 website endpoints --'을 선택함.
 
 <br>
 
-#### **(방법 2)**
-ElasticBeanstalk의 EC2 활용 - ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving
+#### **(방법 2)** ElasticBeanstalk 내부 EC2의 Nginx 활용한 정적페이지 호스팅
+ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving
 
 
 1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
@@ -664,32 +669,60 @@ ElasticBeanstalk의 EC2 활용 - ElasticBeanstalk 서비스에서 자동생성�
 
     ````
     $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
-
     $ sudo chmod 757 srv
-
     $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
     ```
 
-3. nginx 설정 변경
+
+3. Nginx 설정 변경
+
+    ```
+    1. eb ssh 또는 ssh -i <elb_secret_key> ec2user@<IPv4_address>로 ELB 내부 EC2 접속
+    2. /etc/nginx/sites-available/ 폴더로 이동
+    3. 현 폴더 위치에서 하단 이미지의 nginx-app.conf 파일을 복사하거나 생성
+    4. nginx에 nginx-app.conf 설정을 적용하기위해 sites-enabled에 soft-link를 생성
+       "sudo ln -sf nginx-app.conf ../sites-enabled/."
+    5. nginx에 바로 새로운 설정을 적용하기 위하여 service를 통해 nginx를 재부팅
+       "sudo service nginx restart"
+       (service는 linux deamon을 실행, 중지, 재시작할 수 있는 명령어)
+    6. 이제부터 EC2 안의 nginx가 자신을 거쳐 들어가는 접속 중에 .amazonaws.com으로
+       들어오는 요청은 하단 root 폴더에 있는 index.html 파일을 실행시킨다.
+    7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있다.
+    ```
+
 
 /etc/nginx/sites-available/nginx-app.conf
 ![nginx-setting](./asset/nginx_setting_1.png)
 
 
+
 * **문제점**
-> 1. AWS Route53에서 Alias 옵션 설정 불가
-> 2. AWS Route53에서 IPv4 address / CNAME (Canonical name) 으로 설정 불가
-> 3. https 액세스 불가
+> 1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
+> 2. 위와 마찬가지로 Route53에서 CNAME (Canonical name) 으로 설정 불가
+> 3. 위 1,2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
 
 <br>
 
-#### **(방법 3)**
-ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.elasticbeanstalk.com 로 Serving
+#### **(방법 3)** nginx 옵션을 서브도메인 주소로 설정
 
 
-2. nginx 설정 변경
+1. Nginx 설정 재변경
+
+    ```
+    1.nginx-app.conf 설정을 아래 사진과 같이 서브 도메인을 포함하여 변경
+    2.위와 다르게 이번에는 IPv4_address가 아닌 ElasticBeanstalk의 Elastic Load Balancer 주소로
+      정적 페이지가 접속된다.
+    ```
+
 
 ![nginx-setting2](./asset/nginx_setting_2.png)
+
+    ```
+    3. Route53의 Record set 설정 화면에서 Alias 목록의 ELB를 선택 할 수 있다.
+    4. Route53 설정을 완료하고 AWS Certificate Manager를 통해 인증을 받고 TLS프로토콜을 사용할 수 있다.
+    ```
+
+![route53](./asset/route53.png)
 
 
 * **문제점**
@@ -704,30 +737,33 @@ ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.e
 #### 1안) 2 Docker with each Server (2 Servers)
 : 가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
 
-* **단점**
-1. 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
-2. 비용 부담이 1 Server의 2배
+**단점**
+1 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
+2 비용 부담이 1 Server의 2배
 
 
 #### 2안) 2 Docker in 1 Server
 : Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
 
-* **단점**
-1. 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
+**단점**
+1 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
 사용자가 많지 않은 서비스 초기 상황을 고려하면 별도로 2개의 Nginx(Docker 내부)를 돌릴 필요는 없다고 판단됨
-2. 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
+2 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
 
 
 #### 3안) 1 Docker with 1 Server
 : 기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
 
-* **단점**
-1. 서비스 규모가 확대될 경우 하나의 서버로 Multy-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
-2. ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
+**단점**
+1 서비스 규모가 확대될 경우 하나의 서버로 Multy-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
+2 ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
 
 
 #### 결론)
 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
+
+
+
 
 <br>
 
@@ -770,6 +806,7 @@ ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.e
 ```
 
 
+
 **(단계 2)**
 Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
 Dynamic Fields Mixin을 활용.
@@ -785,6 +822,7 @@ Dynamic Fields Mixin을 활용.
     def get_reservation_current_state(self, obj):
         return obj.reservation_current_state
 ```
+
 
 
 **(단계 3)**
