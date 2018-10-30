@@ -804,7 +804,7 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
             return 'ON'
             # Ongoing reservation
 ```
-
+[소스코드](./app/reservation/models.py)
 
 
 **(단계 2)**
@@ -822,7 +822,7 @@ Dynamic Fields Mixin을 활용.
     def get_reservation_current_state(self, obj):
         return obj.reservation_current_state
 ```
-
+[소스코드](./app/reservation/serializers/reservation.py)
 
 
 **(단계 3)**
