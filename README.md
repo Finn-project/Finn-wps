@@ -46,7 +46,7 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ### API 문서 링크
-https://legacy.gitbook.com/book/himanmengit/airbnb/details
+https://smallbee3.gitbooks.io/airbnb/content/
 
 # 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
