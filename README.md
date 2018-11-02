@@ -42,7 +42,7 @@
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 ## API 문서 링크
-https://smallbee3.gitbooks.io/airbnb/content/
+https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 <br>
 <br>
