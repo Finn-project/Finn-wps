@@ -1,30 +1,30 @@
 # Finn-Project Airbnb v1.0
 
-기간 - 2018-04-02 ~ 2018-04-27
+![screenshot](https://github.com/Finn-project/Finn-front/blob/dev/preview.gif)
+웹 서비스 주소 : https://airbnb.smallbee.me
 
-인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
+<br>
 
-Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
+#### 기간 - 2018-04-02 ~ 2018-04-27
+#### 인원 - 백엔드 2명, 프론트 엔드 3명, IOS 3명 총(8)명
+#### 목표 - Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리고 숙소 예약 기능이 되는 것을 목표로 하였다.
 
-### 주제 선정 이유
+<br>
 
+## 주제 선정 이유
 * 에어비앤비는 한 플랫폼 내에 아래와 같은 상품검색, 예약, 메시지전달 등의 다양한 형태의
 서비스가 존재하므로, 프로젝트 과정에서 더욱 다양한 경험을 할 수 있겠다 생각함.
-
 * 여행할 지역의 다양한 형태의 숙소 정보를 얻고 예약
-
 * 다양한 체험을 할 수 있는 트립, 레스토랑에 대한 정보와 이용 중개 서비스
-
 * 직접 (ex) 본인의 집) 숙박 서비스를 제공할 수 있는 호스팅 서비스
 
-### MVP 3 (3가지 주요 기능)
-
+## MVP 3 (3가지 주요 기능)
 1. 회원가입
 2. 호스트의 숙소 등록
 3. 등록된 숙소를 예약
 
 
-### 기능 및 특징
+## 기능 및 특징
 * 회원 가입후 숙소를 등록하여 호스트가 되거나 숙소를 예약할 수 있는 시스템
 * 숙소 검색의 경우 구글맵의 주소검색을 통해 받아온 구글/애플 맵의 bounding box의 위경도 값(우상단 좌하단)안에 있는 숙소의 리스트﻿를 보여줌
 * 숙소와 유저 정보를 가져 올 때 다양한 쿼리 스트링을 통해 필요 한 정보와 순서로 획득 가능
@@ -32,7 +32,7 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
-### 애플리케이션 영상 링크
+## 애플리케이션 영상 링크
 **IOS**
 
 [![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
@@ -41,8 +41,13 @@ Airbnb를 copy한 애플리케이션으로 회원가입과 숙소 등록 그리�
 
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
-### API 문서 링크
-https://legacy.gitbook.com/book/himanmengit/airbnb/details
+## API 문서 링크
+https://smallbee3.gitbooks.io/airbnb/content/
+
+<br>
+<br>
+
+---
 
 # 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
@@ -85,6 +90,10 @@ pip install -r .requirements./dev.txt
 python manage.py runserver
 ```
 
+<br>
+
+---
+
 ## Installation (Docker)
 
 #### 로컬 환경
@@ -108,6 +117,8 @@ docker build -t airbnb:production -f Dockerfile.production
 docker run --rm -it 8000:80 airbnb:production
 ```
 
+<br>
+
 ## DockerHub 관련
 
 apt, pip 관련 내용을 미리 빌드해서 DockerHub 저장소에 미리 업로드 하여 사용
@@ -122,6 +133,8 @@ docker push <사용자명>/<저장소명>:base
 FROM <사용자명>/<저장소명>:base
 ...
 ```
+
+<br>
 
 ## .secrets
 
@@ -168,12 +181,16 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
+<br>
+
 ## 배포
 
 `deploy.sh`파일을 사용
 ```
 ./deploy.sh
 ```
+
+<br>
 
 ## 테스트 실행하기
 
@@ -239,6 +256,8 @@ FROM <사용자명>/<저장소명>:base
 ./manage.py test reservation
 ```
 
+<br>
+
 ## 사용된 도구 및 기술
 
 * Python 3.6
@@ -268,8 +287,9 @@ FROM <사용자명>/<저장소명>:base
   - lxml
 * Sentry
 
+<br>
 
-### App별 Database erd
+## App별 Database erd
 
 ***숙소***
 
@@ -283,10 +303,15 @@ FROM <사용자명>/<저장소명>:base
 
 ![예약](./asset/reservation.png)
 
-## Code Review(박수민, 송영기)
+<br>
+<br>
+
+---
+
+# Code Review(박수민, 송영기)
 
 ### by 박수민
-#### members (signup, list, retrieve)
+## (1) members (signup, list, retrieve)
 
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
@@ -400,7 +425,9 @@ def validate_username(self, username):
     return username
 ```
 
-#### house
+<br>
+
+## (2) house
 숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
 숙소의 기본정보와 호스트 이미지 등이 포함.
 
@@ -553,7 +580,9 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     ...
 ```
 
-#### 배포
+<br>
+
+## (3) 배포
 `ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
 ```yaml
 files:
@@ -604,150 +633,530 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 ```
 
 
+
+<br>
+
+<br>
+
 ### by 송영기
 
-### (1) MethodField - 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+## (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
+AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통신으로 보안 프로토콜(https) 사용
+
+<br>
+
+### 구현 이유
+Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을 하기 위해
+
+<br>
+
+### 시도 1) S3의 정적 웹 사이트 호스팅 이용
+S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있음.
+별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴함.
+
+```
+1. 아래와 같이 S3 설정 페이지에서 정적 웹 사이트 호스팅 옵션 선택
+2. 인덱스문서에는 보여줄 메인 페이지, 오류문서는 에러가 발생했을 때 보여줄 페이지를 입력
+```
+
+![s3](./asset/s3_hosting.png)
+
+<br>
+
+```
+3. AWS Route53로 원하는 도메인의 Create Record Set 클릭
+4. Alias 선택 시 나타나는 목록에 '-- S3 website endpoints --' 아래 있는 옵션을 선택
+(Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
+5. S3에서 설정한 웹 호스팅 페이지에 잘 접속되는 것을 볼 수 있음.
+```
+
+![route53](./asset/route53.png)
 
 
 
-**(코드작성 이유)**
-예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를
-알려주는 지표가 필요함.
+* **문제점**
+> 1. 저장소의 권한은 '퍼블릭'하게 설정해야함 (AWS Documentation 참고) -> 모든 사용자에 노출되어 있어 공격에 취약
+> 2. https 액세스 지원 x -> 보안에 취약
+> 3. 정적파일의 크기가 클 경우 S3에 주기적으로 업로드하는 과정에서 많은 비용 발생
 
-**(단계 1)**
-기존에 정의한 reservation_status라는 Character field와는
-별도로 reservation_current_state라는 함수를 정의하고 이 함수를 property 선언
+
+<br>
+
+### 시도 2) ElasticBeanstalk 내부 EC2의 Nginx의 라우팅을 활용한 정적페이지 호스팅
+ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving하도록 Nginx 설정
+
+
+1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
+
+    ```
+    * Angular 2 정적파일 빌드 방법
+    1. Github clone
+    2. src > environments > environments.ts 에서  "apiUrl" 값과 "facebookAppId" 수정
+    3. package.json이 있는 폴더 (가장 상위 폴더)에서  npm install 하면 node_modules라는 폴더가 만들어짐
+    4. npm install -g @angular/cli 를 통해 ng cli 설치
+    5. ng build
+    ```
+
+2. 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
+
+    ````
+    $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
+    $ sudo chmod 757 srv 으로 srv 폴더의 write를 허용
+    $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
+    $ sudo chmod 747 /srv/project/index.html 명령으로 index.html 의 실행 권한 제한을 허용
+
+
+3. Nginx 설정 변경
+
+    ```
+    1. eb ssh 또는 ssh -i <elb_secret_key> ec2user@<IPv4_address>로 ELB 내부 EC2 접속
+    2. /etc/nginx/sites-available/ 폴더로 이동
+    3. 현 폴더 위치에서 하단 이미지의 nginx-app.conf 파일을 복사하거나 생성
+    4. nginx에 nginx-app.conf 설정을 적용하기위해 sites-enabled에 soft-link를 생성
+       "sudo ln -sf nginx-app.conf ../sites-enabled/."
+    5. nginx에 바로 새로운 설정을 적용하기 위하여 service를 통해 nginx를 재부팅
+       "sudo service nginx restart"
+       (service는 linux deamon을 실행, 중지, 재시작할 수 있는 명령어)
+    6. 이제부터 EC2 안의 nginx가 자신을 거쳐 들어가는 접속 중에 .amazonaws.com으로
+       들어오는 요청은 하단 root 폴더에 있는 index.html 파일로 라우팅시킨다.
+    7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있다.
+    ```
+
+
+파일 위치 : /etc/nginx/sites-available/nginx-app.conf
+![nginx-setting](./asset/nginx_setting_1.png)
+
+
+
+* **문제점**
+> 1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
+> 2. 위와 마찬가지로 Route53에서 CNAME (Canonical name) 으로 설정 불가
+> 3. 위 1,2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
+
+<br>
+
+### 시도 3) Nginx의 라우팅 대상을 서브 도메인 주소로 변경
+
+
+1. Nginx 설정 재변경
+
+    ```
+    1.nginx-app.conf 설정을 아래 사진과 같이 서브 도메인을 포함하여 변경
+    2.위와 다르게 이번에는 IPv4_address가 아닌 ElasticBeanstalk의 Elastic Load Balancer 주소로
+      정적 페이지가 접속된다.
+    ```
+
+
+![nginx-setting2](./asset/nginx_setting_2.png)
+
+
+    3. Route53의 Record set 설정 화면에서 Alias 목록의 ELB를 선택 할 수 있다.
+    4. Route53 설정을 완료하고 AWS Certificate Manager를 통해 인증을 받고 TLS프로토콜을 사용할 수 있다.
+
+
+![route53](./asset/route53.png)
+
+
+* **문제점**
+> 1. ElasticBeanstalk은 Loadbalancer를 통해 서버의 개수를 늘였다 줄였다 하는
+>    Auto-scaling을 지원함
+>    -> 위에서 scp 명령어를 통해 업로드한 파일이 언제든지 삭제될 수 있다는 의미
+
+<br>
+
+## 근본적인 해결책에 대한 고민 (발표 뒤)
+
+### 1안)  2 Dockers with each Server (2 Servers)
+#### 가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
+
+> **단점**
+> 1. 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
+> 2. 비용 부담이 Server 한 대를 운영하는것의 2배가
+
+<br>
+
+### 2안)  2 Dockers in 1 Server
+#### Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
+
+> **단점**
+> 1. 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
+> 사용자가 많지 않은 서비스 초기 상황을 고려하면 별도로 2개의 Nginx(Docker 내부)를 돌릴 필요는 없다고 판단됨
+> 2. 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
+
+<br>
+
+### 3안)  1 Docker with 1 Server
+#### 기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+
+> **단점**
+> 1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
+> 2. ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
+
+<br>
+
+### 결론)
+#### 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
+
+
+<br>
+<br>
+
+
+## (2) 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
+
+
+### 구현 이유
+기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
+이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
+실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
+
+
+<br>
+
+먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요.\
+(Facebook Login관련 process는 각 기능을 module별로 분리하여 여러 단계를 거치기 때문에 순서를 거치지 않으면 이해가 어려운 점이 있음)
+
+
+
+#### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView view로 router 되어 이동
+
+
+[소스코드](./app/members/urls/apis.py)
 
 ```python
-    @property
-    def reservation_current_state(self):
-
-        now = timezone.now()
-
-        date_now = datetime.date(now.year, now.month, now.day)
-        # check_in_date field는 datetime.date type이기 때문에
-        # 2018-04-19 형태로 된 값과 비교를 해야함.
-        # datetime.date 형태로 현재 시점의 값을 구하기 위해서
-        # 위와 같이 now.year, now.month, now.day를 활용함.
-
-        if self.check_in_date > date_now:
-            return 'BE'
-            # Before reservation
-        elif self.check_out_date < date_now:
-            return 'AF'
-            # After reservation
-        else:
-            return 'ON'
-            # Ongoing reservation
+urlpatterns = [
+    ...
+    path('login/', UserLoginAuthTokenAPIView.as_view()),
+    path('facebook-login/', AuthTokenForFacebookAccessTokenView.as_view()),
+    ...
+]
 ```
 
 
-**(단계 2)**
-Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
-Dynamic Fields Mixin을 활용.
+#### 2. AuthTokenForFacebookAccessTokenView view에서 AccessTokenSerializer를 통해 입력된 data의 validation을 진행
+
+
+[소스코드](./app/members/apis/facebook.py)
+
+```python
+class AuthTokenForFacebookAccessTokenView(APIView):
+    def post(self, request):
+        serializer = AccessTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+        }
+        return Response(data)
+```
+
+
+#### 3. AccessTokenSerializer에서 authentication 과정을 거치게 되고 이때 호출한 authenticate()는 별도로 정의한 custom authentication인 APIFacebookBackend에서 처리
+
+
+[소스코드](./app/members/serializers/facebook.py)
+
+```python
+class AccessTokenSerializer(serializers.Serializer):
+
+    access_token = serializers.CharField()
+
+    def validate(self, attrs):
+        access_token = attrs.get('access_token')
+        if access_token:
+            user = authenticate(access_token=access_token)
+            if not user:
+                raise CustomException(detail='페이스북 액세스 토큰이 올바르지 않습니다.', status_code=status.HTTP_401_UNAUTHORIZED)
+        else:
+            raise CustomException(detail='페이스북 액세스 토큰이 필요합니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        attrs['user'] = user
+        return attrs
+```
+
+
+#### 4. 아래 코드 `username=facebook_id` 에서 보듯이 Facebook Login 유저는 username 필드에 Facebook에서 제공되는 유일한 고유값인 Facebook ID를 저장
+(* username은 유저가 사용하는 실제 이름이 아니라 별도로 설정한 아이디 개념에 가까움)
+
+
+[소스코드](./app/members/backends.py)
+
+```python
+class APIFacebookBackend:
+
+    def authenticate(self, request, access_token):
+
+        params = {
+                ...
+        }
+        response = requests.get('https://graph.facebook.com/v2.12/me', params)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+
+            facebook_id = response_dict['id']
+            first_name = response_dict['first_name']
+            last_name = response_dict['last_name']
+            img_profile_url = response_dict['picture']['data']['url']
+
+            email = response_dict.get('email')
+
+            user, _ = User.objects.get_or_create(
+                username=facebook_id,
+                defaults={
+                    'email': None if email is None or User.objects.filter(email=email).exists() else email,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                }
+            )
+
+            ...
+            return user
+```
+
+
+이렇게 총 4단계를 거쳐 Facebook Login이 이루어지게 된다.\
+여기서 주목할 것은 Facebook Login한 유저의 경우 Facebook에서 등록한 이메일이 있을 경우 유저의 email 정보로 등록이 되고, 등록한 이메일이 없을 경우 공란을 처리된다는 것이다.
+패스워드는 설정한 적이 없기 때문에 모든 Facebook Login 유저가 공통으로 공란으로 비어있게 된다.
+
+이 Facebook Login 유저의 이메일과 패스워드를 아래 Postman API request tool을 활용하여 설정해야한다. 부분 수정인 PATCH request 로 body에 email key,value와 password key,value 값을 전달하였다.\
+(* 서버에서 User의 PUT, PATCH 기능이 구현되었으나 front-end에서 해당기능 UI가 구현되지 않아 별도의 TOOL을 통해 데이터를 전송함)
+
+![PATCH request](./asset/patch_request_for_facebook_login_user.png)
+
+이제 Facebook Login 유저의 이메일과 패스워드가 갖춰진 상태이다.\
+이제 이 유저가 이메일 로그인을 할 수 있도록 기존의 login 관련 코드를 수정해야 한다.\
+{HOST}/user/login을 통해 전달된 POST request는 UserLoginAuthTokenAPIView view로 이동한다.
+
+
+[소스코드](./app/members/apis/auth.py)
+
+```python
+class UserLoginAuthTokenAPIView(APIView):
+    def post(self, request):
+        try:
+            # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
+            # 케이스를 위한 AuthTokenSerializer 별도로 정의
+            serializer = AuthTokenSerializerForFacebookUser(data=request.data)
+            serializer.is_valid(raise_exception=True)
+        except:
+            # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
+            serializer = AuthTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+        }
+        return Response(data)
+```
+
+
+이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module을 제작했다.
+이 과정을 try ~ except 문으로 처리하여 email / password 정보가 Facebook login한 유저에 해당하지 않을 경우 정상적으로 AuthTokenSerializer의 과정을 거치게 된다.
+AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다. AuthTokenSerializer의 코드는 아래와 같다.
+
+
+```python
+from django.utils.translation import ugettext_lazy as _
+
+from rest_framework import serializers
+from rest_framework.compat import authenticate
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    password = serializers.CharField(
+        label=_("Password"),
+        style={'input_type': 'password'},
+        trim_whitespace=False
+    )
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(request=self.context.get('request'),
+                                username=username, password=password)
+
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+```
+
+
+username과 password를 통해서 로그인을 시도하는 것을 볼 수 있다.
+일반 email login 유저의 경우 이 username에 email 정보가 입력되어 있고 이 email 정보와 password의 일치 여부에 따라 login이 진행된다.
+
+반면 Facebook Login 유저의 경우 username에는 Facebook Login을 위한 고유 Facebook ID값이 저장되어 있고, email에는 위에서 PATCH를 통해 설정한 이메일이 등록되어있다.\
+따라서 위와 같이 일반 email login 유저처럼 로그인 창에서 입력한 이메일 정보를 통해 authenticate를 진행하는 방법을 따를 수 없다.\
+다음처럼 입력된 이메일 정보를 통해 Facebook ID 값을 알아낸 다음에 이를 username에 할당하여 authenticate를 진행해야 한다.
+
+```python
+    email = attrs.get('username')
+    user = User.objects.get(email=email)
+    username = user.username
+    password = attrs.get('password')
+```
+
+위 코드를 포함한 전체 AuthTokenSerializerForFacebookUser은 다음과 같다.
+
+[소스코드](./app/members/serializers/facebook_auth.py)
+
+```python
+class AuthTokenSerializerForFacebookUser(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    password = serializers.CharField(
+        label=_("Password"),
+        style={'input_type': 'password'},
+        trim_whitespace=False
+    )
+
+    def validate(self, attrs):
+
+        email = attrs.get('username')
+        user = User.objects.get(email=email)
+        username = user.username
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(request=self.context.get('request'),
+                                username=username, password=password)
+
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+```
+
+이제 Facebook Login 유저가 가입 이후 별도로 설정한 email / password를 통해 이메일 로그인을 시도해보자.
+
+![email login trial](./asset/facebook_login_user_email_login_trial.png)
+
+로그인이 성공하였으며, 로그인된 유저의 프로필 정보 화면을 통해서 기존의 Facebook Login 유저임을 확인하였다.
+
+![email login success](./asset/facebook_login_user_email_login_success.png)
+
+
+
+<br>
+
+## (3) Field에 동적으로 value 표현하기
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+
+<br>
+
+### 구현 이유
+예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를 알려주는 지표가 필요하였다.\
+일반적인 Serializer Field로는 구현할 수 없어 이 기능으로 동작하는 별도의 코드를 고민하였다.
+
+<br>
+
+### 단계 1)
+#### 기존에 정의한 reservation_status라는 Character field와는 별도로 reservation_current_state라는 메서드를 정의한다.
+
+[소스코드](./app/reservation/models.py)
+
+```python
+    @property
+    class Reservation(models.Model):
+
+        ...
+        def reservation_current_state(self):
+
+            now = timezone.now()
+
+            date_now = datetime.date(now.year, now.month, now.day)
+            # check_in_date field는 datetime.date type이기 때문에
+            # 2018-04-19 형태로 된 값과 비교를 해야함.
+            # datetime.date 형태로 현재 시점의 값을 구하기 위해서
+            # 위와 같이 now.year, now.month, now.day를 활용함.
+
+            if self.check_in_date > date_now:
+                return 'BE'
+                # Before reservation
+            elif self.check_out_date < date_now:
+                return 'AF'
+                # After reservation
+            else:
+                return 'ON'
+                # Ongoing reservation
+```
+
+이 메서드를 사용하기 편리하게 하기 위해서 @property 선언을 추가한다.
+
+
+### 단계 2)
+#### Serializer의 field중 별도의 메소드에서 정의한 값을 client side에 전달할 수 있는 SerializerMethodField를 활용한다.
+
+
+[소스코드](./app/reservation/serializers/reservation.py)
 
 ```python
     class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
         ...
         reservation_current_state = serializers.SerializerMethodField(read_only=True)
-```
 
-```python
+        class Meta:
+            model = Reservation
+            fields = (
+                ...
+                'reservation_current_state',
+                ...
+            )
+    ...
+
     def get_reservation_current_state(self, obj):
         return obj.reservation_current_state
 ```
 
+Serializer에서 SerializerMethodField 명으로 설정한 Field name의 앞에 'get_' 을 붙여 method를 정의하고 해당 필드에 설정하고 싶은 값을 return해야 한다.
+method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으로 사용할 수 있다.
 
-**(단계 3)**
-아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있음.
 
+<br>
+
+### 단계 3)
+#### 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것이 확인 되었다.
+
+```json
 {
     "count": 30,
-    "next": "https://dlighter.com/reservation/?page=2",
+    "next": "https://smallbee.me/reservation/?page=2",
     "previous": null,
     "results": [
         {
-            [...]
+            ...
             "reservation_current_state": "AF",
         }
      ]
 }
+```
 
-
-### (2) AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 보안 프로토콜(https)
-
-
-**(단계 1)**
-AWS Route53의 Alias 기능 활용 - S3에는 업로드된 정적 웹 페이지를 호스팅하는 기능이 있는데
-별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있는 장점이 있어서 이 S3 웹 호스팅을 Route53에 연결시키는 방법을 먼저 시도.
-
-![s3](./asset/s3_hosting.png)
-
-![route53](./asset/route53.png)
-
-Route53에서 S3 정적페이지에 연결하고자 하는 도메인을 선택한 후 Alias를 설정 후
-Alias Target에서 '-- S3 website endpoints --'을 선택함.
-(Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
-
-
-* **문제점**
-
-> 1. 저장소의 권한은 '퍼블릭'하게 설정해야함 (AWS Documentation 참고) -> 모든 사용자에 노출되어 있어 공격에 취약
-> 2. https 액세스 지원 x -> 보안에 취약
-> 3. 정적파일의 크기가 클 경우 S3에 주기적으로 업로드하는 과정에서 많은 비용 발생
-
-
-
-**(단계 2)**
-ElasticBeanstalk의 EC2 활용 - ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving
-
-
-1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
-
-2. 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
-
-    ````
-    $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
-
-    $ sudo chmod 757 srv
-
-    $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
-
-3. nginx 설정 변경
-/etc/nginx/sites-available/nginx-app.conf
-![nginx-setting](./asset/nginx_setting_1.png)
-
-
-* **문제점**
-
-> 1. AWS Route53에서 Alias 옵션 설정 불가
-> 2. AWS Route53에서 IPv4 address / CNAME (Canonical name) 으로 설정 불가
-> 3. https 액세스 불가
-
-
-
-**(단계 3)**
-ElasticBeanstalk의 EC2 활용(2) - ElasticBeanstalk의 finn-eb.ap-northeast-2.elasticbeanstalk.com 로 Serving
-
-1. index.html 파일의 권한(permission) 변경
-    $ sudo chmod 757 srv
-
-2. nginx 설정 변경
-![nginx-setting2](./asset/nginx_setting_2.png)
-
-
-* **문제점**
-> 1. ElasticBeanstalk은 Loadbalancer를 통해 서버의 개수를 늘였다 줄였다 하는
-    Auto-scaling을 지원함
-
-    -> 위에서 scp 명령어를 통해 업로드한 파일이 언제든지 삭제될 수 있다는 의미
-
-**(단계 4)**
-Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
-
-(추가예정)
-
+<br>
+<br>
 
 
 ## 향후 개선점
@@ -765,6 +1174,13 @@ Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 * Django Template를 이용하여 사이트 만들어 보기.
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
+
+<br>
+<br>
+
+---
+
+
 
 ## 스크럼 보드
 
@@ -786,6 +1202,10 @@ Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 
 ![Sprint4](./asset/Scrum-Board-4.png)
 
+<br>
+
+--
+
 ***송영기***
 
 #### Sprint1
@@ -803,6 +1223,10 @@ Elasticbeanstalk의 Docker안의 nginx를 통해 정적파일을 serving
 #### Sprint4
 
 ![Sprint4](./asset/Scrum-Board-8.png)
+
+<br>
+
+--
 
 ## 트렐로
 
