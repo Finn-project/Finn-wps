@@ -310,7 +310,7 @@ FROM <사용자명>/<저장소명>:base
 # Code Review(박수민, 송영기)
 
 ### by 박수민
-## members (signup, list, retrieve)
+## (1) members (signup, list, retrieve)
 
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
@@ -426,7 +426,7 @@ def validate_username(self, username):
 
 <br>
 
-## house
+## (2) house
 숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
 숙소의 기본정보와 호스트 이미지 등이 포함.
 
@@ -581,7 +581,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <br>
 
-## 배포
+## (3) 배포
 `ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
 ```yaml
 files:
@@ -633,6 +633,7 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 
 
+<br>
 
 <br>
 
@@ -699,8 +700,9 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 
     ````
     $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
-    $ sudo chmod 757 srv
+    $ sudo chmod 757 srv 으로 srv 폴더의 write를 허용
     $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
+    $ sudo chmod 747 /srv/project/index.html 명령으로 index.html 의 실행 권한 제한을 허용
 
 
 3. Nginx 설정 변경
@@ -795,72 +797,350 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 #### 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
 
 
+<br>
+<br>
+
+
+## (2) 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
+
+
+### 구현 이유
+기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
+이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
+실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
 
 
 <br>
 
-## (2) Field에 동적으로 value 표현하기
+먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요.\
+(Facebook Login관련 process는 각 기능을 module별로 분리하여 여러 단계를 거치기 때문에 순서를 거치지 않으면 이해가 어려운 점이 있음)
+
+
+
+#### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView로 router 되어 이동
+
+
+[소스코드](./app/members/urls/apis.py)
+
+```python
+urlpatterns = [
+    ...
+    path('login/', UserLoginAuthTokenAPIView.as_view()),
+    path('facebook-login/', AuthTokenForFacebookAccessTokenView.as_view()),
+    ...
+]
+```
+
+
+#### 2. AuthTokenForFacebookAccessTokenView view에서 AccessTokenSerializer를 통해 입력된 data의 validation을 진행
+
+
+[소스코드](./app/members/apis/facebook.py)
+
+```python
+class AuthTokenForFacebookAccessTokenView(APIView):
+    def post(self, request):
+        serializer = AccessTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+        }
+        return Response(data)
+```
+
+
+#### 3. AccessTokenSerializer에서 authentication 과정을 거치게 되고 이때 호출한 authenticate()는 별도로 정의한 custom authentication인 APIFacebookBackend에서 처리
+
+
+[소스코드](./app/members/serializers/facebook.py)
+
+```python
+class AccessTokenSerializer(serializers.Serializer):
+
+    access_token = serializers.CharField()
+
+    def validate(self, attrs):
+        access_token = attrs.get('access_token')
+        if access_token:
+            user = authenticate(access_token=access_token)
+            if not user:
+                raise CustomException(detail='페이스북 액세스 토큰이 올바르지 않습니다.', status_code=status.HTTP_401_UNAUTHORIZED)
+        else:
+            raise CustomException(detail='페이스북 액세스 토큰이 필요합니다.', status_code=status.HTTP_400_BAD_REQUEST)
+
+        attrs['user'] = user
+        return attrs
+```
+
+
+#### 4. 아래 코드 `username=facebook_id` 에서 보듯이 Facebook Login 유저는 username 필드에 Facebook에서 제공되는 유일한 고유값인 Facebook ID를 저장
+(* username은 유저가 사용하는 실제 이름이 아니라 별도로 설정한 아이디 개념에 가까움)
+
+
+[소스코드](./app/members/backends.py)
+
+```python
+class APIFacebookBackend:
+
+    def authenticate(self, request, access_token):
+
+        params = {
+                ...
+        }
+        response = requests.get('https://graph.facebook.com/v2.12/me', params)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+
+            facebook_id = response_dict['id']
+            first_name = response_dict['first_name']
+            last_name = response_dict['last_name']
+            img_profile_url = response_dict['picture']['data']['url']
+
+            email = response_dict.get('email')
+
+            user, _ = User.objects.get_or_create(
+                username=facebook_id,
+                defaults={
+                    'email': None if email is None or User.objects.filter(email=email).exists() else email,
+                    'first_name': first_name,
+                    'last_name': last_name,
+                }
+            )
+
+            ...
+            return user
+```
+
+
+이렇게 총 4단계를 거쳐 Facebook Login이 이루어지게 된다.\
+여기서 주목할 것은 Facebook Login한 유저의 경우 Facebook에서 등록한 이메일이 있을 경우 유저의 email 정보로 등록이 되고, 등록한 이메일이 없을 경우 공란을 처리된다는 것이다.
+패스워드는 설정한 적이 없기 때문에 모든 Facebook Login 유저가 공통으로 공란으로 비어있게 된다.
+
+이 Facebook Login 유저의 이메일과 패스워드를 아래 Postman API request tool을 활용하여 설정해야한다. 부분 수정인 PATCH request 로 body에 email key,value와 password key,value 값을 전달하였다.\
+(* 서버에서 User의 PUT, PATCH 기능이 구현되었으나 front-end에서 해당기능 UI가 구현되지 않아 별도의 TOOL을 통해 데이터를 전송함)
+
+![PATCH request](./asset/patch_request_for_facebook_login_user.png)
+
+이제 Facebook Login 유저의 이메일과 패스워드가 갖춰진 상태이다.
+이제 이 유저가 이메일 로그인을 할 수 있도록 기존의 login 관련 코드를 수정해야 한다.\
+먼저 {HOST}/user/login가 router 되어 전달되는 POST request는 UserLoginAuthTokenAPIView view로 이동해보자.
+
+
+[소스코드](./app/members/apis/auth.py)
+
+```python
+class UserLoginAuthTokenAPIView(APIView):
+    def post(self, request):
+        try:
+            # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
+            # 케이스를 위한 AuthTokenSerializer 별도로 정의
+            serializer = AuthTokenSerializerForFacebookUser(data=request.data)
+            serializer.is_valid(raise_exception=True)
+        except:
+            # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
+            serializer = AuthTokenSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, _ = Token.objects.get_or_create(user=user)
+        data = {
+            'token': token.key,
+            'user': UserSerializer(user).data,
+        }
+        return Response(data)
+```
+
+
+이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module을 제작했다.
+이 과정을 try ~ except 문으로 처리하여 email / password 정보가 Facebook login한 유저에 해당하지 않을 경우 정상적으로 AuthTokenSerializer의 과정을 거치게 된다.
+AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다. AuthTokenSerializer의 코드는 아래와 같다.
+
+
+```python
+from django.utils.translation import ugettext_lazy as _
+
+from rest_framework import serializers
+from rest_framework.compat import authenticate
+
+
+class AuthTokenSerializer(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    password = serializers.CharField(
+        label=_("Password"),
+        style={'input_type': 'password'},
+        trim_whitespace=False
+    )
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(request=self.context.get('request'),
+                                username=username, password=password)
+
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+```
+
+
+username과 password를 통해서 로그인을 시도하는 것을 볼 수 있다.
+일반 email login 유저의 경우 이 username에 email 정보가 입력되어 있고 이 email 정보와 password의 일치 여부에 따라 login이 진행된다.
+
+반면 Facebook Login 유저의 경우 username에는 Facebook Login을 위한 고유 Facebook ID값이 저장되어 있고, email에는 위에서 PATCH를 통해 설정한 이메일이 등록되어있다.\
+따라서 위와 같이 일반 email login 유저처럼 로그인 창에서 입력한 이메일 정보를 통해 authenticate를 진행하는 방법을 따를 수 없다.\
+다음처럼 입력된 이메일 정보를 통해 Facebook ID 값을 알아낸 다음에 이를 username에 할당하여 authenticate를 진행해야 한다.
+
+```python
+    email = attrs.get('username')
+    user = User.objects.get(email=email)
+    username = user.username
+    password = attrs.get('password')
+```
+
+위 코드를 포함한 전체 AuthTokenSerializerForFacebookUser은 다음과 같다.
+
+[소스코드](./app/members/serializers/facebook_auth.py)
+
+```python
+class AuthTokenSerializerForFacebookUser(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    password = serializers.CharField(
+        label=_("Password"),
+        style={'input_type': 'password'},
+        trim_whitespace=False
+    )
+
+    def validate(self, attrs):
+
+        email = attrs.get('username')
+        user = User.objects.get(email=email)
+        username = user.username
+        password = attrs.get('password')
+
+        if username and password:
+            user = authenticate(request=self.context.get('request'),
+                                username=username, password=password)
+
+            # The authenticate call simply returns None for is_active=False
+            # users. (Assuming the default ModelBackend authentication
+            # backend.)
+            if not user:
+                msg = _('Unable to log in with provided credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='authorization')
+
+        attrs['user'] = user
+        return attrs
+```
+
+이제 Facebook Login 유저가 가입 이후 별도로 설정한 email / password를 통해 이메일 로그인을 시도해보자.
+
+![email login trial](./asset/facebook_login_user_email_login_trial.png)
+
+로그인이 성공하였으며, 로그인된 유저의 프로필 정보 화면을 통해서 기존의 Facebook Login 유저임을 확인하였다.
+
+![email login success](./asset/facebook_login_user_email_login_success.png)
+
+
+
+<br>
+
+## (3) Field에 동적으로 value 표현하기
 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
 
 <br>
 
 ### 구현 이유
-예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를
-알려주는 지표가 필요함.
+예약이 현재 대기 중인 상태인지, 숙박이 진행 중인 상태인지, 또는 숙박이 종료된 상태인지를 알려주는 지표가 필요하였다.\
+일반적인 Serializer Field로는 구현할 수 없어 이 기능으로 동작하는 별도의 코드를 고민하였다.
 
 <br>
 
 ### 단계 1)
-기존에 정의한 reservation_status라는 Character field와는
-별도로 reservation_current_state라는 함수를 정의하고 이 함수를 property 선언
+#### 기존에 정의한 reservation_status라는 Character field와는 별도로 reservation_current_state라는 메서드를 정의한다.
+
+[소스코드](./app/reservation/models.py)
 
 ```python
     @property
-    def reservation_current_state(self):
+    class Reservation(models.Model):
 
-        now = timezone.now()
+        ...
+        def reservation_current_state(self):
 
-        date_now = datetime.date(now.year, now.month, now.day)
-        # check_in_date field는 datetime.date type이기 때문에
-        # 2018-04-19 형태로 된 값과 비교를 해야함.
-        # datetime.date 형태로 현재 시점의 값을 구하기 위해서
-        # 위와 같이 now.year, now.month, now.day를 활용함.
+            now = timezone.now()
 
-        if self.check_in_date > date_now:
-            return 'BE'
-            # Before reservation
-        elif self.check_out_date < date_now:
-            return 'AF'
-            # After reservation
-        else:
-            return 'ON'
-            # Ongoing reservation
+            date_now = datetime.date(now.year, now.month, now.day)
+            # check_in_date field는 datetime.date type이기 때문에
+            # 2018-04-19 형태로 된 값과 비교를 해야함.
+            # datetime.date 형태로 현재 시점의 값을 구하기 위해서
+            # 위와 같이 now.year, now.month, now.day를 활용함.
+
+            if self.check_in_date > date_now:
+                return 'BE'
+                # Before reservation
+            elif self.check_out_date < date_now:
+                return 'AF'
+                # After reservation
+            else:
+                return 'ON'
+                # Ongoing reservation
 ```
-[소스코드](./app/reservation/models.py)
+
+이 메서드를 사용하기 편리하게 하기 위해서 @property 선언을 추가한다.
+
 
 <br>
 
 ### 단계 2)
-Serializer의 field중 별도의 함수에서 정의한 값을 client side에 전달할 수 있는
-Dynamic Fields Mixin을 활용.
+#### Serializer의 field중 별도의 메소드에서 정의한 값을 client side에 전달할 수 있는 SerializerMethodField를 활용한다.
+
+
+[소스코드](./app/reservation/serializers/reservation.py)
 
 ```python
     class ReservationSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
         ...
         reservation_current_state = serializers.SerializerMethodField(read_only=True)
-```
 
-```python
+        class Meta:
+            model = Reservation
+            fields = (
+                ...
+                'reservation_current_state',
+                ...
+            )
+    ...
+
     def get_reservation_current_state(self, obj):
         return obj.reservation_current_state
 ```
-[소스코드](./app/reservation/serializers/reservation.py)
+
+Serializer에서 SerializerMethodField 명으로 설정한 Field name의 앞에 'get_' 을 붙여 method를 정의하고 해당 필드에 설정하고 싶은 값을 return해야 한다.
+method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으로 사용할 수 있다.
+
 
 <br>
 
 ### 단계 3)
-아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있음.
+#### 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있다.
 
 ```json
 {
@@ -869,7 +1149,7 @@ Dynamic Fields Mixin을 활용.
     "previous": null,
     "results": [
         {
-            [...]
+            ...
             "reservation_current_state": "AF",
         }
      ]
@@ -877,7 +1157,7 @@ Dynamic Fields Mixin을 활용.
 ```
 
 <br>
-
+<br>
 
 ## 향후 개선점
 
@@ -896,10 +1176,10 @@ Dynamic Fields Mixin을 활용.
 등등..
 
 <br>
-
---
-
 <br>
+
+---
+
 
 
 ## 스크럼 보드
