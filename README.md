@@ -285,6 +285,7 @@ FROM <사용자명>/<저장소명>:base
   - Selenium
   - Beautifulsoup4
   - lxml
+* Sentry
 
 <br>
 
@@ -1156,6 +1157,7 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 <br>
 <br>
+
 
 ## 향후 개선점
 

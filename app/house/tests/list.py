@@ -221,7 +221,7 @@ class HouseListTest(APITestCase):
         page_num = math.ceil(self.HOUSE_COUNT / self.PAGE_SIZE)
 
         for i in range(int(page_num)):
-            response = self.client.get(self.URL, {'page': i + 1, 'page_size': self.PAGE_SIZE, 'fields': 'pk,name'})
+            response = self.client.get(self.URL, {'page': i + 1, 'page_size': self.PAGE_SIZE, 'fields': 'pk,name,latitude,longitude'})
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
             self.assertIsNotNone(response.data['count'], 'count')
@@ -239,6 +239,9 @@ class HouseListTest(APITestCase):
                 self.assertEqual(house_result['pk'], ((i * self.PAGE_SIZE) + j) + 1)
                 self.assertEqual(house_result['name'], self.DATA['name'])
 
+                self.assertEqual(house_result['latitude'], self.BASE_GPS['latitude'] if i + j == 0 else self.DATA['latitude'])
+                self.assertEqual(house_result['longitude'], self.BASE_GPS['longitude'] if i + j == 0 else self.DATA['longitude'])
+
                 house = House.objects.get(pk=house_result['pk'])
                 self.assertEqual(house.pk, ((i * self.PAGE_SIZE) + j) + 1)
                 self.assertEqual(house.name, self.DATA['name'])
@@ -246,12 +249,13 @@ class HouseListTest(APITestCase):
     def test_list_house_field_set_gps(self):
         response = self.client.get(self.URL, {
             'fields': 'pk,name,latitude,longitude',
-            'ne_lat': 37.580976691182734,
-            'ne_lng': 127.01328490704668,
-            'sw_lat': 37.502343388016456,
-            'sw_lng': 126.93020080060137,
+            'ne_lat': 38.0,
+            'ne_lng': 127.0,
+            'sw_lat': 36.0,
+            'sw_lng': 126.0,
             'ordering': '-pk',
         })
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertIsNotNone(response.data['count'], 'count')
