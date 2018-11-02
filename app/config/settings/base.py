@@ -89,7 +89,7 @@ CORS_ORIGIN_WHITELIST = (
     # 'fc-finn-front.s3-website.ap-northeast-2.amazonaws.com',
     # 'ec2-52-78-196-254.ap-northeast-2.compute.amazonaws.com',
     'finn-eb.ap-northeast-2.elasticbeanstalk.com',
-    'finn.dlighter.com',
+    'airbnb.smallbee.me',
 )
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

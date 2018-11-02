@@ -9,7 +9,7 @@ ALLOWED_HOSTS = [
     '.elasticbeanstalk.com',
     '.amazonaws.com',
     '.himanmen.com',
-    '.dlighter.com',
+    '.smallbee.me',
 ]
 WSGI_APPLICATION = 'config.wsgi.production.application'
 INSTALLED_APPS += [
