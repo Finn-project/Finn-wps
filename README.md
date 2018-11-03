@@ -41,10 +41,44 @@
 
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
+<br>
 ## API 문서 링크
 https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 <br>
+## 사용된 도구 및 기술
+
+* Python 3.6.4
+* Django 2.0.3
+  - django-imagekit 4.0.2
+* Django REST framework 3.7.7
+  - django-filter 1.1.0
+  - Dynamic Fields Mixin 0.3.0
+* AWS
+  - Elastic Beanstalk
+  - RDS(Relational Database Service)
+  - S3
+  - Route53
+  - ACM (AWS Certificate Manager)
+* Docker, Dockerhub
+* OAuth (Web, iOS)
+  - Facebook Login
+* Database
+  - Local(sqlite3)
+  - Production & Dev(postgresql)
+* Server
+  - Nginx
+* Crawling
+  - Selenium 3.11.0
+  - Beautifulsoup4 4.6.0
+  - lxml 4.2.1
+* Git
+  - Git Organization
+  - Git Fork Repository
+* etc
+  - Sentryfr
+
+
 <br>
 
 ---
@@ -65,6 +99,9 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 * Python (3.6)
 * S3 Bucket, 해당 Bucket을 사용할 수 있는 IAM User의 AWS AccessKey, SecretAccessKey
 * RDS Database(보안 그룹 허용 필요), 해당 Database를 사용할 수 있는 RDS의 User, Password
+
+
+<br>
 
 ## Installation (Django runserver)
 
@@ -91,8 +128,6 @@ python manage.py runserver
 ```
 
 <br>
-
----
 
 ## Installation (Docker)
 
@@ -256,35 +291,6 @@ FROM <사용자명>/<저장소명>:base
 ./manage.py test reservation
 ```
 
-<br>
-
-## 사용된 도구 및 기술
-
-* Python 3.6
-* Django 2.0
-* django-imagekit
-* OAuth
-  - Facebook Login (Web, iOS)
-* DRF (Django REST framework)
-  - django-filter
-  - Dynamic Fields Mixin
-* Git
-  - Git Organization
-  - Git Fork Repository
-* Docker, Dockerhub
-* Database
-  - Local(sqlite3)
-  - Production & Dev(postgresql)
-* AWS
-  - Elastic Beanstalk
-  - RDS(Relational Database Service)
-  - S3
-  - Route53
-  - ACM (AWS Certificate Manager)
-* Crawling
-  - Selenium
-  - Beautifulsoup4
-  - lxml
 
 <br>
 
