@@ -1217,25 +1217,29 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 <br>
 
---
+---
 
 ***송영기***
 
 #### Sprint1
 
-![Sprint1](./asset/Scrum-Board-5.png)
+![Sprint1](./asset/ScrumBoard_1.png)
+![Sprint2](./asset/ScrumBoard_1_2.png)
 
 #### Sprint2
 
-![Sprint2](./asset/Scrum-Board-6.png)
+![Sprint2](./asset/ScrumBoard_2.png)
+![Sprint2](./asset/ScrumBoard_2_2.png)
 
 #### Sprint3
 
-![Sprint3](./asset/Scrum-Board-7.png)
+![Sprint3](./asset/ScrumBoard_3.png)
+![Sprint3](./asset/ScrumBoard_3_2.png)
 
 #### Sprint4
 
-![Sprint4](./asset/Scrum-Board-8.png)
+![Sprint4](./asset/ScrumBoard_4.png)
+![Sprint4](./asset/ScrumBoard_4_2.png)
 
 <br>
 
