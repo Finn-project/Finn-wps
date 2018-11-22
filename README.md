@@ -299,6 +299,7 @@ FROM <사용자명>/<저장소명>:base
 ```
 
 
+
 <br>
 
 ## App별 Database erd
@@ -833,6 +834,7 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 #### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView로 router 되어 이동
 
 
+
 [소스코드](./app/members/urls/apis.py)
 
 ```python
@@ -937,6 +939,7 @@ class APIFacebookBackend:
 (* 서버에서 User의 PUT, PATCH 기능이 구현되었으나 front-end에서 해당기능 UI가 구현되지 않아 별도의 TOOL을 통해 데이터를 전송함)
 
 ![PATCH request](./asset/patch_request_for_facebook_login_user.png)
+
 
 이제 Facebook Login 유저의 이메일과 패스워드가 갖춰진 상태이다.
 이제 이 유저가 이메일 로그인을 할 수 있도록 기존의 login 관련 코드를 수정해야 한다.\
@@ -1155,6 +1158,7 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 ### 단계 3)
 #### 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있다.
 
+
 ```json
 {
     "count": 30,
@@ -1171,6 +1175,7 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 <br>
 <br>
+
 
 ## 향후 개선점
 
