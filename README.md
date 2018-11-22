@@ -822,6 +822,9 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
 실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
 
+`Pinterest multi-login functions`
+![pinterest_multi_login](./asset/pinterest_multi_login.png)
+
 
 <br>
 
