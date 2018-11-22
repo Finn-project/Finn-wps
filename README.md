@@ -32,20 +32,27 @@
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
+
 ## 애플리케이션 영상 링크
+
 **IOS**
 
 [![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
+
 
 **WEB**
 
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
 <br>
+
+
 ## API 문서 링크
 https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 <br>
+
+
 ## 사용된 도구 및 기술
 
 * Python 3.6.4
@@ -76,7 +83,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
   - Git Organization
   - Git Fork Repository
 * etc
-  - Sentryfr
+  - Sentry
 
 
 <br>
