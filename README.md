@@ -52,8 +52,29 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 <br>
 
+---
 
-## 사용된 도구 및 기술
+## 목차
+[1. 사용된 도구 및 기술](https://github.com/smallbee3/Finn-project/tree/dev#1-%EC%82%AC%EC%9A%A9%EB%90%9C-%EB%8F%84%EA%B5%AC-%EB%B0%8F-%EA%B8%B0%EC%88%A0) \
+[2. 설치하기](https://github.com/smallbee3/Finn-project/tree/dev#2-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0) \
+[3. Secrets 키 관리하기](https://github.com/smallbee3/Finn-project/tree/dev#3-secrets-%ED%82%A4-%EA%B4%80%EB%A6%AC) \
+[4. Deploy 하기](https://github.com/smallbee3/Finn-project/tree/dev#4-deploy-%ED%95%98%EA%B8%B0) \
+[5. Test 실행하기](https://github.com/smallbee3/Finn-project/tree/dev#5-test-%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0) \
+[6. 모델링하기 (erd)](https://github.com/smallbee3/Finn-project/tree/dev#6-%EB%AA%A8%EB%8D%B8%EB%A7%81%ED%95%98%EA%B8%B0-erd) \
+[7. Code Review](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
+        - [by 박수민](https://github.com/smallbee3/Finn-project/tree/dev#by-%EB%B0%95%EC%88%98%EB%AF%BC) \
+        - [by 송영기](https://github.com/smallbee3/Finn-project/tree/dev#by-%EC%86%A1%EC%98%81%EA%B8%B0) \
+[8. 스크럼 보드](https://github.com/smallbee3/Finn-project/tree/dev#8-%EC%8A%A4%ED%81%AC%EB%9F%BC-%EB%B3%B4%EB%93%9C) \
+[9. 트렐로 보드](https://github.com/smallbee3/Finn-project/tree/dev#9-%ED%8A%B8%EB%A0%90%EB%A1%9C)
+
+
+
+<br>
+<br>
+
+
+
+## 1. 사용된 도구 및 기술
 
 * Python 3.6.4
 * Django 2.0.3
@@ -88,9 +109,8 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 <br>
 
----
 
-# 설치하기
+## 2. 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
 
 ## Requirements
@@ -178,7 +198,7 @@ FROM <사용자명>/<저장소명>:base
 
 <br>
 
-## .secrets
+## 3. secrets 키 관리
 
 #### .secrets/base.json
 
@@ -225,7 +245,7 @@ FROM <사용자명>/<저장소명>:base
 
 <br>
 
-## 배포
+## 4. Deploy 하기
 
 `deploy.sh`파일을 사용
 ```
@@ -234,7 +254,7 @@ FROM <사용자명>/<저장소명>:base
 
 <br>
 
-## 테스트 실행하기
+## 5. Test 실행하기
 
 ```
 ./manage.py test
@@ -301,7 +321,7 @@ FROM <사용자명>/<저장소명>:base
 
 <br>
 
-## App별 Database erd
+## 6. 모델링하기 (erd)
 
 ***숙소***
 
@@ -318,9 +338,11 @@ FROM <사용자명>/<저장소명>:base
 <br>
 <br>
 
----
 
-# Code Review(박수민, 송영기)
+
+## 7. Code Review(박수민, 송영기)
+
+<br>
 
 ### by 박수민
 ## (1) members (signup, list, retrieve)
@@ -651,13 +673,21 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 <br>
 
 ### by 송영기
+---
+
+## TABLE
+[1. Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기](https://github.com/smallbee3/Finn-project/tree/dev#1-front-end-%EA%B2%B0%EA%B3%BC%EB%AC%BC%EC%9D%84-elasticbeanstalk-%EC%95%88%EC%97%90%EC%84%9C-multy-deploy%ED%95%98%EA%B8%B0) \
+[2. Multi-login 구현하기 (Facebook Login & email loogin](https://github.com/smallbee3/Finn-project/tree/dev#2-%EA%B8%B0%EC%A1%B4-facebook-login-%EC%9C%A0%EC%A0%80%EA%B0%80-email%EB%A1%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%9D%84-%EC%8B%9C%EB%8F%84%ED%95%A0-%EB%95%8C-%EB%91%90-%EC%95%84%EC%9D%B4%EB%94%94%EB%A5%BC-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0) \
+[3. API json response 에 동적으로 변하는 값 표현하기](https://github.com/smallbee3/Finn-project/tree/dev#3-field%EC%97%90-%EB%8F%99%EC%A0%81%EC%9C%BC%EB%A1%9C-value-%ED%91%9C%ED%98%84%ED%95%98%EA%B8%B0)
+
+<br>
+<br>
 
 ## (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
 AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통신으로 보안 프로토콜(https) 사용
 
-<br>
 
-### 구현 이유
+### 개발 목표
 Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을 하기 위해
 
 <br>
@@ -814,10 +844,11 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 <br>
 
 
-## (2) 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
+## (2) Multi-login 구현하기 (Facebook Login & email loogin]
+기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
 
 
-### 구현 이유
+### 개발 목표
 기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
 이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
 실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
@@ -1077,8 +1108,8 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 
 <br>
 
-## (3) Field에 동적으로 value 표현하기
-동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+## (3) API json response 에 동적으로 변하는 값 표현하기
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달
 
 <br>
 
@@ -1198,7 +1229,7 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 
 
-## 스크럼 보드
+## 8. 스크럼 보드
 
 ***박수민***
 
@@ -1246,9 +1277,9 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 <br>
 
---
 
-## 트렐로
+
+## 9. 트렐로
 
 #### Sprint1
 ![Sprint4](./asset/trello_01.png)
