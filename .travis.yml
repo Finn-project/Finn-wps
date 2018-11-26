@@ -7,4 +7,6 @@ before_install:
 install:
   - pip install -r .requirements/local.txt
 script:
-  - python app/manage.py test
+  - python app/manage.py test members.tests
+  - python app/manage.py test house.tests
+  - python app/manage.py test reservation.tests
