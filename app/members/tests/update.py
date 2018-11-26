@@ -1,4 +1,6 @@
 import os
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test.client import encode_multipart
 from rest_framework.test import APITestCase
@@ -49,7 +51,12 @@ class UserUpdateTest(APITestCase):
         )
 
         # User Update 요청 부분
-        img_profile = open('../.static/iu.jpg', 'rb')
+
+        # 181126
+        # img_profile = open('../.static/iu.jpg', 'rb')
+        self.file_path = os.path.join(settings.STATIC_DIR, 'iu.jpg')
+        img_profile = open(self.file_path, 'rb')
+
 
         request_contents = {
             'email': 'test2@gmail.com',
