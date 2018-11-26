@@ -70,7 +70,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 
 <br>
-<br>
+<br><br>
 
 
 
@@ -89,6 +89,8 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
   - Route53
   - ACM (AWS Certificate Manager)
 * Docker, Dockerhub
+* CI
+ - Travis
 * OAuth (Web, iOS)
   - Facebook Login
 * Database
@@ -107,7 +109,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
   - Sentry
 
 
-<br>
+<br><br>
 
 
 ## 2. 설치하기
@@ -196,7 +198,8 @@ FROM <사용자명>/<저장소명>:base
 ...
 ```
 
-<br>
+<br><br>
+
 
 ## 3. secrets 키 관리
 
@@ -252,7 +255,8 @@ FROM <사용자명>/<저장소명>:base
 ./deploy.sh
 ```
 
-<br>
+<br><br>
+
 
 ## 5. Test 실행하기
 
@@ -260,9 +264,9 @@ FROM <사용자명>/<저장소명>:base
 ./manage.py test
 ```
 
-### End-to-End 테스트
+#### End-to-End 테스트
 
-#### members
+## members
 
 * `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
 * `UserListTest` - 회원 리스트 조회 테스트
@@ -271,7 +275,7 @@ FROM <사용자명>/<저장소명>:base
 * `UserDeleteTest` - 회원 삭제 테스트
 * `UserLoginLogoutTest` - 로그인/로그아웃 테스트
 
-```
+
 ./manage.py test members.tests.signup
 ./manage.py test members.tests.list
 ./manage.py test members.tests.detail
@@ -279,11 +283,29 @@ FROM <사용자명>/<저장소명>:base
 ./manage.py test members.tests.delete
 ./manage.py test members.tests.login_logout
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test members
 ```
 
-#### house
+### Test coverage report
+
+```
+Name                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+members/tests/__init__.py           6      0   100%
+members/tests/delete.py            32      0   100%
+members/tests/detail.py            30      0   100%
+members/tests/list.py              32      0   100%
+members/tests/login_logout.py      26      0   100%
+members/tests/signup.py            41      0   100%
+members/tests/update.py            50      0   100%
+-------------------------------------------------------------
+TOTAL                             217      0   100%
+```
+
+<br>
+
+## house
 
 * `HouseCreateTest` - 숙소 등록 테스트
 * `HouseListTest` - 숙소 리스트 조회 테스트
@@ -292,34 +314,81 @@ FROM <사용자명>/<저장소명>:base
 * `HousePartialUpdateTest` - 숙소 부분 수정 테스트
 * `HouseDeleteTest` - 숙소 삭제 테스트
 
-```
-./manage.py test house.tests.create
-./manage.py test house.tests.list
-./manage.py test house.tests.retrieve
-./manage.py test house.tests.update
-./manage.py test house.tests.update_partial
+
+./manage.py test house.tests.create \
+./manage.py test house.tests.list \
+./manage.py test house.tests.retrieve \
+./manage.py test house.tests.update \
+./manage.py test house.tests.update_partial \
 ./manage.py test house.tests.delete
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test house
+
+
+### Test coverage report
+
+```
+ame                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+house/tests/__init__.py             6      0   100%
+house/tests/create.py             103      0   100%
+house/tests/delete.py              51      0   100%
+house/tests/list.py               168     10    94%   264-276
+house/tests/retrieve.py           128      0   100%
+house/tests/update.py             134      0   100%
+house/tests/update_partial.py     127      0   100%
+-------------------------------------------------------------
+TOTAL                             717     10    99%
 ```
 
-#### reservation
+<br>
+
+## reservation
 
 * `ReservationCreateTest` - 숙소 등록 테스트
 * `ReservationListTest` - 숙소 리스트 조회 테스트
 
-```
+
 ./manage.py test reservation.tests.create
 ./manage.py test reservation.tests.list
 
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test reservation
+
+
+### Test coverage report
+
+```
+Name                                                Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------
+reservation/__init__.py                                 0      0   100%
+reservation/admin.py                                    3      0   100%
+reservation/apis/__init__.py                            0      0   100%
+reservation/apis/reservation.py                        29      3    90%   99-102
+reservation/apps.py                                     3      3     0%   1-5
+reservation/migrations/0001_initial.py                  7      0   100%
+reservation/migrations/0002_auto_20180425_1246.py       4      0   100%
+reservation/migrations/__init__.py                      0      0   100%
+reservation/models.py                                  38      3    92%   100-104
+reservation/serializers/__init__.py                     2      0   100%
+reservation/serializers/reservation.py                 60      9    85%   52, 56, 68-69, 79, 81, 84, 89-91
+reservation/serializers/reservation_update.py          50     39    22%   20-64, 68-96
+reservation/tests/__init__.py                           2      0   100%
+reservation/tests/create.py                            70      0   100%
+reservation/tests/list.py                              79      0   100%
+reservation/urls/__init__.py                            0      0   100%
+reservation/urls/apis.py                                3      0   100%
+reservation/urls/views.py                               0      0   100%
+reservation/views.py                                    1      1     0%   1
+---------------------------------------------------------------------------------
+TOTAL                                                 351     58    83%
 ```
 
+<br><br>
 
-<br>
+
 
 ## 6. 모델링하기 (erd)
 
@@ -335,8 +404,8 @@ FROM <사용자명>/<저장소명>:base
 
 ![예약](./asset/reservation.png)
 
-<br>
-<br>
+
+<br><br>
 
 
 
@@ -668,9 +737,8 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 
 
-<br>
+<br><br>
 
-<br>
 
 ### by 송영기
 ---
@@ -1222,8 +1290,8 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
 
-<br>
-<br>
+
+<br><br>
 
 ---
 
