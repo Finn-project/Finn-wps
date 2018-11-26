@@ -1,6 +1,9 @@
 language: python
 python:
   - "3.6"
+before_install:
+  - openssl aes-256-cbc -K $encrypted_1d2ab8ba5030_key -iv $encrypted_1d2ab8ba5030_iv -in secrets.tar.enc -out secrets.tar -d
+  - tar xvf secrets.tar
 install:
   - pip install -r .requirements/local.txt
 script:
