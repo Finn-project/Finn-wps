@@ -90,7 +90,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
   - ACM (AWS Certificate Manager)
 * Docker, Dockerhub
 * CI
- - Travis
+  - Travis
 * OAuth (Web, iOS)
   - Facebook Login
 * Database
@@ -246,7 +246,7 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
-<br>
+<br><br>
 
 ## 4. Deploy 하기
 
@@ -260,9 +260,9 @@ FROM <사용자명>/<저장소명>:base
 
 ## 5. Test 실행하기
 
-```
-./manage.py test
-```
+
+`./manage.py test`
+
 
 #### End-to-End 테스트
 
@@ -276,16 +276,16 @@ FROM <사용자명>/<저장소명>:base
 * `UserLoginLogoutTest` - 로그인/로그아웃 테스트
 
 
-./manage.py test members.tests.signup
-./manage.py test members.tests.list
-./manage.py test members.tests.detail
-./manage.py test members.tests.update
-./manage.py test members.tests.delete
+./manage.py test members.tests.signup \
+./manage.py test members.tests.list \
+./manage.py test members.tests.detail \
+./manage.py test members.tests.update \
+./manage.py test members.tests.delete \
 ./manage.py test members.tests.login_logout
 
 #일괄 테스트
 ./manage.py test members
-```
+
 
 ### Test coverage report
 
@@ -329,7 +329,7 @@ TOTAL                             217      0   100%
 ### Test coverage report
 
 ```
-ame                            Stmts   Miss  Cover   Missing
+Name                            Stmts   Miss  Cover   Missing
 -------------------------------------------------------------
 house/tests/__init__.py             6      0   100%
 house/tests/create.py             103      0   100%
@@ -350,7 +350,7 @@ TOTAL                             717     10    99%
 * `ReservationListTest` - 숙소 리스트 조회 테스트
 
 
-./manage.py test reservation.tests.create
+./manage.py test reservation.tests.create \
 ./manage.py test reservation.tests.list
 
 
