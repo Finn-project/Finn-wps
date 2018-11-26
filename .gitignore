@@ -4,6 +4,7 @@
 /.secrets
 aws.md
 *.html
+secrets.tar
 
 
 # Gitignore for deploying the second server
