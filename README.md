@@ -260,13 +260,13 @@ FROM <사용자명>/<저장소명>:base
 
 ## 5. Test 실행하기
 
-
 `./manage.py test`
 
+<br>
 
 #### End-to-End 테스트
 
-## members
+## 1) members
 
 * `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
 * `UserListTest` - 회원 리스트 조회 테스트
@@ -305,7 +305,7 @@ TOTAL                             217      0   100%
 
 <br>
 
-## house
+## 2) house
 
 * `HouseCreateTest` - 숙소 등록 테스트
 * `HouseListTest` - 숙소 리스트 조회 테스트
@@ -344,7 +344,7 @@ TOTAL                             717     10    99%
 
 <br>
 
-## reservation
+## 3) reservation
 
 * `ReservationCreateTest` - 숙소 등록 테스트
 * `ReservationListTest` - 숙소 리스트 조회 테스트
@@ -414,7 +414,7 @@ TOTAL                                                 351     58    83%
 <br>
 
 ### by 박수민
-## (1) members (signup, list, retrieve)
+## 1) members (signup, list, retrieve)
 
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
@@ -530,7 +530,7 @@ def validate_username(self, username):
 
 <br>
 
-## (2) house
+## 2) house
 숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
 숙소의 기본정보와 호스트 이미지 등이 포함.
 
@@ -685,7 +685,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <br>
 
-## (3) 배포
+## 3) 배포
 `ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
 ```yaml
 files:
@@ -751,7 +751,7 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 <br>
 <br>
 
-## (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
+## 1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
 AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통신으로 보안 프로토콜(https) 사용
 
 
@@ -760,7 +760,7 @@ Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을
 
 <br>
 
-### 시도 1) S3의 정적 웹 사이트 호스팅 이용
+### 시도 1. S3의 정적 웹 사이트 호스팅 이용
 S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있음.
 별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴함.
 
@@ -792,7 +792,7 @@ S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일
 
 <br>
 
-### 시도 2) ElasticBeanstalk 내부 EC2의 Nginx의 라우팅을 활용한 정적페이지 호스팅
+### 시도 2. ElasticBeanstalk 내부 EC2의 Nginx의 라우팅을 활용한 정적페이지 호스팅
 ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving하도록 Nginx 설정
 
 
@@ -845,7 +845,7 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 
 <br>
 
-### 시도 3) Nginx의 라우팅 대상을 서브 도메인 주소로 변경
+### 시도 3. Nginx의 라우팅 대상을 서브 도메인 주소로 변경
 
 
 1. Nginx 설정 재변경
@@ -912,7 +912,7 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 <br>
 
 
-## (2) Multi-login 구현하기 (Facebook Login & email loogin]
+## 2) Multi-login 구현하기 (Facebook Login & email loogin]
 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
 
 
@@ -1176,7 +1176,7 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 
 <br>
 
-## (3) API json response 에 동적으로 변하는 값 표현하기
+## 3) API json response 에 동적으로 변하는 값 표현하기
 동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달
 
 <br>
