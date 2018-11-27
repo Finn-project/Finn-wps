@@ -3,7 +3,7 @@
 /.static
 /.secrets
 aws.md
-*.html
+/app/utils/crawler/*.html
 secrets.tar
 
 
