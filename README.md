@@ -266,7 +266,7 @@ FROM <사용자명>/<저장소명>:base
 
 #### End-to-End 테스트
 
-## 1) members
+### 1) members
 
 * `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
 * `UserListTest` - 회원 리스트 조회 테스트
@@ -305,7 +305,7 @@ TOTAL                             217      0   100%
 
 <br>
 
-## 2) house
+### 2) house
 
 * `HouseCreateTest` - 숙소 등록 테스트
 * `HouseListTest` - 숙소 리스트 조회 테스트
@@ -344,7 +344,7 @@ TOTAL                             717     10    99%
 
 <br>
 
-## 3) reservation
+### 3) reservation
 
 * `ReservationCreateTest` - 숙소 등록 테스트
 * `ReservationListTest` - 숙소 리스트 조회 테스트
@@ -745,8 +745,8 @@ git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secr
 
 ## TABLE
 [1. Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기](https://github.com/smallbee3/Finn-project/tree/dev#1-front-end-%EA%B2%B0%EA%B3%BC%EB%AC%BC%EC%9D%84-elasticbeanstalk-%EC%95%88%EC%97%90%EC%84%9C-multy-deploy%ED%95%98%EA%B8%B0) \
-[2. Multi-login 구현하기 (Facebook Login & email loogin](https://github.com/smallbee3/Finn-project/tree/dev#2-%EA%B8%B0%EC%A1%B4-facebook-login-%EC%9C%A0%EC%A0%80%EA%B0%80-email%EB%A1%9C-%EB%A1%9C%EA%B7%B8%EC%9D%B8%EC%9D%84-%EC%8B%9C%EB%8F%84%ED%95%A0-%EB%95%8C-%EB%91%90-%EC%95%84%EC%9D%B4%EB%94%94%EB%A5%BC-%EC%97%B0%EB%8F%99%ED%95%98%EA%B8%B0) \
-[3. API json response 에 동적으로 변하는 값 표현하기](https://github.com/smallbee3/Finn-project/tree/dev#3-field%EC%97%90-%EB%8F%99%EC%A0%81%EC%9C%BC%EB%A1%9C-value-%ED%91%9C%ED%98%84%ED%95%98%EA%B8%B0)
+[2. Multi-login 구현하기 (Facebook Login & email loogin](https://github.com/smallbee3/Finn-project/tree/dev#2-multi-login-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0-facebook-login--email-loogin) \
+[3. API json response 에 동적으로 변하는 값 표현하기](https://github.com/smallbee3/Finn-project/tree/dev#3-api-json-response-%EC%97%90-%EB%8F%99%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%B3%80%ED%95%98%EB%8A%94-%EA%B0%92-%ED%91%9C%ED%98%84%ED%95%98%EA%B8%B0)
 
 <br>
 <br>
@@ -908,8 +908,9 @@ ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정�
 #### 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
 
 
-<br>
-<br>
+<br><br><br>
+
+
 
 
 ## 2) Multi-login 구현하기 (Facebook Login & email loogin]

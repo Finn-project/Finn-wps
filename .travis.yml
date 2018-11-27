@@ -10,3 +10,18 @@ script:
   - python app/manage.py test members.tests
   - python app/manage.py test house.tests
   - python app/manage.py test reservation.tests
+before_deploy:
+  - zip -r archive.zip .
+deploy:
+  provider: elasticbeanstalk
+  zip_file: archive.zip
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key:
+    secure: $AWS_SECRET_ACCESS_KEY
+  region: $AWS_S3_REGION_NAME
+  app: "EB Docker"
+  env: "Production"
+  bucket_name: elasticbeanstalk-ap-northeast-2-534535731112
+  skip_cleanup: true
+  on:
+    branch: dev
