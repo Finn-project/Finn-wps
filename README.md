@@ -1285,6 +1285,7 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 
 <br>
 
+
 ### 단계 2)
 #### Serializer의 field중 별도의 메소드에서 정의한 값을 client side에 전달할 수 있는 SerializerMethodField를 활용한다.
 
