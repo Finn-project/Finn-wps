@@ -3,7 +3,8 @@
 /.static
 /.secrets
 aws.md
-*.html
+/app/utils/crawler/*.html
+secrets.tar
 
 
 # Gitignore for deploying the second server

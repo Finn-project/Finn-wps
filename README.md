@@ -32,24 +32,87 @@
 * 여러장의 숙소 이미지 등록 가능.
 등등..
 
+
 ## 애플리케이션 영상 링크
+
 **IOS**
 
 [![Video Label](http://img.youtube.com/vi/DakKUIPhBV8/0.jpg)](https://youtu.be/DakKUIPhBV8?t=0s)
+
 
 **WEB**
 
 [![Video Label](http://img.youtube.com/vi/z0QJ7pLDDSE/0.jpg)](https://youtu.be/z0QJ7pLDDSE?t=0s)
 
-## API 문서 링크
-https://smallbee3.gitbooks.io/airbnb/content/
-
 <br>
+
+
+## API 문서 링크
+https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
+
 <br>
 
 ---
 
-# 설치하기
+## 목차
+[1. 사용된 도구 및 기술](https://github.com/smallbee3/Finn-project/tree/dev#1-%EC%82%AC%EC%9A%A9%EB%90%9C-%EB%8F%84%EA%B5%AC-%EB%B0%8F-%EA%B8%B0%EC%88%A0) \
+[2. 설치하기](https://github.com/smallbee3/Finn-project/tree/dev#2-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0) \
+[3. Secrets 키 관리하기](https://github.com/smallbee3/Finn-project/tree/dev#3-secrets-%ED%82%A4-%EA%B4%80%EB%A6%AC) \
+[4. Deploy 하기](https://github.com/smallbee3/Finn-project/tree/dev#4-deploy-%ED%95%98%EA%B8%B0) \
+[5. Test 실행하기](https://github.com/smallbee3/Finn-project/tree/dev#5-test-%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0) \
+[6. 모델링하기 (erd)](https://github.com/smallbee3/Finn-project/tree/dev#6-%EB%AA%A8%EB%8D%B8%EB%A7%81%ED%95%98%EA%B8%B0-erd) \
+[7. Code Review](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
+        - [by 박수민](https://github.com/smallbee3/Finn-project/tree/dev#by-%EB%B0%95%EC%88%98%EB%AF%BC) \
+        - [by 송영기](https://github.com/smallbee3/Finn-project/tree/dev#by-%EC%86%A1%EC%98%81%EA%B8%B0) \
+[8. 스크럼 보드](https://github.com/smallbee3/Finn-project/tree/dev#8-%EC%8A%A4%ED%81%AC%EB%9F%BC-%EB%B3%B4%EB%93%9C) \
+[9. 트렐로 보드](https://github.com/smallbee3/Finn-project/tree/dev#9-%ED%8A%B8%EB%A0%90%EB%A1%9C)
+
+
+
+<br>
+<br><br>
+
+
+
+## 1. 사용된 도구 및 기술
+
+* Python 3.6.4
+* Django 2.0.3
+  - django-imagekit 4.0.2
+* Django REST framework 3.7.7
+  - django-filter 1.1.0
+  - Dynamic Fields Mixin 0.3.0
+* AWS
+  - Elastic Beanstalk
+  - RDS(Relational Database Service)
+  - S3
+  - Route53
+  - ACM (AWS Certificate Manager)
+* Docker, Dockerhub
+* CI
+  - Travis
+* OAuth (Web, iOS)
+  - Facebook Login
+* Database
+  - Local(sqlite3)
+  - Production & Dev(postgresql)
+* Server
+  - Nginx
+* Crawling
+  - Selenium 3.11.0
+  - Beautifulsoup4 4.6.0
+  - lxml 4.2.1
+* Git
+  - Git Organization
+  - Git Fork Repository
+* etc
+  - Sentry
+
+
+<br><br>
+
+
+## 2. 설치하기
 파이썬 패키지 설치와 로컬환경에서의 실행 그리고 도커 빌드에 대해 알아보기
 
 ## Requirements
@@ -65,6 +128,9 @@ https://smallbee3.gitbooks.io/airbnb/content/
 * Python (3.6)
 * S3 Bucket, 해당 Bucket을 사용할 수 있는 IAM User의 AWS AccessKey, SecretAccessKey
 * RDS Database(보안 그룹 허용 필요), 해당 Database를 사용할 수 있는 RDS의 User, Password
+
+
+<br>
 
 ## Installation (Django runserver)
 
@@ -91,8 +157,6 @@ python manage.py runserver
 ```
 
 <br>
-
----
 
 ## Installation (Docker)
 
@@ -134,9 +198,10 @@ FROM <사용자명>/<저장소명>:base
 ...
 ```
 
-<br>
+<br><br>
 
-## .secrets
+
+## 3. secrets 키 관리
 
 #### .secrets/base.json
 
@@ -161,7 +226,8 @@ FROM <사용자명>/<저장소명>:base
   "AWS_DEFAULT_ACL": "private",
   "AWS_S3_REGION_NAME": "<AWS Bucket region>",
   "AWS_S3_SIGNATURE_VERSION": "s3v4",
-  "AWS_S3_ENDPOINT_URL": "https://s3.ap-northeast-2.amazonaws.com",
+  "AWS_S3_ENDPOINT_URL": "https://s3.ap-northeast-2.amazonaws.com"
+}
 ```
 
 #### .secrets/dev.json .secrets/production.json
@@ -181,26 +247,27 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
-<br>
+<br><br>
 
-## 배포
+## 4. Deploy 하기
 
 `deploy.sh`파일을 사용
 ```
 ./deploy.sh
 ```
 
+<br><br>
+
+
+## 5. Test 실행하기
+
+`./manage.py test`
+
 <br>
 
-## 테스트 실행하기
+#### End-to-End 테스트
 
-```
-./manage.py test
-```
-
-### End-to-End 테스트
-
-#### members
+### 1) members
 
 * `UserSignupTest` - 회원 가입 과 토큰 저장 테스트
 * `UserListTest` - 회원 리스트 조회 테스트
@@ -209,19 +276,37 @@ FROM <사용자명>/<저장소명>:base
 * `UserDeleteTest` - 회원 삭제 테스트
 * `UserLoginLogoutTest` - 로그인/로그아웃 테스트
 
-```
-./manage.py test members.tests.signup
-./manage.py test members.tests.list
-./manage.py test members.tests.detail
-./manage.py test members.tests.update
-./manage.py test members.tests.delete
+
+./manage.py test members.tests.signup \
+./manage.py test members.tests.list \
+./manage.py test members.tests.detail \
+./manage.py test members.tests.update \
+./manage.py test members.tests.delete \
 ./manage.py test members.tests.login_logout
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test members
+
+
+### Test coverage report
+
+```
+Name                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+members/tests/__init__.py           6      0   100%
+members/tests/delete.py            32      0   100%
+members/tests/detail.py            30      0   100%
+members/tests/list.py              32      0   100%
+members/tests/login_logout.py      26      0   100%
+members/tests/signup.py            41      0   100%
+members/tests/update.py            50      0   100%
+-------------------------------------------------------------
+TOTAL                             217      0   100%
 ```
 
-#### house
+<br>
+
+### 2) house
 
 * `HouseCreateTest` - 숙소 등록 테스트
 * `HouseListTest` - 숙소 리스트 조회 테스트
@@ -230,66 +315,83 @@ FROM <사용자명>/<저장소명>:base
 * `HousePartialUpdateTest` - 숙소 부분 수정 테스트
 * `HouseDeleteTest` - 숙소 삭제 테스트
 
-```
-./manage.py test house.tests.create
-./manage.py test house.tests.list
-./manage.py test house.tests.retrieve
-./manage.py test house.tests.update
-./manage.py test house.tests.update_partial
+
+./manage.py test house.tests.create \
+./manage.py test house.tests.list \
+./manage.py test house.tests.retrieve \
+./manage.py test house.tests.update \
+./manage.py test house.tests.update_partial \
 ./manage.py test house.tests.delete
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test house
+
+
+### Test coverage report
+
+```
+Name                            Stmts   Miss  Cover   Missing
+-------------------------------------------------------------
+house/tests/__init__.py             6      0   100%
+house/tests/create.py             103      0   100%
+house/tests/delete.py              51      0   100%
+house/tests/list.py               168     10    94%   264-276
+house/tests/retrieve.py           128      0   100%
+house/tests/update.py             134      0   100%
+house/tests/update_partial.py     127      0   100%
+-------------------------------------------------------------
+TOTAL                             717     10    99%
 ```
 
-#### reservation
+<br>
+
+### 3) reservation
 
 * `ReservationCreateTest` - 숙소 등록 테스트
 * `ReservationListTest` - 숙소 리스트 조회 테스트
 
-```
-./manage.py test reservation.tests.create
+
+./manage.py test reservation.tests.create \
 ./manage.py test reservation.tests.list
 
 
-# 일괄 테스트
+#일괄 테스트
 ./manage.py test reservation
+
+
+### Test coverage report
+
+```
+Name                                                Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------------------
+reservation/__init__.py                                 0      0   100%
+reservation/admin.py                                    3      0   100%
+reservation/apis/__init__.py                            0      0   100%
+reservation/apis/reservation.py                        29      3    90%   99-102
+reservation/apps.py                                     3      3     0%   1-5
+reservation/migrations/0001_initial.py                  7      0   100%
+reservation/migrations/0002_auto_20180425_1246.py       4      0   100%
+reservation/migrations/__init__.py                      0      0   100%
+reservation/models.py                                  38      3    92%   100-104
+reservation/serializers/__init__.py                     2      0   100%
+reservation/serializers/reservation.py                 60      9    85%   52, 56, 68-69, 79, 81, 84, 89-91
+reservation/serializers/reservation_update.py          50     39    22%   20-64, 68-96
+reservation/tests/__init__.py                           2      0   100%
+reservation/tests/create.py                            70      0   100%
+reservation/tests/list.py                              79      0   100%
+reservation/urls/__init__.py                            0      0   100%
+reservation/urls/apis.py                                3      0   100%
+reservation/urls/views.py                               0      0   100%
+reservation/views.py                                    1      1     0%   1
+---------------------------------------------------------------------------------
+TOTAL                                                 351     58    83%
 ```
 
-<br>
+<br><br>
 
-## 사용된 도구 및 기술
 
-* Python 3.6
-* Django 2.0
-* django-imagekit
-* OAuth
-  - Facebook Login (Web, iOS)
-* DRF (Django REST framework)
-  - django-filter
-  - Dynamic Fields Mixin
-* Git
-  - Git Organization
-  - Git Fork Repository
-* Docker, Dockerhub
-* Database
-  - Local(sqlite3)
-  - Production & Dev(postgresql)
-* AWS
-  - Elastic Beanstalk
-  - RDS(Relational Database Service)
-  - S3
-  - Route53
-  - ACM (AWS Certificate Manager)
-* Crawling
-  - Selenium
-  - Beautifulsoup4
-  - lxml
-* Sentry
 
-<br>
-
-## App별 Database erd
+## 6. 모델링하기 (erd)
 
 ***숙소***
 
@@ -303,15 +405,17 @@ FROM <사용자명>/<저장소명>:base
 
 ![예약](./asset/reservation.png)
 
-<br>
-<br>
 
----
+<br><br>
 
-# Code Review(박수민, 송영기)
+
+
+## 7. Code Review(박수민, 송영기)
+
+<br>
 
 ### by 박수민
-## (1) members (signup, list, retrieve)
+## 1) members (signup, list, retrieve)
 
 처음 유저 뷰를 만들때 `GenericView`를 쓰지 않고 `APIView`를 사용 하여 작업.
 이유는 `APIView`와 `serializer`의 동작을 더 정확하게 이해하고 넘어 가기 위해서 사용함.
@@ -427,7 +531,7 @@ def validate_username(self, username):
 
 <br>
 
-## (2) house
+## 2) house
 숙소 모델은 기본 `airbnb`의 모델보다 많이 축약시킨 모델링.
 숙소의 기본정보와 호스트 이미지 등이 포함.
 
@@ -582,7 +686,7 @@ class HouseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
 <br>
 
-## (3) 배포
+## 3) 배포
 `ebextensions`의 `files`를 사용하여 배포후 자동으로 해야할 작업들을 정의함.
 ```yaml
 files:
@@ -628,51 +732,58 @@ container_commands:
 
 `deploy`시 `.secrets`폴더를 `git`의 `stage`영역에 추가 한 후 작업 완료 후 다시 삭제
 
-```yaml
+```shell
 git add -f .secrets && eb deploy --staged --profile=airbnb; git reset HEAD .secrets
 ```
 
 
 
-<br>
+<br><br>
 
-<br>
 
 ### by 송영기
+---
 
-## (1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
+## TABLE
+[1. Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기](https://github.com/smallbee3/Finn-project/tree/dev#1-front-end-%EA%B2%B0%EA%B3%BC%EB%AC%BC%EC%9D%84-elasticbeanstalk-%EC%95%88%EC%97%90%EC%84%9C-multy-deploy%ED%95%98%EA%B8%B0) \
+[2. Multi-login 구현하기 (Facebook Login & email loogin](https://github.com/smallbee3/Finn-project/tree/dev#2-multi-login-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0-facebook-login--email-loogin) \
+[3. API json response 에 동적으로 변하는 값 표현하기](https://github.com/smallbee3/Finn-project/tree/dev#3-api-json-response-%EC%97%90-%EB%8F%99%EC%A0%81%EC%9C%BC%EB%A1%9C-%EB%B3%80%ED%95%98%EB%8A%94-%EA%B0%92-%ED%91%9C%ED%98%84%ED%95%98%EA%B8%B0)
+
+<br>
+<br>
+
+## 1) Front-end 결과물을 ElasticBeanstalk 안에서 multy-deploy하기
 AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통신으로 보안 프로토콜(https) 사용
 
+
+### 개발 목표
+Front-end 팀에서 결과물을 정적 페이지 형태로 전달하였음. 전달된 정적 파일을 통해 실제 웹 서비스로 배포하고자 여러 시도를 수행하였음.
+
 <br>
 
-### 구현 이유
-Front-end에서 개발한 결과물을 Back-end와 연결하고 웹 호스팅을 하기 위해
+### 시도 1. S3의 정적 웹 사이트 호스팅 이용
+S3에 있는 이 기능을 이용할 경우 별도의 서버 없이 해당 정적파일만으로 사이트를 쉽게 구축할 수 있다.
+또한 별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴한 이점이 있다.
 
-<br>
 
-### 시도 1) S3의 정적 웹 사이트 호스팅 이용
-S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일만으로 사이트를 구축할 수 있음.
-별도의 서버 없이 작동하는 방법이기 때문에 호스팅 비용이 상당히 저렴함.
-
-```
 1. 아래와 같이 S3 설정 페이지에서 정적 웹 사이트 호스팅 옵션 선택
 2. 인덱스문서에는 보여줄 메인 페이지, 오류문서는 에러가 발생했을 때 보여줄 페이지를 입력
-```
+
 
 ![s3](./asset/s3_hosting.png)
 
 <br>
 
-```
+
 3. AWS Route53로 원하는 도메인의 Create Record Set 클릭
 4. Alias 선택 시 나타나는 목록에 '-- S3 website endpoints --' 아래 있는 옵션을 선택
 (Alias 설정은 AWS에서 이용하는 product 중에 호스팅 가능한 항목을 선택할 수 있는 기능)
 5. S3에서 설정한 웹 호스팅 페이지에 잘 접속되는 것을 볼 수 있음.
-```
+
 
 ![route53](./asset/route53.png)
 
-
+<br>
 
 * **문제점**
 > 1. 저장소의 권한은 '퍼블릭'하게 설정해야함 (AWS Documentation 참고) -> 모든 사용자에 노출되어 있어 공격에 취약
@@ -682,143 +793,208 @@ S3에 있는 이 기능이 있는데 별도의 서버 없이 해당 정적파일
 
 <br>
 
-### 시도 2) ElasticBeanstalk 내부 EC2의 Nginx의 라우팅을 활용한 정적페이지 호스팅
-ElasticBeanstalk 서비스에서 자동생성한 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving하도록 Nginx 설정
+### 시도 2. ElasticBeanstalk 내부 EC2의 Nginx를 활용한 정적페이지 배포
+ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving 하도록 Nginx 설정을 변경
 
 
-1. Front-end에서 작업 결과물을 dist 폴더안에 정적파일 형태로 넘겨줌
+#### 1) Front-end에서 작업 결과물을 정적파일(dist폴더생성) 형태로 넘겨줌
 
-    ```
-    * Angular 2 정적파일 빌드 방법
-    1. Github clone
-    2. src > environments > environments.ts 에서  "apiUrl" 값과 "facebookAppId" 수정
-    3. package.json이 있는 폴더 (가장 상위 폴더)에서  npm install 하면 node_modules라는 폴더가 만들어짐
-    4. npm install -g @angular/cli 를 통해 ng cli 설치
-    5. ng build
-    ```
-
-2. 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
-
-    ````
-    $ eb ssh ( 또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234 ) 로 접속
-    $ sudo chmod 757 srv 으로 srv 폴더의 write를 허용
-    $ scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv
-    $ sudo chmod 747 /srv/project/index.html 명령으로 index.html 의 실행 권한 제한을 허용
+(참고) Angular 2에서 정적파일 빌드 방법
+1. Github clone
+2. src > environments > environments.ts 에서  "apiUrl" 값과 "facebookAppId" 수정
+3. package.json이 있는 폴더 (가장 상위 폴더)에서  npm install 하면 node_modules라는 폴더가 만들어짐
+4. npm install -g @angular/cli 를 통해 ng cli 설치
+5. ng build
 
 
-3. Nginx 설정 변경
+#### 2) 해당 파일을 ElasticBeanstalk안의 Linux 서버로 전송
 
-    ```
-    1. eb ssh 또는 ssh -i <elb_secret_key> ec2user@<IPv4_address>로 ELB 내부 EC2 접속
-    2. /etc/nginx/sites-available/ 폴더로 이동
-    3. 현 폴더 위치에서 하단 이미지의 nginx-app.conf 파일을 복사하거나 생성
-    4. nginx에 nginx-app.conf 설정을 적용하기위해 sites-enabled에 soft-link를 생성
-       "sudo ln -sf nginx-app.conf ../sites-enabled/."
-    5. nginx에 바로 새로운 설정을 적용하기 위하여 service를 통해 nginx를 재부팅
-       "sudo service nginx restart"
-       (service는 linux deamon을 실행, 중지, 재시작할 수 있는 명령어)
-    6. 이제부터 EC2 안의 nginx가 자신을 거쳐 들어가는 접속 중에 .amazonaws.com으로
-       들어오는 요청은 하단 root 폴더에 있는 index.html 파일로 라우팅시킨다.
-    7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있다.
-    ```
+1. eb ssh (또는 ssh -i ~/.ssh/<eb_key_name> ec2-user@52.78.195.234) 을 통해 eb ec2 접속
+
+2. sudo chmod 757 srv 으로 srv 폴더의 write 허용
+
+3. scp -i scp -i ~/.ssh/<eb_key_name> -r ~/projects/finn-front ec2-user@52.78.195.234:/srv scp 명령어로 파일 전송
 
 
-파일 위치 : /etc/nginx/sites-available/nginx-app.conf
-![nginx-setting](./asset/nginx_setting_1.png)
+#### 3) Nginx 설정 변경
+
+1. eb ssh (또는 ssh -i <elb_secret_key> ec2user@<IPv4_address>로 ELB 내부 EC2 접속)
+
+2. /etc/nginx/sites-available/ 폴더로 이동
+
+3. 현 폴더 위치에서 하단 이미지의 nginx-app.conf 파일을 복사하거나 생성
+
+4. nginx에 nginx-app.conf 설정을 적용하기위해 sites-enabled에 soft-link를 생성
+   "sudo ln -sf nginx-app.conf ../sites-enabled/."
+
+5. nginx에 바로 새로운 설정을 적용하기 위하여 service를 통해 nginx를 재부팅
+   "sudo service nginx restart"
+   (service는 linux deamon을 실행, 중지, 재시작할 수 있는 명령어)
+
+6. 이제부터 EC2 안의 nginx가 자신을 거쳐 들어가는 접속 중에 .amazonaws.com으로 들어오는 요청은 하단 root 폴더에 있는 index.html 파일로 라우팅
+
+7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있음
 
 
+(ElasticBeanstalk EC2 내부)파일 위치 : /etc/nginx/sites-available/nginx-app.conf
+
+<img src="./asset/nginx_setting_1.png" alt="drawing" width="600"/>
+
+
+<br>
 
 * **문제점**
 > 1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
-> 2. 위와 마찬가지로 Route53에서 CNAME (Canonical name) 으로 설정 불가
+> 2. AWS Route53에서 CNAME (Canonical name) 으로도 설정 불가
 > 3. 위 1,2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
 
 <br>
 
-### 시도 3) Nginx의 라우팅 대상을 서브 도메인 주소로 변경
+### 시도 3. Nginx의 라우팅 대상을 서브 도메인 주소로 변경
 
 
-1. Nginx 설정 재변경
-
-    ```
-    1.nginx-app.conf 설정을 아래 사진과 같이 서브 도메인을 포함하여 변경
-    2.위와 다르게 이번에는 IPv4_address가 아닌 ElasticBeanstalk의 Elastic Load Balancer 주소로
-      정적 페이지가 접속된다.
-    ```
+#### Nginx 설정 재변경
 
 
-![nginx-setting2](./asset/nginx_setting_2.png)
+<img src="./asset/nginx_setting_2.png" alt="drawing" width="600"/>
 
 
-    3. Route53의 Record set 설정 화면에서 Alias 목록의 ELB를 선택 할 수 있다.
-    4. Route53 설정을 완료하고 AWS Certificate Manager를 통해 인증을 받고 TLS프로토콜을 사용할 수 있다.
+1. nginx-app.conf 설정을 위 사진과 같이 서브 도메인을 포함하여 변경 (.elasticbeanstalk.com 은 생략가능)
+
+2. 위와 다르게 이번에는 IPv4_address가 아닌 ElasticBeanstalk의 Elastic Load Balancer 주소로 정적 페이지에 접속된다.
+
+3. Route53의 Record set 설정 화면에서 Alias 목록의 ELB를 선택 할 수 있다.
+
+4. Route53 설정을 완료하고 AWS Certificate Manager를 통해 인증을 받고 TLS프로토콜을 사용할 수 있다.
 
 
 ![route53](./asset/route53.png)
 
+<br>
 
 * **문제점**
-> 1. ElasticBeanstalk은 Loadbalancer를 통해 서버의 개수를 늘였다 줄였다 하는
->    Auto-scaling을 지원함
->    -> 위에서 scp 명령어를 통해 업로드한 파일이 언제든지 삭제될 수 있다는 의미
+> 1. ElasticBeanstalk은 Loadbalancer를 통해 서버의 개수를 늘였다 줄였다 하는 Auto-scaling 을 지원함
+   -> 위에서 scp 명령어를 통해 업로드한 파일이 언제든지 삭제될 수 있다는 의미 \
+> (실제 ELB 내부 EC2에서 scp 작업을 일정 횟수 이상 수행할 경우 EC2가 아래와 같은 error 메시지와 함께 shutdown 후 재배포되는 것을 수차례 경험)
+
+```shell
+[ec2-user@ip-172-31-4-57 project]$
+Broadcast message from root@ip-172-31-4-57
+	(unknown) at 18:04 ...
+
+The system is going down for power off NOW!
+Connection to 13.125.228.226 closed by remote host.
+Connection to 13.125.228.226 closed.
+ERROR: CommandError - An error occurred while running: ssh.
+```
 
 <br>
 
-## 근본적인 해결책에 대한 고민 (발표 뒤)
+### ※ 근본적인 해결책에 대한 고민 (프로젝트 종료 이후)
 
-### 1안)  2 Dockers with each Server (2 Servers)
-#### 가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
+#### 1안) 2 Dockers in each Server
+가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
 
-> **단점**
-> 1. 2개의 server를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
-> 2. 비용 부담이 Server 한 대를 운영하는것의 2배가
-
-<br>
-
-### 2안)  2 Dockers in 1 Server
-#### Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
-
-> **단점**
-> 1. 아래서 살펴볼 1 Doceker 만으로도 Multi-deploy하는 방법이 존재함
-> 사용자가 많지 않은 서비스 초기 상황을 고려하면 별도로 2개의 Nginx(Docker 내부)를 돌릴 필요는 없다고 판단됨
-> 2. 2 Docker를 세팅해야하는 번거로움으로 개발 시간이 늘어남
+* **단점**
+1. 2개의 서버를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
+2. 서버 관리 비용의 부담
 
 <br>
 
-### 3안)  1 Docker with 1 Server
-#### 기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+#### 2안) 2 Dockers in 1 Server
+Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에서 API 서버 / Front-end 서버(또는 정적파일 호스팅)를 구성한다.
 
-> **단점**
-> 1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy를 할 경우 서버에 부하가 걸릴 가능성 존재
-> 2. ELB의 Autoscaling이 발생할 경우 Auto-scaling이 필요없는 Front-end 서버까지 같이 늘어나게 됨
+* **단점**
+1. 하나의 Doceker 만으로도 Multi-deploy 하는 방법이 존재
+2. 두 개의 Docker를 세팅해야하는 번거로움, 개발 시간 증가
+
+<br>
+
+#### 3안) 1 Docker in 1 Server
+기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+
+* **단점**
+1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy 할 경우 서버에 부하가 걸릴 가능성 존재 (하나의 일반 nginx 를 통해 두 개의 deploy를 수행하기 때문)
+2. ELB의 Auto-scaling 이 발생할 경우 Auto-scaling 이 필요없는 Front-end 의 파일 및 nginx 설정이 늘어나는 문제 발생
 
 <br>
 
-### 결론)
-#### 서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아질 경우 차례대로 2안 -> 1안 으로 변경 할 것.
+#### 결론)
+서비스 초기에는 3안으로 구성하되, 후에 사용자가 많아지고 Auto-scaling 이 수시로 발생하는 시점이 되면 차례로 2안 -> 1안 으로 변경을 고려할 것.
 
-
-<br>
 <br>
 
 
-## (2) 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
+### 시도 4. 위의 3안으로 deploy 수행 (2018.11.27)
+ElasticBeanstalk 내부에 배포한 이후 EC2의 사용량에 따라 EC2가 shutdown 후 reset 되는 현상이 지속적으로 발생하여 이를 해결하고자 새로운 front-end deploy 방법을 시도
+
+<br>
 
 
-### 구현 이유
+1. front-end의 정적 페이지 결과물을 backend project 내부에 포함
+
+`파일 위치 : /srv/project/frontend/`
+
+<br>
+
+
+2. 위의 시도2, 3에서 활용한 nginx 옵션을 적용한 nginx 설정 파일을 생성
+
+`project/.config/production/nginx-front.conf`
+
+<img src="./asset/nginx_setting_3.png" alt="drawing" width="600"/>
+
+<br>
+
+
+3. 위의 nginx 설정 파일이 deploy 시 자동으로 실행되도록 Dockerfile 을 수정
+
+`project/Dockerfile`
+```dockerfile
+...
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx-front.conf  /etc/nginx/sites-available/
+RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx/sites-enabled/
+...
+
+```
+<br>
+
+
+4. deploy를 통해 위 1-3 과정을 실행
+
+아래처럼 잘 접속되는 것을 확인할 수 있다.
+
+<br>
+
+<img src="./asset/airbnb_smallbee_com.jpeg" alt="drawing" width="300"/>
+
+
+<br><br>
+
+
+
+
+## 2) Multi-login 구현하기 (Facebook Login & email loogin]
+기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
+
+
+### 개발 목표
 기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
 이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
 실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
 
+`Pinterest multi-login functions` \
+<img src="./asset/pinterest_multi_login.png" alt="drawing" width="300"/>
 
 <br>
 
-먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요.\
+먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요하다.\
 (Facebook Login관련 process는 각 기능을 module별로 분리하여 여러 단계를 거치기 때문에 순서를 거치지 않으면 이해가 어려운 점이 있음)
 
+아래 과정 통해 본 프로젝트에 구현된 페이스북 로그인 기능을 살펴보자
 
 
-#### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView view로 router 되어 이동
+#### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView로 router 되어 이동
 
 
 [소스코드](./app/members/urls/apis.py)
@@ -926,9 +1102,9 @@ class APIFacebookBackend:
 
 ![PATCH request](./asset/patch_request_for_facebook_login_user.png)
 
-이제 Facebook Login 유저의 이메일과 패스워드가 갖춰진 상태이다.\
+이제 Facebook Login 유저의 이메일과 패스워드가 갖춰진 상태이다.
 이제 이 유저가 이메일 로그인을 할 수 있도록 기존의 login 관련 코드를 수정해야 한다.\
-{HOST}/user/login을 통해 전달된 POST request는 UserLoginAuthTokenAPIView view로 이동한다.
+먼저 {HOST}/user/login가 router 되어 전달되는 POST request는 UserLoginAuthTokenAPIView view로 이동해보자.
 
 
 [소스코드](./app/members/apis/auth.py)
@@ -941,7 +1117,7 @@ class UserLoginAuthTokenAPIView(APIView):
             # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
-        except:
+        except ObjectDoseNotExist:
             # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
             serializer = AuthTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -1062,8 +1238,8 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 
 <br>
 
-## (3) Field에 동적으로 value 표현하기
-동적으로 변하는 값을 Serializer의 MethodField를 활용하여 Field 값으로 사용
+## 3) API json response 에 동적으로 변하는 값 표현하기
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달
 
 <br>
 
@@ -1107,6 +1283,9 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 이 메서드를 사용하기 편리하게 하기 위해서 @property 선언을 추가한다.
 
 
+<br>
+
+
 ### 단계 2)
 #### Serializer의 field중 별도의 메소드에서 정의한 값을 client side에 전달할 수 있는 SerializerMethodField를 활용한다.
 
@@ -1139,7 +1318,7 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 <br>
 
 ### 단계 3)
-#### 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것이 확인 되었다.
+#### 아래와 같이 client의 요청에 정상적으로 'reseration_current_state' 항목이 response되는 것을 확인할 수 있다.
 
 ```json
 {
@@ -1158,7 +1337,6 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 <br>
 <br>
 
-
 ## 향후 개선점
 
 * 각 숙소마다 리뷰를 등록할 수 있게 하기.
@@ -1175,14 +1353,14 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 * 숙소 썸 네일 이미지 S3 저장 로직 변경
 등등..
 
-<br>
-<br>
+
+<br><br>
 
 ---
 
 
 
-## 스크럼 보드
+## 8. 스크럼 보드
 
 ***박수민***
 
@@ -1204,31 +1382,35 @@ method 내에는 위에서 설정한 property 값을 obj가 가진 속성값으�
 
 <br>
 
---
+---
 
 ***송영기***
 
 #### Sprint1
 
-![Sprint1](./asset/Scrum-Board-5.png)
+![Sprint1](./asset/ScrumBoard_1.png)
+![Sprint2](./asset/ScrumBoard_1_2.png)
 
 #### Sprint2
 
-![Sprint2](./asset/Scrum-Board-6.png)
+![Sprint2](./asset/ScrumBoard_2.png)
+![Sprint2](./asset/ScrumBoard_2_2.png)
 
 #### Sprint3
 
-![Sprint3](./asset/Scrum-Board-7.png)
+![Sprint3](./asset/ScrumBoard_3.png)
+![Sprint3](./asset/ScrumBoard_3_2.png)
 
 #### Sprint4
 
-![Sprint4](./asset/Scrum-Board-8.png)
+![Sprint4](./asset/ScrumBoard_4.png)
+![Sprint4](./asset/ScrumBoard_4_2.png)
 
 <br>
 
---
 
-## 트렐로
+
+## 9. 트렐로
 
 #### Sprint1
 ![Sprint4](./asset/trello_01.png)

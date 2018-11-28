@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -15,7 +16,7 @@ class UserLoginAuthTokenAPIView(APIView):
             # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
-        except:
+        except ObjectDoesNotExist:
             # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
             serializer = AuthTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
