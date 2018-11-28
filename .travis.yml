@@ -21,7 +21,7 @@ deploy:
   region: $AWS_S3_REGION_NAME
   app: "EB Docker"
   env: "Production"
-  bucket_name: elasticbeanstalk-ap-northeast-2-534535731112
+  bucket_name: $ELB_STORAGE_BUCKET_NAME
   skip_cleanup: true
   on:
     branch: dev

@@ -18,6 +18,6 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 # supervisor설정 파일을 복사
 RUN             cp -f   /srv/project/.config/${BUILD_MODE}/supervisord.conf  /etc/supervisor/conf.d/
 
-# pkil niginx후 supervisord -n실행
+# pkil nginx후 supervisord -n 실행
 CMD             pkill nginx; supervisord -n
 EXPOSE          80
