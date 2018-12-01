@@ -333,11 +333,64 @@ Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://githu
 
 ## 4. Deploy 하기
 
-`deploy.sh`파일을 사용
+Elastic Beanstalk 의 deploy 방법 중 'Docker 컨테이너에서 Elastic Beanstalk 애플리케이션 배포'를 사용한다.
+그리고 하나의 Docker Container를 통해 서비스를 배포할 수 있으므로 Docker 의 두 가지 옵션 중에 단일 컨테이너 Docker를 선택했다.
+
+단일 Container로 Elastic Beanstalk 서비스를 이용하기 위해서는 project 폴더 내에 Dockerfile 을 작성한다. \
+
+
+#자동으로 위 Dockerfile 을 토대로 Docker image를 생성한다.
+#위의 `FROM smallbee3/finn:base`에서 기존에 미리 Dockerhub로 push한 image를 기반으로 image를 생성하는 과정을 거친다.
+#이때 `COPY . /srv/project` 를 통해 Docker image 안에 현재 project 폴더 내의 코드 복사를 과정이 포함된다.
+
+
+Elastic Beanstalk는 `eb deploy` 라는 명령어가 실행되면 해당 프로젝트 소스파일을 S3 저장소에 별도의 bucket을 생성하고 해당 버킷에 현재 최신 git commit을 zip파일의 소스번들로 만들어 업로드 한다.
+자동으로 생성되는 bucket 이름은 다음과 같다.
+
+`elasticbeanstalk-ap-northeast-2-2690...`
+
+이때 문제가 되는 부분은 가장 최신 git commit에 .secrets 폴더 내의 시크릿 값들이 포함되지 않았다는 것이다. \
+이 문제를 해결하기 위한 일반적인 방법은 Elastic Beanstalk 에서 지원하는 ebignore 를 이용하는 것이다. \
+프로젝트 폴더내에 ebignore 파일이 존재할 경우 Elastic Beanstalk는 gitignore 및 최신 git의 commit을 무시하고
+ebignore 에 지정된 내용에 따라 프로젝트의 모든 파일이 포함된 소스번들을 S3 버킷으로 업로드 하게 된다. \
+따라서 ebignore을 다음과 같이 작성한다.
+
+`project/.ebignore`
+```
+# Custom
+/.media
+/.static
+#/.secrets
+aws.md
+/app/utils/crawler/*.html
+secrets.tar
+
 
 ```
-./deploy.sh
+기존 gitignore에 작성된 내용을 모두 가져오되, .secrets을 주석처리하면 Elastic Beanstalk이 소스 번들을 업로드 할 때 secrets 값이 포함된 코드가 S3 버킷으로 업로드 되는 것이다.
+
+위와 같은 방법이 알려져있지만 이는 두 가지 점에서 문제가 있다.
+
+첫 번째는 ignore 파일을 이원화해서 관리해야 한다는 점이다. 만약 gitignore에 업데이트한 내용을 ebignore에 업데이트 하는 것을 잊는다면 원치않는 파일이 업로드 되거나 또는 업로드 되지 않게 되는 문제가 발생한다.
+
+두 번째는 git commit 단위가 무시되고 ebignore에 따라 현재 프로젝트 내의 모든 파일이 업로드 된다는 것이다. 물론 ebignore와 gitignore가 동일하다면 git commit에 등록된 소스 코드와 현재 프로젝트 폴더 내에 위치한 소스코드가 사실상 동일하다.
+하지만 git commit 단위로 모든 작업이 이루어지는 점에 비추어볼 때 좋은 방법이라고 보기는 힘들다.
+
+이에 다음과 같은 shell script 를 작성함으로써 ebignore 를 사용하지 않고 git commmit 단위로 배포를 하는 방법을 이용한다.
+
+`./deploy.sh`
+
+```sh
+git add -f .secrets && eb deploy --staged --profile=eb; git reset HEAD .secrets
 ```
+
+먼저 git add -f 명령어를 통해 gitignore에 등록된 내용이라도 강제로 stage 시킬 수 있다.
+그리고 eb deploy의 옵션 중 --staged 명령을 통해 바로 위에서 stage 시킨 파일을 포함하여 소스번들을 생성할 수 있다.
+위의 과정을 마친 후에는 git reset 명령을 통해 강제로 등록한 git ignore 파일들을 다시 unstaged 시켜야 한다.
+
+CLI 창에서 하단 명령어를 입력하면 위의 과정을 통해 Elastic Beanstalk 에 .secrets 값이 포함된 소스 코드가의 배포가 정상적으로 이루어지게 된다.
+
+`./deploy.sh`
 
 <br><br>
 
