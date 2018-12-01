@@ -209,7 +209,7 @@ django app이 위치한 ROOT Directory에 .secrets라는 폴더를 만들고 아
 
 project/app \
 project/.secrets/base.json \
-project/.secrets/producton.json \
+project/.secrets/producton.json
 
 
 #### .secrets/base.json
@@ -256,7 +256,7 @@ project/.secrets/producton.json \
 }
 ```
 
-위의 json 데이터를 읽는 코드는 다음과 같다.
+위의 json 형식의 파일을 읽는 코드는 다음과 같다.
 
 
 ```python
@@ -288,7 +288,7 @@ AWS_STORAGE_BUCKET_NAME = secrets_base_dict['AWS_STORAGE_BUCKET_NAME']
 ```
 
 json 포맷 파일을 json.loads(<json_data>) 로 읽어온 후 위와 같이 일일이 키를 할당해야 하는 번거로움이 있다. \
-이러한 번거로움을 해결하기 위해 dictionary data 를 입력하면 자동으로 해당 key, value 값을 현재 module 에 삽입하는 함수를 제작하였다.
+이러한 번거로움을 해결하기 위해 dictionary data 를 입력하면 자동으로 해당 key, value 값을 현재 module 에 삽입하는 함수를 활용하였다.
 함수는 다음과 같다.
 
 ```python
@@ -322,8 +322,8 @@ def set_config(obj, module_name=None, root=False):
 
 `set_config(secrets, __name__, root=True)`
 
-시크릿 키의 개수와 Variable name 자체를 은닉하여 보안상 이전의 방법보다 우수하다고 할 수 있다. \
-위 함수는 python package로 제작되어 있어 좀 더 간편하게 사용할 수 있다.
+시크릿 키의 개수와 Variable name 자체를 은닉하기 때문에 이전의 방법보다 편리할 뿐만 아니라 보안적으로도 우수하다고 할 수 있다. \
+위 함수는 python package로 제작되어 있어 보다 간편하게 사용할 수 있다.
 
 Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://github.com/LeeHanYeong/django-json-secrets)
 
@@ -333,16 +333,74 @@ Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://githu
 
 ## 4. Deploy 하기
 
+### 1) Dockerfile을 통한 Elastic Beanstalk deploy
+
 Elastic Beanstalk 의 deploy 방법 중 'Docker 컨테이너에서 Elastic Beanstalk 애플리케이션 배포'를 사용한다.
-그리고 하나의 Docker Container를 통해 서비스를 배포할 수 있으므로 Docker 의 두 가지 옵션 중에 단일 컨테이너 Docker를 선택했다.
+이 Docker 를 활용한 deploy에는 두 가지 방법이 존재하는데 deploy 시 하나의 containe로 서비스가 구성되므로 그 중 '단일 컨테이너 Docker'의 방법을 이용한다.
 
-단일 Container로 Elastic Beanstalk 서비스를 이용하기 위해서는 project 폴더 내에 Dockerfile 을 작성한다. \
+단일 Container로 Elastic Beanstalk의 eb deploy 명령어를 이용해 deploy를 하기 위해서는 project 폴더 내에 Dockerfile 을 작성해야한다. \
+Dockerfile은 다음과 같다.
+
+`project/Dockerfile`
+```yml
+FROM            smallbee3/finn:base
+MAINTAINER      smallbee3@gmail.com
+
+ENV         BUILD_MODE production
+
+# 소스폴더를 통째로 복사
+COPY            . /srv/project
+
+# nginx 설정 파일을 복사 및 링크
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx.conf       /etc/nginx/nginx.conf
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx-app.conf  /etc/nginx/sites-available/
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx-front.conf  /etc/nginx/sites-available/
+RUN             rm -f   /etc/nginx/sites-enalbed/*
+RUN             ln -sf  /etc/nginx/sites-available/nginx-app.conf   /etc/nginx/sites-enabled/
+RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx/sites-enabled/
+
+# supervisor설정 파일을 복사
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/supervisord.conf  /etc/supervisor/conf.d/
+
+# pkil nginx후 supervisord -n 실행
+CMD             pkill nginx; supervisord -n
+EXPOSE          80
+```
+
+먼저 위의 `FROM smallbee3/finn:base`에서 기존에 미리 Dockerhub로 push한 image를 기반으로 image를 생성하는 과정을 거친다. \
+Dockerhub에 업로드 되어 있는 이미지는 다음과 같은 Dockerfile.base을 통해 생성된다.
+
+`project/Dockerfile.base`
+```yml
+FROM            python:3.6.4-slim
+MAINTAINER      smallbee3@gmail.com
+
+ENV             LANG    C.UTF-8
+
+# apt-get으로 nginx, supervisor 설치
+RUN             apt-get -y update
+RUN             apt-get -y dist-upgrade
+RUN             apt-get -y install build-essential nginx supervisor
+
+# requirements만 복사
+COPY            .requirements/production.txt /srv/requirements.txt
+
+# pip install
+WORKDIR         /srv
+RUN             pip install --upgrade pip
+RUN             pip install -r  /srv/requirements.txt
+RUN             rm -f           /srv/requirements.txt
+```
+
+이렇게 두 개의 이미지를 통해 container를 제작하는 것은 번거로운 과정으로 보일 수 있다. 하지만 이는 Docker를 통한 deploy 과정에서 소요되는 시간을 단축하기 위한 중요한 과정이다.
+만약 위의 Dockerfile.base의 내용을 Dockerhub에 push하지 않고 project 폴더에 포함된 Dockerfile에 모두 작성할 경우 매번 deploy시 마다
+새로 container가 구성될 때 시행되는 작업들, 이를테면 nginx, supervisor install, pip install 등의 작업으로 인해 상당한 시간이 소모되게 된다.
 
 
-#자동으로 위 Dockerfile 을 토대로 Docker image를 생성한다.
-#위의 `FROM smallbee3/finn:base`에서 기존에 미리 Dockerhub로 push한 image를 기반으로 image를 생성하는 과정을 거친다.
-#이때 `COPY . /srv/project` 를 통해 Docker image 안에 현재 project 폴더 내의 코드 복사를 과정이 포함된다.
+<br>
 
+
+### 2) eb deploy 를 통한 실제 deploy 과정 및 secrets keys control
 
 Elastic Beanstalk는 `eb deploy` 라는 명령어가 실행되면 해당 프로젝트 소스파일을 S3 저장소에 별도의 bucket을 생성하고 해당 버킷에 현재 최신 git commit을 zip파일의 소스번들로 만들어 업로드 한다.
 자동으로 생성되는 bucket 이름은 다음과 같다.
@@ -364,7 +422,8 @@ ebignore 에 지정된 내용에 따라 프로젝트의 모든 파일이 포함�
 aws.md
 /app/utils/crawler/*.html
 secrets.tar
-
+...
+(gitignore와 동일)
 
 ```
 기존 gitignore에 작성된 내용을 모두 가져오되, .secrets을 주석처리하면 Elastic Beanstalk이 소스 번들을 업로드 할 때 secrets 값이 포함된 코드가 S3 버킷으로 업로드 되는 것이다.
