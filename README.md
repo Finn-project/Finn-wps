@@ -61,7 +61,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 [4. Deploy 하기](https://github.com/smallbee3/Finn-project/tree/dev#4-deploy-%ED%95%98%EA%B8%B0) \
 [5. Test 실행하기](https://github.com/smallbee3/Finn-project/tree/dev#5-test-%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0) \
 [6. 모델링하기 (erd)](https://github.com/smallbee3/Finn-project/tree/dev#6-%EB%AA%A8%EB%8D%B8%EB%A7%81%ED%95%98%EA%B8%B0-erd) \
-[7. Code Review](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
+[7. Reviews](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
         - [by 박수민](https://github.com/smallbee3/Finn-project/tree/dev#by-%EB%B0%95%EC%88%98%EB%AF%BC) \
         - [by 송영기](https://github.com/smallbee3/Finn-project/tree/dev#by-%EC%86%A1%EC%98%81%EA%B8%B0) \
 [8. 스크럼 보드](https://github.com/smallbee3/Finn-project/tree/dev#8-%EC%8A%A4%ED%81%AC%EB%9F%BC-%EB%B3%B4%EB%93%9C) \
@@ -110,6 +110,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 
 <br><br>
+
 
 
 ## 2. 설치하기
@@ -201,7 +202,15 @@ FROM <사용자명>/<저장소명>:base
 <br><br>
 
 
+
 ## 3. secrets 키 관리
+
+django app이 위치한 ROOT Directory에 .secrets라는 폴더를 만들고 아래 json 데이터들을 넣는다.
+
+project/app \
+project/.secrets/base.json \
+project/.secrets/producton.json \
+
 
 #### .secrets/base.json
 
@@ -247,16 +256,91 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
+위의 json 데이터를 읽는 코드는 다음과 같다.
+
+
+```python
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Changed default 'BASE_DIR' as below
+# This is because settings is refactored as package. so the depth of current module(base.py) become one depth deeper.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+SECRETS_DIR = os.path.join(ROOT_DIR, '.secrets')
+SECRETS_BASE = os.path.join(SECRETS_DIR, 'base.json')
+SECRETS_PRODUCTION = os.path.join(SECRETS_DIR, 'production.json')
+
+secrets_base_dict = json.loads(open(SECRETS_BASE, 'rt').read())
+
+SECRET_KEY = secrets_base_dict['SECRET_KEY']
+SUPERUSER_USERNAME = secrets_base_dict['SUPERUSER_USERNAME']
+SUPERUSER_PASSWORD = secrets_base_dict['SUPERUSER_PASSWORD']
+SUPERUSER_EMAIL = secrets_base_dict['SUPERUSER_EMAIL']
+FACEBOOK_APP_ID = secrets_base_dict['FACEBOOK_APP_ID']
+FACEBOOK_SECRET_CODE = secrets_base_dict['FACEBOOK_SECRET_CODE']
+AWS_ACCESS_KEY_ID = secrets_base_dict['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = secrets_base_dict['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = secrets_base_dict['AWS_STORAGE_BUCKET_NAME']
+...
+
+```
+
+json 포맷 파일을 json.loads(<json_data>) 로 읽어온 후 위와 같이 일일이 키를 할당해야 하는 번거로움이 있다. \
+이러한 번거로움을 해결하기 위해 dictionary data 를 입력하면 자동으로 해당 key, value 값을 현재 module 에 삽입하는 함수를 제작하였다.
+함수는 다음과 같다.
+
+```python
+def set_config(obj, module_name=None, root=False):
+    def eval_obj(obj):
+        if isinstance(obj, numbers.Number) or (isinstance(obj, str) and obj.isdigit()):
+            return obj
+
+        try:
+            return eval(obj)
+        except NameError:
+            return obj
+        except Exception as e:
+            return obj
+
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                set_config(value)
+            else:
+                obj[key] = eval_obj(value)
+
+            if root:
+                setattr(sys.modules[module_name], key, value)
+    elif isinstance(obj, list):
+        for index, value in enumerate(obj):
+            obj[index] = eval_obj(value)
+```
+
+위 함수를 아래와 같이 secrets dictionary 값과 현재 module name, root=True와 함께 호출하면 해당 모듈에 값이 입력되어 외부에서 해당 시크릿 값을 읽을 수 있다.
+
+`set_config(secrets, __name__, root=True)`
+
+시크릿 키의 개수와 Variable name 자체를 은닉하여 보안상 이전의 방법보다 우수하다고 할 수 있다. \
+위 함수는 python package로 제작되어 있어 좀 더 간편하게 사용할 수 있다.
+
+Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://github.com/LeeHanYeong/django-json-secrets)
+
 <br><br>
+
+
 
 ## 4. Deploy 하기
 
 `deploy.sh`파일을 사용
+
 ```
 ./deploy.sh
 ```
 
 <br><br>
+
 
 
 ## 5. Test 실행하기
@@ -410,7 +494,7 @@ TOTAL                                                 351     58    83%
 
 
 
-## 7. Code Review(박수민, 송영기)
+## 7. Reviews (박수민, 송영기)
 
 <br>
 
@@ -757,7 +841,7 @@ AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통�
 
 
 ### 개발 목표
-Front-end 팀에서 결과물을 정적 페이지 형태로 전달하였음. 전달된 정적 파일을 통해 실제 웹 서비스로 배포하고자 여러 시도를 수행하였음.
+Front-end 팀에서 결과물을 정적 페이지 형태로 전달받아 해당 페이지를 실제 웹 서비스로 배포하고자 여러 시도를 수행하였다.
 
 <br>
 
@@ -794,7 +878,7 @@ S3에 있는 이 기능을 이용할 경우 별도의 서버 없이 해당 정�
 <br>
 
 ### 시도 2. ElasticBeanstalk 내부 EC2의 Nginx를 활용한 정적페이지 배포
-ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving 하도록 Nginx 설정을 변경
+ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving 하도록 Nginx 설정을 변경한다
 
 
 #### 1) Front-end에서 작업 결과물을 정적파일(dist폴더생성) 형태로 넘겨줌
@@ -893,7 +977,7 @@ ERROR: CommandError - An error occurred while running: ssh.
 ### ※ 근본적인 해결책에 대한 고민 (프로젝트 종료 이후)
 
 #### 1안) 2 Dockers in each Server
-가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
+가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy 한다.
 
 * **단점**
 1. 2개의 서버를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
@@ -911,7 +995,7 @@ Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에�
 <br>
 
 #### 3안) 1 Docker in 1 Server
-기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동한다
 
 * **단점**
 1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy 할 경우 서버에 부하가 걸릴 가능성 존재 (하나의 일반 nginx 를 통해 두 개의 deploy를 수행하기 때문)
@@ -979,9 +1063,9 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 
 
 ### 개발 목표
-기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
-이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
-실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
+기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았다.
+이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 발생할 소지가 있다. \
+실제 Pinterest 서비스에는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 가질 수 있고 원하는데로 계정을 추가 또는 해지할 수 있다.
 
 `Pinterest multi-login functions` \
 <img src="./asset/pinterest_multi_login.png" alt="drawing" width="300"/>
@@ -991,7 +1075,7 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요하다.\
 (Facebook Login관련 process는 각 기능을 module별로 분리하여 여러 단계를 거치기 때문에 순서를 거치지 않으면 이해가 어려운 점이 있음)
 
-아래 과정 통해 본 프로젝트에 구현된 페이스북 로그인 기능을 살펴보자
+아래 과정 통해 본 프로젝트에 구현된 페이스북 로그인 기능을 살펴보자.
 
 
 #### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView로 router 되어 이동
@@ -1239,7 +1323,7 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 <br>
 
 ## 3) API json response 에 동적으로 변하는 값 표현하기
-동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달한다
 
 <br>
 
