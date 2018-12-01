@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
@@ -9,14 +10,21 @@ from members.serializers.facebook_auth import AuthTokenSerializerForFacebookUser
 from ..serializers import UserSerializer
 
 
+User = get_user_model()
+
+
 class UserLoginAuthTokenAPIView(APIView):
     def post(self, request):
-        try:
+        # try:
+        # 2018.12.01
+        # Code refactoring with
+        if User.objects.filter(email=request.POST['username']).exists():
             # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
             # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
-        except ObjectDoesNotExist:
+        # except ObjectDoesNotExist:
+        else:
             # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
             serializer = AuthTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
