@@ -323,7 +323,7 @@ def set_config(obj, module_name=None, root=False):
 `set_config(secrets, __name__, root=True)`
 
 시크릿 키의 개수와 Variable name 자체를 은닉하기 때문에 이전의 방법보다 편리할 뿐만 아니라 보안적으로도 우수하다고 할 수 있다. \
-위 함수는 python package로 제작되어 있어 보다 간편하게 사용할 수 있다.
+위 함수는 python package로 제작되어 있어 보다 간편하게 사용할 수 있다. 자세한 사용법 및 설명은 아래 링크를 참고하기 바란다.
 
 Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://github.com/LeeHanYeong/django-json-secrets)
 
@@ -335,10 +335,10 @@ Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://githu
 
 ### 1) Dockerfile을 통한 Elastic Beanstalk deploy
 
-Elastic Beanstalk 의 deploy 방법 중 'Docker 컨테이너에서 Elastic Beanstalk 애플리케이션 배포'를 사용한다.
-이 Docker 를 활용한 deploy에는 두 가지 방법이 존재하는데 deploy 시 하나의 containe로 서비스가 구성되므로 그 중 '단일 컨테이너 Docker'의 방법을 이용한다.
+Elastic Beanstalk의 deploy 방법 중 'Docker 컨테이너에서 Elastic Beanstalk 애플리케이션 배포'를 사용한다.
+Elastic Beanstalk에서 Docker를 활용한 deploy에는 두 가지 방법이 존재하는데 deploy시 하나의 containe로 서비스가 구성되므로 그 중 '단일 컨테이너 Docker'의 방법을 이용한다.
 
-단일 Container로 Elastic Beanstalk의 eb deploy 명령어를 이용해 deploy를 하기 위해서는 project 폴더 내에 Dockerfile 을 작성해야한다. \
+단일 Container로 Elastic Beanstalk의 eb deploy 명령어를 이용해 deploy를 하기 위해서는 project 폴더 내에 Dockerfile 을 작성해야한다.
 Dockerfile은 다음과 같다.
 
 `project/Dockerfile`
@@ -392,7 +392,7 @@ RUN             pip install -r  /srv/requirements.txt
 RUN             rm -f           /srv/requirements.txt
 ```
 
-이렇게 두 개의 이미지를 통해 container를 제작하는 것은 번거로운 과정으로 보일 수 있다. 하지만 이는 Docker를 통한 deploy 과정에서 소요되는 시간을 단축하기 위한 중요한 과정이다.
+이렇게 두 개의 이미지를 통해 container를 제작하는 것은 번거로운 과정으로 보일 수 있다. 하지만 이는 Docker를 통한 deploy 과정에서 소요되는 시간을 단축하는 중요한 과정이다.
 만약 위의 Dockerfile.base의 내용을 Dockerhub에 push하지 않고 project 폴더에 포함된 Dockerfile에 모두 작성할 경우 매번 deploy시 마다
 새로 container가 구성될 때 시행되는 작업들, 이를테면 nginx, supervisor install, pip install 등의 작업으로 인해 상당한 시간이 소모되게 된다.
 
@@ -407,7 +407,7 @@ Elastic Beanstalk는 `eb deploy` 라는 명령어가 실행되면 해당 프로�
 
 `elasticbeanstalk-ap-northeast-2-2690...`
 
-이때 문제가 되는 부분은 가장 최신 git commit에 .secrets 폴더 내의 시크릿 값들이 포함되지 않았다는 것이다. \
+이때 문제가 되는 부분은 가장 최신 git commit에 .secrets 폴더 내의 시크릿 값들이 포함되지 않았다는 것이다.
 이 문제를 해결하기 위한 일반적인 방법은 Elastic Beanstalk 에서 지원하는 ebignore 를 이용하는 것이다. \
 프로젝트 폴더내에 ebignore 파일이 존재할 경우 Elastic Beanstalk는 gitignore 및 최신 git의 commit을 무시하고
 ebignore 에 지정된 내용에 따라 프로젝트의 모든 파일이 포함된 소스번들을 S3 버킷으로 업로드 하게 된다. \
@@ -423,13 +423,13 @@ aws.md
 /app/utils/crawler/*.html
 secrets.tar
 ...
-(gitignore와 동일)
+
+(이하 gitignore와 동일)
 
 ```
 기존 gitignore에 작성된 내용을 모두 가져오되, .secrets을 주석처리하면 Elastic Beanstalk이 소스 번들을 업로드 할 때 secrets 값이 포함된 코드가 S3 버킷으로 업로드 되는 것이다.
 
-위와 같은 방법이 알려져있지만 이는 두 가지 점에서 문제가 있다.
-
+위와 같은 방법이 알려져있지만 이는 두 가지 점에서 문제가 있다. \
 첫 번째는 ignore 파일을 이원화해서 관리해야 한다는 점이다. 만약 gitignore에 업데이트한 내용을 ebignore에 업데이트 하는 것을 잊는다면 원치않는 파일이 업로드 되거나 또는 업로드 되지 않게 되는 문제가 발생한다.
 
 두 번째는 git commit 단위가 무시되고 ebignore에 따라 현재 프로젝트 내의 모든 파일이 업로드 된다는 것이다. 물론 ebignore와 gitignore가 동일하다면 git commit에 등록된 소스 코드와 현재 프로젝트 폴더 내에 위치한 소스코드가 사실상 동일하다.
@@ -853,7 +853,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     ...
 ```
 
-받는 형식과 보내주는 형식을 최대한 마추기위해 다양한 필드를 사용
+받는 형식과 보내주는 형식을 최대한 맞추기위해 다양한 필드를 사용
 `SlugRelatedField`를 사용하여 `disable_days`의 `date`필드만 리스트에 넣어서 보내줌.
 `HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때
 해당 이미지의 `url`만을 뽑아 리스트에 넣어 보내줌.
@@ -1031,6 +1031,7 @@ ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux A
 
 7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있음
 
+(※ 기본적으로 Elastic Beanstalk 내부에 설정되는 EC2는 외부로부터의 접근이 허용되지 않기 때문에 Security Group에서 해당 EC2의 Inbound에 외부로부터의 접근을 허용하도록 80 port의 HTTP 접근을 허용해야 위 설정이 정상적으로 작동한다.)
 
 (ElasticBeanstalk EC2 내부)파일 위치 : /etc/nginx/sites-available/nginx-app.conf
 
@@ -1040,9 +1041,10 @@ ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux A
 <br>
 
 * **문제점**
-> 1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
-> 2. AWS Route53에서 CNAME (Canonical name) 으로도 설정 불가
-> 3. 위 1,2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
+> 1. Elastic Beanstalk은 프록시 역할을 하는 Loadbalancer가 존재하며, EC2 로의 직접 접근은 기본적으로 허용하지 않도록 설정되어있음. 따라서 이 제한을 직접 푸는 위의 방식은 보안적인 면에서 문제가 있음.
+> 2-1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
+> 2-2. AWS Route53에서 CNAME (Canonical name) 으로도 설정 불가
+> 3. 위 2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
 
 <br>
 
@@ -1170,14 +1172,14 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 
 
 
-## 2) Multi-login 구현하기 (Facebook Login & email loogin]
+## 2) Multi-login 구현하기 (Facebook Login & email login]
 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
 
 
 ### 개발 목표
 기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았다.
 이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 발생할 소지가 있다. \
-실제 Pinterest 서비스에는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 가질 수 있고 원하는데로 계정을 추가 또는 해지할 수 있다.
+실제 Pinterest 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 등록할 수 있고, 원하는데로 계정을 추가 또는 해지할 수 있다.
 
 `Pinterest multi-login functions` \
 <img src="./asset/pinterest_multi_login.png" alt="drawing" width="300"/>
@@ -1308,12 +1310,12 @@ class APIFacebookBackend:
 ```python
 class UserLoginAuthTokenAPIView(APIView):
     def post(self, request):
-        try:
+        if User.objects.filter(email=request.POST['username']).exists():
             # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
             # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
-        except ObjectDoseNotExist:
+        else:
             # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
             serializer = AuthTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -1327,9 +1329,14 @@ class UserLoginAuthTokenAPIView(APIView):
 ```
 
 
-이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module을 제작했다.
-이 과정을 try ~ except 문으로 처리하여 email / password 정보가 Facebook login한 유저에 해당하지 않을 경우 정상적으로 AuthTokenSerializer의 과정을 거치게 된다.
-AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다. AuthTokenSerializer의 코드는 아래와 같다.
+이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module 을 제작했다.
+가장 먼저 `User.objects.filter(email=request.POST['username']).exists()`를 통해 해당 이메일을 가진 유저가 존재하는 지 확인한다.
+만약 해당 이메일을 가진 유저가 존재하지 않을 경우 else: 문의 AuthTokenSerializer의 과정을 거친다.
+AuthTokenSerializer은 기본적으로 세팅된 Django의 AuthToken validation 과정을 의미하기 때문에
+클라이언트는 로그인 정보가 잘못되었다는 Response(400 bad request)를 받게된다.
+즉, 기존의 AuthTokenSerializer는 단순히 존재하지 않는 이메일을 처리하기 위한 방법으로 이용하며 실질적인 login validation은 AuthTokenSerializerForFacebookUser에서 이루어진다.
+AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다.
+AuthTokenSerializer의 코드를 먼저 살펴보자.
 
 
 ```python
@@ -1376,6 +1383,8 @@ username과 password를 통해서 로그인을 시도하는 것을 볼 수 있�
 반면 Facebook Login 유저의 경우 username에는 Facebook Login을 위한 고유 Facebook ID값이 저장되어 있고, email에는 위에서 PATCH를 통해 설정한 이메일이 등록되어있다.\
 따라서 위와 같이 일반 email login 유저처럼 로그인 창에서 입력한 이메일 정보를 통해 authenticate를 진행하는 방법을 따를 수 없다.\
 다음처럼 입력된 이메일 정보를 통해 Facebook ID 값을 알아낸 다음에 이를 username에 할당하여 authenticate를 진행해야 한다.
+그리고 이점은 Facebook Login으로 가입하여 이메일 및 비밀번호를 설정한 유저뿐만 아니라 일반 email login 유저도 해당된다.
+모든 email login user는 기본적으로 username과 email 필드에 갖은 email 값을 갖도록 설계되어 있기 때문이다.
 
 ```python
     email = attrs.get('username')
@@ -1429,6 +1438,113 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 로그인이 성공하였으며, 로그인된 유저의 프로필 정보 화면을 통해서 기존의 Facebook Login 유저임을 확인하였다.
 
 ![email login success](./asset/facebook_login_user_email_login_success.png)
+
+
+<br>
+
+지금까지 Facebook Login과 Email Login 두 가지로 로그인하는 경우를 살펴보았는데, 위에서 잠시 살펴본 Pinterest와 같이
+2개 이상의 소셜 로그인 계정을 통해 Multi-login 하는 방법도 사실 어렵지 않다.
+
+```python
+class User(AbstractUser):
+    username = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+
+
+class UserOAuthID(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='oauthid',
+    )
+    kakao_id = models.CharField(max_length=255, blank=True)
+    facebook_id = models.CharField(max_length=255, blank=True)
+    twitter_id = models.CharField(max_length=255, blank=True)
+    ...
+
+```
+
+위와 같이 User와 OneToOneField로 연결된 UserOAuthID 모델을 별도로 제작하여 여러 소셜 계정의 고유 ID 값을 저장할 수 있다.
+그리고 이 값을 활용하여 한 User가 Facebook 및 KakaoTalk 계정으로 Multi-login 할 수 있도록 APIBackend를 구성하면 다음과 같다.
+
+
+```python
+class APIFacebookBackend:
+    def authenticate(self, request, access_token):
+        params = {
+            'access_token': access_token,
+            'fields': ','.join([
+                'id',
+                'email',
+                'first_name',
+                'picture.width(512)',
+            ])
+        }
+        response = requests.get('https://graph.facebook.com/v2.12/me', params)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+            facebook_id = response_dict['id']
+            first_name = response_dict['first_name']
+            img_profile_url = response_dict['picture']['data']['url']
+            email = response_dict.get('email')
+
+            try:
+                user = User.objects.get(oauthid__facebook_id=facebook_id)
+            except User.DoesNotExist:
+                if not User.objects.filter(username=first_name):
+                    user = User.objects.create_user(
+                        username=first_name,
+                        email=email,
+                    )
+                else:
+                    user = User.objects.create_user(
+                        username=facebook_id,
+                        email=email,
+                    )
+                obj = UserOAuthID.objects.create(user=user)
+                obj.facebook_id = facebook_id
+                obj.save()
+            return user
+
+
+class APIKakaoBackend:
+    def authenticate(self, request, access_token):
+        url = "https://kapi.kakao.com/v2/user/me"
+        headers = {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+                'Authorization': 'Bearer ' + str(access_token)
+        }
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+            kakao_id = response_dict['id']
+            nick_name = response_dict['properties']['nickname']
+            email = response_dict.get('kaccount_email')
+
+            try:
+                user = User.objects.get(oauthid__kakao_id=kakao_id)
+            except User.DoesNotExist:
+                if not User.objects.filter(username=nick_name):
+                    user = User.objects.create_user(
+                        username=nick_name,
+                        email=email,
+                    )
+                else:
+                    user = User.objects.create_user(
+                        username=kakao_id,
+                        email=email,
+                    )
+                obj = UserOAuthID.objects.create(user=user)
+                obj.kakao_id = kakao_id
+                obj.save()
+            return user
+
+```
+
+이 페이스북, 카카오톡 로그인에 더하여 이메일 로그인까지 허용하려면 앞에서 별도로 제작한 AuthTokenSerializerForFacebookUser를 이용하여 로그인 validation 과정을 거치게 하면 된다.
 
 
 
