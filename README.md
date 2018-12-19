@@ -61,7 +61,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 [4. Deploy 하기](https://github.com/smallbee3/Finn-project/tree/dev#4-deploy-%ED%95%98%EA%B8%B0) \
 [5. Test 실행하기](https://github.com/smallbee3/Finn-project/tree/dev#5-test-%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0) \
 [6. 모델링하기 (erd)](https://github.com/smallbee3/Finn-project/tree/dev#6-%EB%AA%A8%EB%8D%B8%EB%A7%81%ED%95%98%EA%B8%B0-erd) \
-[7. Code Review](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
+[7. Reviews](https://github.com/smallbee3/Finn-project/tree/dev#code-review%EB%B0%95%EC%88%98%EB%AF%BC-%EC%86%A1%EC%98%81%EA%B8%B0) \
         - [by 박수민](https://github.com/smallbee3/Finn-project/tree/dev#by-%EB%B0%95%EC%88%98%EB%AF%BC) \
         - [by 송영기](https://github.com/smallbee3/Finn-project/tree/dev#by-%EC%86%A1%EC%98%81%EA%B8%B0) \
 [8. 스크럼 보드](https://github.com/smallbee3/Finn-project/tree/dev#8-%EC%8A%A4%ED%81%AC%EB%9F%BC-%EB%B3%B4%EB%93%9C) \
@@ -110,6 +110,7 @@ https://legacy.gitbook.com/book/smallbee3/airbnb/details (우측의 Read 클릭)
 
 
 <br><br>
+
 
 
 ## 2. 설치하기
@@ -201,7 +202,15 @@ FROM <사용자명>/<저장소명>:base
 <br><br>
 
 
+
 ## 3. secrets 키 관리
+
+django app이 위치한 ROOT Directory에 .secrets라는 폴더를 만들고 아래 json 데이터들을 넣는다.
+
+project/app \
+project/.secrets/base.json \
+project/.secrets/producton.json
+
 
 #### .secrets/base.json
 
@@ -247,16 +256,203 @@ FROM <사용자명>/<저장소명>:base
 }
 ```
 
+위의 json 형식의 파일을 읽는 코드는 다음과 같다.
+
+
+```python
+
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Changed default 'BASE_DIR' as below
+# This is because settings is refactored as package. so the depth of current module(base.py) become one depth deeper.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+SECRETS_DIR = os.path.join(ROOT_DIR, '.secrets')
+SECRETS_BASE = os.path.join(SECRETS_DIR, 'base.json')
+SECRETS_PRODUCTION = os.path.join(SECRETS_DIR, 'production.json')
+
+secrets_base_dict = json.loads(open(SECRETS_BASE, 'rt').read())
+
+SECRET_KEY = secrets_base_dict['SECRET_KEY']
+SUPERUSER_USERNAME = secrets_base_dict['SUPERUSER_USERNAME']
+SUPERUSER_PASSWORD = secrets_base_dict['SUPERUSER_PASSWORD']
+SUPERUSER_EMAIL = secrets_base_dict['SUPERUSER_EMAIL']
+FACEBOOK_APP_ID = secrets_base_dict['FACEBOOK_APP_ID']
+FACEBOOK_SECRET_CODE = secrets_base_dict['FACEBOOK_SECRET_CODE']
+AWS_ACCESS_KEY_ID = secrets_base_dict['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = secrets_base_dict['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = secrets_base_dict['AWS_STORAGE_BUCKET_NAME']
+...
+
+```
+
+json 포맷 파일을 json.loads(<json_data>) 로 읽어온 후 위와 같이 일일이 키를 할당해야 하는 번거로움이 있다. \
+이러한 번거로움을 해결하기 위해 dictionary data 를 입력하면 자동으로 해당 key, value 값을 현재 module 에 삽입하는 함수를 활용하였다.
+함수는 다음과 같다.
+
+```python
+def set_config(obj, module_name=None, root=False):
+    def eval_obj(obj):
+        if isinstance(obj, numbers.Number) or (isinstance(obj, str) and obj.isdigit()):
+            return obj
+
+        try:
+            return eval(obj)
+        except NameError:
+            return obj
+        except Exception as e:
+            return obj
+
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                set_config(value)
+            else:
+                obj[key] = eval_obj(value)
+
+            if root:
+                setattr(sys.modules[module_name], key, value)
+    elif isinstance(obj, list):
+        for index, value in enumerate(obj):
+            obj[index] = eval_obj(value)
+```
+
+위 함수를 아래와 같이 secrets dictionary 값과 현재 module name, root=True와 함께 호출하면 해당 모듈에 값이 입력되어 외부에서 해당 시크릿 값을 읽을 수 있다.
+
+`set_config(secrets, __name__, root=True)`
+
+시크릿 키의 개수와 Variable name 자체를 은닉하기 때문에 이전의 방법보다 편리할 뿐만 아니라 보안적으로도 우수하다고 할 수 있다. \
+위 함수는 python package로 제작되어 있어 보다 간편하게 사용할 수 있다. 자세한 사용법 및 설명은 아래 링크를 참고하기 바란다.
+
+Github link : [https://github.com/LeeHanYeong/django-json-secrets](https://github.com/LeeHanYeong/django-json-secrets)
+
 <br><br>
+
+
 
 ## 4. Deploy 하기
 
-`deploy.sh`파일을 사용
-```
-./deploy.sh
+### 1) Dockerfile을 통한 Elastic Beanstalk deploy
+
+Elastic Beanstalk의 deploy 방법 중 'Docker 컨테이너에서 Elastic Beanstalk 애플리케이션 배포'를 사용한다.
+Elastic Beanstalk에서 Docker를 활용한 deploy에는 두 가지 방법이 존재하는데 deploy시 하나의 containe로 서비스가 구성되므로 그 중 '단일 컨테이너 Docker'의 방법을 이용한다.
+
+단일 Container로 Elastic Beanstalk의 eb deploy 명령어를 이용해 deploy를 하기 위해서는 project 폴더 내에 Dockerfile 을 작성해야한다.
+Dockerfile은 다음과 같다.
+
+`project/Dockerfile`
+```yml
+FROM            smallbee3/finn:base
+MAINTAINER      smallbee3@gmail.com
+
+ENV         BUILD_MODE production
+
+# 소스폴더를 통째로 복사
+COPY            . /srv/project
+
+# nginx 설정 파일을 복사 및 링크
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx.conf       /etc/nginx/nginx.conf
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx-app.conf  /etc/nginx/sites-available/
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/nginx-front.conf  /etc/nginx/sites-available/
+RUN             rm -f   /etc/nginx/sites-enalbed/*
+RUN             ln -sf  /etc/nginx/sites-available/nginx-app.conf   /etc/nginx/sites-enabled/
+RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx/sites-enabled/
+
+# supervisor설정 파일을 복사
+RUN             cp -f   /srv/project/.config/${BUILD_MODE}/supervisord.conf  /etc/supervisor/conf.d/
+
+# pkil nginx후 supervisord -n 실행
+CMD             pkill nginx; supervisord -n
+EXPOSE          80
 ```
 
+먼저 위의 `FROM smallbee3/finn:base`에서 기존에 미리 Dockerhub로 push한 image를 기반으로 image를 생성하는 과정을 거친다. \
+Dockerhub에 업로드 되어 있는 이미지는 다음과 같은 Dockerfile.base을 통해 생성된다.
+
+`project/Dockerfile.base`
+```yml
+FROM            python:3.6.4-slim
+MAINTAINER      smallbee3@gmail.com
+
+ENV             LANG    C.UTF-8
+
+# apt-get으로 nginx, supervisor 설치
+RUN             apt-get -y update
+RUN             apt-get -y dist-upgrade
+RUN             apt-get -y install build-essential nginx supervisor
+
+# requirements만 복사
+COPY            .requirements/production.txt /srv/requirements.txt
+
+# pip install
+WORKDIR         /srv
+RUN             pip install --upgrade pip
+RUN             pip install -r  /srv/requirements.txt
+RUN             rm -f           /srv/requirements.txt
+```
+
+이렇게 두 개의 이미지를 통해 container를 제작하는 것은 번거로운 과정으로 보일 수 있다. 하지만 이는 Docker를 통한 deploy 과정에서 소요되는 시간을 단축하는 중요한 과정이다.
+만약 위의 Dockerfile.base의 내용을 Dockerhub에 push하지 않고 project 폴더에 포함된 Dockerfile에 모두 작성할 경우 매번 deploy시 마다
+새로 container가 구성될 때 시행되는 작업들, 이를테면 nginx, supervisor install, pip install 등의 작업으로 인해 상당한 시간이 소모되게 된다.
+
+
+<br>
+
+
+### 2) eb deploy 를 통한 실제 deploy 과정 및 secrets keys control
+
+Elastic Beanstalk는 `eb deploy` 라는 명령어가 실행되면 해당 프로젝트 소스파일을 S3 저장소에 별도의 bucket을 생성하고 해당 버킷에 현재 최신 git commit을 zip파일의 소스번들로 만들어 업로드 한다.
+자동으로 생성되는 bucket 이름은 다음과 같다.
+
+`elasticbeanstalk-ap-northeast-2-2690...`
+
+이때 문제가 되는 부분은 가장 최신 git commit에 .secrets 폴더 내의 시크릿 값들이 포함되지 않았다는 것이다.
+이 문제를 해결하기 위한 일반적인 방법은 Elastic Beanstalk 에서 지원하는 ebignore 를 이용하는 것이다. \
+프로젝트 폴더내에 ebignore 파일이 존재할 경우 Elastic Beanstalk는 gitignore 및 최신 git의 commit을 무시하고
+ebignore 에 지정된 내용에 따라 프로젝트의 모든 파일이 포함된 소스번들을 S3 버킷으로 업로드 하게 된다. \
+따라서 ebignore을 다음과 같이 작성한다.
+
+`project/.ebignore`
+```
+# Custom
+/.media
+/.static
+#/.secrets
+aws.md
+/app/utils/crawler/*.html
+secrets.tar
+...
+
+(이하 gitignore와 동일)
+
+```
+기존 gitignore에 작성된 내용을 모두 가져오되, .secrets을 주석처리하면 Elastic Beanstalk이 소스 번들을 업로드 할 때 secrets 값이 포함된 코드가 S3 버킷으로 업로드 되는 것이다.
+
+위와 같은 방법이 알려져있지만 이는 두 가지 점에서 문제가 있다. \
+첫 번째는 ignore 파일을 이원화해서 관리해야 한다는 점이다. 만약 gitignore에 업데이트한 내용을 ebignore에 업데이트 하는 것을 잊는다면 원치않는 파일이 업로드 되거나 또는 업로드 되지 않게 되는 문제가 발생한다.
+
+두 번째는 git commit 단위가 무시되고 ebignore에 따라 현재 프로젝트 내의 모든 파일이 업로드 된다는 것이다. 물론 ebignore와 gitignore가 동일하다면 git commit에 등록된 소스 코드와 현재 프로젝트 폴더 내에 위치한 소스코드가 사실상 동일하다.
+하지만 git commit 단위로 모든 작업이 이루어지는 점에 비추어볼 때 좋은 방법이라고 보기는 힘들다.
+
+이에 다음과 같은 shell script 를 작성함으로써 ebignore 를 사용하지 않고 git commmit 단위로 배포를 하는 방법을 이용한다.
+
+`./deploy.sh`
+
+```sh
+git add -f .secrets && eb deploy --staged --profile=eb; git reset HEAD .secrets
+```
+
+먼저 git add -f 명령어를 통해 gitignore에 등록된 내용이라도 강제로 stage 시킬 수 있다.
+그리고 eb deploy의 옵션 중 --staged 명령을 통해 바로 위에서 stage 시킨 파일을 포함하여 소스번들을 생성할 수 있다.
+위의 과정을 마친 후에는 git reset 명령을 통해 강제로 등록한 git ignore 파일들을 다시 unstaged 시켜야 한다.
+
+CLI 창에서 하단 명령어를 입력하면 위의 과정을 통해 Elastic Beanstalk 에 .secrets 값이 포함된 소스 코드가의 배포가 정상적으로 이루어지게 된다.
+
+`./deploy.sh`
+
 <br><br>
+
 
 
 ## 5. Test 실행하기
@@ -372,19 +568,19 @@ reservation/apps.py                                     3      3     0%   1-5
 reservation/migrations/0001_initial.py                  7      0   100%
 reservation/migrations/0002_auto_20180425_1246.py       4      0   100%
 reservation/migrations/__init__.py                      0      0   100%
-reservation/models.py                                  38      3    92%   100-104
+reservation/models.py                                  38      0   100%
 reservation/serializers/__init__.py                     2      0   100%
 reservation/serializers/reservation.py                 60      9    85%   52, 56, 68-69, 79, 81, 84, 89-91
 reservation/serializers/reservation_update.py          50     39    22%   20-64, 68-96
 reservation/tests/__init__.py                           2      0   100%
-reservation/tests/create.py                            70      0   100%
-reservation/tests/list.py                              79      0   100%
+reservation/tests/create.py                           100      0   100%
+reservation/tests/list.py                              87      0   100%
 reservation/urls/__init__.py                            0      0   100%
 reservation/urls/apis.py                                3      0   100%
 reservation/urls/views.py                               0      0   100%
 reservation/views.py                                    1      1     0%   1
 ---------------------------------------------------------------------------------
-TOTAL                                                 351     58    83%
+TOTAL                                                 389     55    86%
 ```
 
 <br><br>
@@ -410,7 +606,7 @@ TOTAL                                                 351     58    83%
 
 
 
-## 7. Code Review(박수민, 송영기)
+## 7. Reviews (박수민, 송영기)
 
 <br>
 
@@ -657,7 +853,7 @@ class HouseListCreateAPIView(generics.ListCreateAPIView):
     ...
 ```
 
-받는 형식과 보내주는 형식을 최대한 마추기위해 다양한 필드를 사용
+받는 형식과 보내주는 형식을 최대한 맞추기위해 다양한 필드를 사용
 `SlugRelatedField`를 사용하여 `disable_days`의 `date`필드만 리스트에 넣어서 보내줌.
 `HouseImageField`를 `serializers.RelatedField`를 상속 받아 만들어 `response` 할때
 해당 이미지의 `url`만을 뽑아 리스트에 넣어 보내줌.
@@ -757,7 +953,7 @@ AWS Route 53을 이용한 도메인/서브 도메인 주소 생성 및 TLS 통�
 
 
 ### 개발 목표
-Front-end 팀에서 결과물을 정적 페이지 형태로 전달하였음. 전달된 정적 파일을 통해 실제 웹 서비스로 배포하고자 여러 시도를 수행하였음.
+Front-end 팀에서 결과물을 정적 페이지 형태로 전달받아 해당 페이지를 실제 웹 서비스로 배포하고자 여러 시도를 수행하였다.
 
 <br>
 
@@ -794,7 +990,7 @@ S3에 있는 이 기능을 이용할 경우 별도의 서버 없이 해당 정�
 <br>
 
 ### 시도 2. ElasticBeanstalk 내부 EC2의 Nginx를 활용한 정적페이지 배포
-ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving 하도록 Nginx 설정을 변경
+ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux AMI 서버에 정적파일을 업로드한 후 EC2의 퍼블릭 DNS(IPv4) 주소로 정적파일(index.html)을 Serving 하도록 Nginx 설정을 변경한다
 
 
 #### 1) Front-end에서 작업 결과물을 정적파일(dist폴더생성) 형태로 넘겨줌
@@ -835,6 +1031,7 @@ ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux A
 
 7. EC2의 퍼블릭 DNS(IPv4) 주소로 접속하면 Front-end의 정적 페이지를 확인할 수 있음
 
+(※ 기본적으로 Elastic Beanstalk 내부에 설정되는 EC2는 외부로부터의 접근이 허용되지 않기 때문에 Security Group에서 해당 EC2의 Inbound에 외부로부터의 접근을 허용하도록 80 port의 HTTP 접근을 허용해야 위 설정이 정상적으로 작동한다.)
 
 (ElasticBeanstalk EC2 내부)파일 위치 : /etc/nginx/sites-available/nginx-app.conf
 
@@ -844,9 +1041,10 @@ ElasticBeanstalk 서비스에서 기본으로 탑재되어 있는 Amazon Linux A
 <br>
 
 * **문제점**
-> 1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
-> 2. AWS Route53에서 CNAME (Canonical name) 으로도 설정 불가
-> 3. 위 1,2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
+> 1. Elastic Beanstalk은 프록시 역할을 하는 Loadbalancer가 존재하며, EC2 로의 직접 접근은 기본적으로 허용하지 않도록 설정되어있음. 따라서 이 제한을 직접 푸는 위의 방식은 보안적인 면에서 문제가 있음.
+> 2-1. AWS Route53에서 EC2의 퍼블릭 DNS(IPv4) 주소로는 Alias 옵션 설정 불가
+> 2-2. AWS Route53에서 CNAME (Canonical name) 으로도 설정 불가
+> 3. 위 2번의 이유로 Route53 서비스를 이용할 수 없고 그 결과 TLS 접속도 불가능
 
 <br>
 
@@ -893,7 +1091,7 @@ ERROR: CommandError - An error occurred while running: ssh.
 ### ※ 근본적인 해결책에 대한 고민 (프로젝트 종료 이후)
 
 #### 1안) 2 Dockers in each Server
-가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy.
+가장 간단한 방법으로 Front-end의 결과물을 별도로 deploy 한다.
 
 * **단점**
 1. 2개의 서버를 각각 구성해야하기 때문에 유지보수, 관리 시 작업 소요가 많음
@@ -911,7 +1109,7 @@ Elasticbeanstalk 안에 Docker를 2개를 생성하여 각각의 Docker 안에�
 <br>
 
 #### 3안) 1 Docker in 1 Server
-기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동
+기존에 Docker 내부에 설치되어 있는 supervisor의 command 명령어 통해 기존의 uwsgi 외에 다른 별도의 서버를 구동한다
 
 * **단점**
 1. 서비스 규모가 확대될 경우 하나의 서버로 Multi-deploy 할 경우 서버에 부하가 걸릴 가능성 존재 (하나의 일반 nginx 를 통해 두 개의 deploy를 수행하기 때문)
@@ -974,14 +1172,14 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 
 
 
-## 2) Multi-login 구현하기 (Facebook Login & email loogin]
+## 2) Multi-login 구현하기 (Facebook Login & email login]
 기존 Facebook Login 유저가 email로 로그인을 시도할 때 두 아이디를 연동하기
 
 
 ### 개발 목표
-기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았음.\
-이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 있기 때문임.\
-실제 Pinterest라는 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 할 수 있고 원하는데로 설정 또는 해지할 수 있음.
+기존 서비스를 이용할 때 페이스북 로그인을 통해 가입한 아이디를 이메일 로그인을 통해 로그인하고 싶은 경우가 있었지만 지원하지 않는 경우가 많았다.
+이런 제한적인 기능으로 페이스북 아이디를 잃어버리거나 더이상 해당 페이스북 아이디를 사용하지 않을경우 해당 서비스에 접속할 때 불편함이 지속되는 문제가 발생할 소지가 있다. \
+실제 Pinterest 서비스에서는 Facebook Login 계정과 Google+ 로그인 계정, 이메일 계정을 한 계정에서 중복으로 등록할 수 있고, 원하는데로 계정을 추가 또는 해지할 수 있다.
 
 `Pinterest multi-login functions` \
 <img src="./asset/pinterest_multi_login.png" alt="drawing" width="300"/>
@@ -991,7 +1189,7 @@ RUN             ln -sf  /etc/nginx/sites-available/nginx-front.conf   /etc/nginx
 먼저 Facebook Login시 유저정보가 어떻게 저장되는지에 대한 이해가 필요하다.\
 (Facebook Login관련 process는 각 기능을 module별로 분리하여 여러 단계를 거치기 때문에 순서를 거치지 않으면 이해가 어려운 점이 있음)
 
-아래 과정 통해 본 프로젝트에 구현된 페이스북 로그인 기능을 살펴보자
+아래 과정 통해 본 프로젝트에 구현된 페이스북 로그인 기능을 살펴보자.
 
 
 #### 1. Facebook Login POST request는 members.urls에서 AuthTokenForFacebookAccessTokenView로 router 되어 이동
@@ -1112,12 +1310,12 @@ class APIFacebookBackend:
 ```python
 class UserLoginAuthTokenAPIView(APIView):
     def post(self, request):
-        try:
+        if User.objects.filter(email=request.POST['username']).exists():
             # Facebook user가 username이 아닌 email로 일반 Auth 로그인 시도하는
             # 케이스를 위한 AuthTokenSerializer 별도로 정의
             serializer = AuthTokenSerializerForFacebookUser(data=request.data)
             serializer.is_valid(raise_exception=True)
-        except ObjectDoseNotExist:
+        else:
             # Facebook user 로그인이 실패할 경우 일반 로그인으로 진행
             serializer = AuthTokenSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -1131,9 +1329,14 @@ class UserLoginAuthTokenAPIView(APIView):
 ```
 
 
-이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module을 제작했다.
-이 과정을 try ~ except 문으로 처리하여 email / password 정보가 Facebook login한 유저에 해당하지 않을 경우 정상적으로 AuthTokenSerializer의 과정을 거치게 된다.
-AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다. AuthTokenSerializer의 코드는 아래와 같다.
+이곳으로 전달된 Login request의 email / password data를 먼저 Facebook 유저의 것인지 검증하기 위한 AuthTokenSerializerForFacebookUser module 을 제작했다.
+가장 먼저 `User.objects.filter(email=request.POST['username']).exists()`를 통해 해당 이메일을 가진 유저가 존재하는 지 확인한다.
+만약 해당 이메일을 가진 유저가 존재하지 않을 경우 else: 문의 AuthTokenSerializer의 과정을 거친다.
+AuthTokenSerializer은 기본적으로 세팅된 Django의 AuthToken validation 과정을 의미하기 때문에
+클라이언트는 로그인 정보가 잘못되었다는 Response(400 bad request)를 받게된다.
+즉, 기존의 AuthTokenSerializer는 단순히 존재하지 않는 이메일을 처리하기 위한 방법으로 이용하며 실질적인 login validation은 AuthTokenSerializerForFacebookUser에서 이루어진다.
+AuthTokenSerializerForFacebookUser은 AuthTokenSerializer의 내부 코드를 참고하여 작성했다.
+AuthTokenSerializer의 코드를 먼저 살펴보자.
 
 
 ```python
@@ -1180,6 +1383,8 @@ username과 password를 통해서 로그인을 시도하는 것을 볼 수 있�
 반면 Facebook Login 유저의 경우 username에는 Facebook Login을 위한 고유 Facebook ID값이 저장되어 있고, email에는 위에서 PATCH를 통해 설정한 이메일이 등록되어있다.\
 따라서 위와 같이 일반 email login 유저처럼 로그인 창에서 입력한 이메일 정보를 통해 authenticate를 진행하는 방법을 따를 수 없다.\
 다음처럼 입력된 이메일 정보를 통해 Facebook ID 값을 알아낸 다음에 이를 username에 할당하여 authenticate를 진행해야 한다.
+그리고 이점은 Facebook Login으로 가입하여 이메일 및 비밀번호를 설정한 유저뿐만 아니라 일반 email login 유저도 해당된다.
+모든 email login user는 기본적으로 username과 email 필드에 갖은 email 값을 갖도록 설계되어 있기 때문이다.
 
 ```python
     email = attrs.get('username')
@@ -1235,11 +1440,118 @@ class AuthTokenSerializerForFacebookUser(serializers.Serializer):
 ![email login success](./asset/facebook_login_user_email_login_success.png)
 
 
+<br>
+
+지금까지 Facebook Login과 Email Login 두 가지로 로그인하는 경우를 살펴보았는데, 위에서 잠시 살펴본 Pinterest와 같이
+2개 이상의 소셜 로그인 계정을 통해 Multi-login 하는 방법도 사실 어렵지 않다.
+
+```python
+class User(AbstractUser):
+    username = models.CharField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+
+
+class UserOAuthID(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='oauthid',
+    )
+    kakao_id = models.CharField(max_length=255, blank=True)
+    facebook_id = models.CharField(max_length=255, blank=True)
+    twitter_id = models.CharField(max_length=255, blank=True)
+    ...
+
+```
+
+위와 같이 User와 OneToOneField로 연결된 UserOAuthID 모델을 별도로 제작하여 여러 소셜 계정의 고유 ID 값을 저장할 수 있다.
+그리고 이 값을 활용하여 한 User가 Facebook 및 KakaoTalk 계정으로 Multi-login 할 수 있도록 APIBackend를 구성하면 다음과 같다.
+
+
+```python
+class APIFacebookBackend:
+    def authenticate(self, request, access_token):
+        params = {
+            'access_token': access_token,
+            'fields': ','.join([
+                'id',
+                'email',
+                'first_name',
+                'picture.width(512)',
+            ])
+        }
+        response = requests.get('https://graph.facebook.com/v2.12/me', params)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+            facebook_id = response_dict['id']
+            first_name = response_dict['first_name']
+            img_profile_url = response_dict['picture']['data']['url']
+            email = response_dict.get('email')
+
+            try:
+                user = User.objects.get(oauthid__facebook_id=facebook_id)
+            except User.DoesNotExist:
+                if not User.objects.filter(username=first_name):
+                    user = User.objects.create_user(
+                        username=first_name,
+                        email=email,
+                    )
+                else:
+                    user = User.objects.create_user(
+                        username=facebook_id,
+                        email=email,
+                    )
+                obj = UserOAuthID.objects.create(user=user)
+                obj.facebook_id = facebook_id
+                obj.save()
+            return user
+
+
+class APIKakaoBackend:
+    def authenticate(self, request, access_token):
+        url = "https://kapi.kakao.com/v2/user/me"
+        headers = {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+                'Authorization': 'Bearer ' + str(access_token)
+        }
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == status.HTTP_200_OK:
+            response_dict = response.json()
+            kakao_id = response_dict['id']
+            nick_name = response_dict['properties']['nickname']
+            email = response_dict.get('kaccount_email')
+
+            try:
+                user = User.objects.get(oauthid__kakao_id=kakao_id)
+            except User.DoesNotExist:
+                if not User.objects.filter(username=nick_name):
+                    user = User.objects.create_user(
+                        username=nick_name,
+                        email=email,
+                    )
+                else:
+                    user = User.objects.create_user(
+                        username=kakao_id,
+                        email=email,
+                    )
+                obj = UserOAuthID.objects.create(user=user)
+                obj.kakao_id = kakao_id
+                obj.save()
+            return user
+
+```
+
+이 페이스북, 카카오톡 로그인에 더하여 이메일 로그인까지 허용하려면 앞에서 별도로 제작한 AuthTokenSerializerForFacebookUser를 이용하여 로그인 validation 과정을 거치게 하면 된다.
+
+
 
 <br>
 
 ## 3) API json response 에 동적으로 변하는 값 표현하기
-동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달
+동적으로 변하는 값을 Serializer의 MethodField를 활용하여 별도의 Field를 생성하여 이 값을 전달한다
 
 <br>
 

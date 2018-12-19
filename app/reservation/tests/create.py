@@ -53,7 +53,7 @@ class ReservationCreateTest(APITestCase):
         'latitude': '37.55824700000000',
         'longitude': '126.92224100000000',
     }
-    DATA = {
+    HOUSE_DATA = {
         'house_type': House.HOUSE_TYPE_HOUSING,
         'name': '우리집',
         'description': '테스트용 집입니다.',
@@ -92,11 +92,11 @@ class ReservationCreateTest(APITestCase):
         [Facilities.objects.create(name=name) for name in self.FACILITIES_LIST]
 
         # house 생성 시 host_user 지정하기
-        self.DATA['host'] = self.host_user
+        self.HOUSE_DATA['host'] = self.host_user
 
         # HouseSerializer의 create method를 거치지 않고,
         #   바로 DB에서 house를 생성시키때문에 위에서 DATA안에 host를 넣어준 것.
-        house = House.objects.create(**self.DATA)
+        house = House.objects.create(**self.HOUSE_DATA)
 
         for amenity in self.AMENITIES:
             house.amenities.add(amenity)
@@ -126,16 +126,14 @@ class ReservationCreateTest(APITestCase):
         house_image1.close()
         house_image2.close()
 
-    def test_create_reseration(self):
+    def test_create_reservation_before_check_in(self):
 
-        # # Reservation 생성
-
-        # 1) guest의 token값 client에 넣기
+        # Input guest's token into client
         self.client.credentials(
             HTTP_AUTHORIZATION='Token ' + self.token2.key,
         )
 
-        # 2) 예약 관련 데이터 세팅
+        # Reservation data
         now = timezone.now()
         check_in_date = (now + timedelta(1)).strftime('%Y-%m-%d')
         check_out_date = (now + timedelta(2)).strftime('%Y-%m-%d')
@@ -146,7 +144,7 @@ class ReservationCreateTest(APITestCase):
             'guest_num': 3,
         }
 
-        # 3) post 요청으로 예약 생성
+        # Create reservation through POST request
         response = self.client.post(self.URL, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -160,3 +158,65 @@ class ReservationCreateTest(APITestCase):
         self.assertEqual(response.data['modified_date'], timezone.now().strftime('%Y-%m-%d'))
 
         clear_imagekit_test_files()
+
+    def test_create_reservation_after_check_in_and_before_check_out(self):
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.token2.key,
+        )
+
+        # Reservation data
+        now = timezone.now()
+        check_in_date = now.strftime('%Y-%m-%d')
+        check_out_date = (now + timedelta(1)).strftime('%Y-%m-%d')
+        data = {
+            'check_in_date': check_in_date,
+            'check_out_date': check_out_date,
+            'house': 1,
+            'guest_num': 3,
+        }
+
+        # Create reservation through POST request
+        response = self.client.post(self.URL, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data['check_in_date'], data['check_in_date'])
+        self.assertEqual(response.data['check_out_date'], data['check_out_date'])
+        self.assertEqual(response.data['guest_num'], 3)
+        self.assertEqual(response.data['reservation_status'], 'RE')
+        self.assertEqual(response.data['reservation_current_state'], 'ON')
+        self.assertEqual(response.data['created_date'], timezone.now().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['modified_date'], timezone.now().strftime('%Y-%m-%d'))
+
+    def test_create_reservation_after_check_out(self):
+
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + self.token2.key,
+        )
+
+        # Reservation data
+        now = timezone.now()
+        check_in_date = (now - timedelta(2)).strftime('%Y-%m-%d')
+        check_out_date = (now - timedelta(1)).strftime('%Y-%m-%d')
+        data = {
+            'check_in_date': check_in_date,
+            'check_out_date': check_out_date,
+            'house': 1,
+            'guest_num': 3,
+        }
+
+        # Create reservation through POST request
+        response = self.client.post(self.URL, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.data['check_in_date'], data['check_in_date'])
+        self.assertEqual(response.data['check_out_date'], data['check_out_date'])
+        self.assertEqual(response.data['guest_num'], 3)
+        self.assertEqual(response.data['reservation_status'], 'RE')
+        self.assertEqual(response.data['reservation_current_state'], 'AF')
+        self.assertEqual(response.data['created_date'], timezone.now().strftime('%Y-%m-%d'))
+        self.assertEqual(response.data['modified_date'], timezone.now().strftime('%Y-%m-%d'))
+
+

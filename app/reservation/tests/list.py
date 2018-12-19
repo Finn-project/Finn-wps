@@ -58,7 +58,7 @@ class ReservationListTest(APITestCase):
         'latitude': '37.55824700000000',
         'longitude': '126.92224100000000',
     }
-    DATA = {
+    HOUSE_DATA = {
         'house_type': House.HOUSE_TYPE_HOUSING,
         'name': '우리집',
         'description': '테스트용 집입니다.',
@@ -97,11 +97,11 @@ class ReservationListTest(APITestCase):
         [Facilities.objects.create(name=name) for name in self.FACILITIES_LIST]
 
         # house 생성 시 host_user 지정하기
-        self.DATA['host'] = self.host_user
+        self.HOUSE_DATA['host'] = self.host_user
 
         # HouseSerializer의 create method를 거치지 않고,
         #   바로 DB에서 house를 생성시키때문에 위에서 DATA안에 host를 넣어준 것.
-        self.house = House.objects.create(**self.DATA)
+        self.house = House.objects.create(**self.HOUSE_DATA)
 
         for amenity in self.AMENITIES:
             self.house.amenities.add(amenity)
@@ -153,21 +153,45 @@ class ReservationListTest(APITestCase):
 
         for i in range(int(page_num)):
             response = self.client.get(self.URL, {'page': i + 1, 'page_size': self.PAGE_SIZE})
+
+            # status code
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+            # count
+            self.assertIsNotNone(response.data['count'], 'count')
             self.assertEqual(response.data['count'], self.USER_COUNT)
+
+            # next, previous
             if i < page_num - 1:
                 self.assertIsNotNone(response.data['next'])
             if i > 0:
                 self.assertIsNotNone(response.data['previous'])
 
-            print(response.data['results'])
-            print(ReservationSerializer(Reservation.objects.all()[i * self.PAGE_SIZE: (i+1) * self.PAGE_SIZE], many=True).data)
+            # result
+            # 1)
+            # to_representation에서 build_absolute_uri() 때문에 위 assertEqual에서 fail
 
             # self.assertEqual(response.data['results'],
-            #                  ReservationSerializer(Reservation.objects.all()[i * self.PAGE_SIZE: (i+1) * self.PAGE_SIZE],
-            #                  many=True).data)
+            #                  ReservationSerializer(
+            #                      Reservation.objects.all()[i * self.PAGE_SIZE: (i + 1) * self.PAGE_SIZE],
+            #                      many=True).data)
+            # print(response.data['results'])
+            # print(ReservationSerializer(
+            #     Reservation.objects.all()[i * self.PAGE_SIZE:(i+1) * self.PAGE_SIZE], many=True).data)
 
-            # ->  to_representation에서 build_absolute_uri() 때문에 위 assertEqual에서 fail 발생
+            # 2)
+            # adding url host
+            reservation_object_list = []
+            for i in ReservationSerializer(Reservation.objects.all()[i * self.PAGE_SIZE:(i+1) * self.PAGE_SIZE], many=True).data:
+
+                i['house']['img_cover'] = 'http://testserver' + i['house']['img_cover']
+                i['house']['img_cover_thumbnail'] = 'http://testserver' + i['house']['img_cover_thumbnail']
+
+                for idx in range(len(i['house']['house_images'])):
+                    i['house']['house_images'][idx] = 'http://testserver' + i['house']['house_images'][idx]
+                reservation_object_list.append(i)
+
+            print(reservation_object_list)
+            self.assertEqual(response.data['results'], reservation_object_list)
 
         clear_imagekit_test_files()
