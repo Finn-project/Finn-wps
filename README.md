@@ -568,19 +568,19 @@ reservation/apps.py                                     3      3     0%   1-5
 reservation/migrations/0001_initial.py                  7      0   100%
 reservation/migrations/0002_auto_20180425_1246.py       4      0   100%
 reservation/migrations/__init__.py                      0      0   100%
-reservation/models.py                                  38      3    92%   100-104
+reservation/models.py                                  38      0   100%
 reservation/serializers/__init__.py                     2      0   100%
 reservation/serializers/reservation.py                 60      9    85%   52, 56, 68-69, 79, 81, 84, 89-91
 reservation/serializers/reservation_update.py          50     39    22%   20-64, 68-96
 reservation/tests/__init__.py                           2      0   100%
-reservation/tests/create.py                            70      0   100%
-reservation/tests/list.py                              79      0   100%
+reservation/tests/create.py                           100      0   100%
+reservation/tests/list.py                              87      0   100%
 reservation/urls/__init__.py                            0      0   100%
 reservation/urls/apis.py                                3      0   100%
 reservation/urls/views.py                               0      0   100%
 reservation/views.py                                    1      1     0%   1
 ---------------------------------------------------------------------------------
-TOTAL                                                 351     58    83%
+TOTAL                                                 389     55    86%
 ```
 
 <br><br>
