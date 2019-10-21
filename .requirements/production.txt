@@ -2,7 +2,7 @@ boto3<1.7
 Django<2.1
 django-storages<1.7
 django-cors-headers<2.3
-djangorestframework<3.8
+djangorestframework<3.10
 django-filter<1.2
 django-imagekit<4.1
 drf-dynamic-fields<0.4
