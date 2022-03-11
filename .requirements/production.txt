@@ -7,7 +7,7 @@ django-filter<1.2
 django-imagekit<4.1
 drf-dynamic-fields<0.4
 psycopg2-binary<2.8
-Pillow<6.0.0
+Pillow<10.0.0
 raven<7
 requests<3.0
 uWSGI<2.1
