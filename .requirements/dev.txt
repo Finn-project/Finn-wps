@@ -19,7 +19,7 @@ docutils==0.14
 drf-dynamic-fields==0.3.0
 extensions==0.4
 jmespath==0.9.3
-lxml==4.2.1
+lxml==4.9.1
 pathspec==0.5.5
 pilkit==2.0
 Pillow==5.0.0
